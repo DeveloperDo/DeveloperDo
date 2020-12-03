@@ -2,16 +2,30 @@
     <Page>
         <ActionBar title="Home" />
 
-        <ScrollView>
-            <StackLayout className="projectList">
-                <FlexboxLayout v-for="project in projects" class="projectCard" flexDirection="column" v-bind:class="{ lowPriority: project.priority == '1', mediumPriority: project.priority == '2', highPriority: project.priority == '3' }" @tap="onItemTap">
-                    <Label :text="project.status" class="projectStatus" textTransform="uppercase"/>
-                    <Image :src="project.imageSrc" class="projectImg" stretch="aspectFill" />
-                    <Label :text="project.name" class="projectName" textWrap="true" />
-                    <Label :text="project.deadline" class="projectDeadline" />
-                </FlexboxLayout>
-            </StackLayout>
-        </ScrollView>
+        <FlexboxLayout flexDirection="column">
+
+            <ScrollView>
+                <StackLayout className="projectList">
+                    <FlexboxLayout v-for="project in projects"
+                        class="projectCard" flexDirection="column"
+                        v-bind:class="{ lowPriority: project.priority == '1', mediumPriority: project.priority == '2', highPriority: project.priority == '3' }"
+                        @tap="onItemTap">
+                        <Label :text="project.status" class="projectStatus"
+                            textTransform="uppercase" />
+                        <Image :src="project.imageSrc" class="projectImg"
+                            stretch="aspectFill" />
+                        <Label :text="project.name" class="projectName"
+                            textWrap="true" />
+                        <Label :text="project.deadline"
+                            class="projectDeadline" />
+                    </FlexboxLayout>
+                </StackLayout>
+            </ScrollView>
+
+            <Button text="DODAJ PROJEKT" @tap="onButtonTap"
+                class="addProjectButton" />
+
+        </FlexboxLayout>
 
     </Page>
 </template>
@@ -19,6 +33,10 @@
 <script>
     export default {
         methods: {
+            onButtonTap() {
+                //funkcja: dodaj nowy projekt
+            },
+
             onItemTap() {
                 //funkcja: przenieś do widoku projektu
             }
@@ -123,5 +141,13 @@
         margin-top: 10px;
         font-size: 18rem;
         text-align: center;
+    }
+
+    .addProjectButton {
+        background-color: lightgray;
+        color: black;
+        font-size: 18rem;
+        font-weight: bold;
+        height: 200px;
     }
 </style>
