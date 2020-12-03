@@ -1,0 +1,55 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\Donirk\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add vuefire firebase
+
+PATH: 
+  C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\VMware\VMware Player\bin\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\Program Files\dotnet\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\ProgramData\chocolatey\bin;C:\Program Files\Java\jdk1.8.0_211\bin;C:\Android\android-sdk\tools;C:\Android\android-sdk\platform-tools;C:\Android\android-sdk\tools\bin;C:\Users\Donirk\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\JetBrains\WebStorm 2020.2.3\bin;;C:\Users\Donirk\AppData\Roaming\npm;C:\Users\Donirk\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Donirk\.dotnet\tools;C:\Program Files\JetBrains\CLion 2020.2.4\bin;
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  12.19.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: EPERM: operation not permitted, copyfile 'C:\Users\Donirk\AppData\Local\Yarn\Cache\v6\npm-buffer-equal-constant-time-1.0.1-f8e71132f7ffe6e01a5c9697a4c6f3e48d5cc819-integrity\node_modules\buffer-equal-constant-time\LICENSE.txt' -> 'C:\Users\Donirk\Desktop\pum\DeveloperDo\node_modules\buffer-equal-constant-time\LICENSE.txt'
+
+npm manifest: 
+  {
+    "name": "developer-do",
+    "main": "main.js",
+    "version": "1.0.0",
+    "description": "App for dev teams looking to coordinate their projects",
+    "author": "DanielHajduk98 <danhajduk@protonmail.com>",
+    "license": "MIT",
+    "dependencies": {
+      "vuex": "^3.5.1",
+      "@vue/devtools": "^5.3.3",
+      "nativescript-socketio": "^3.3.1",
+      "nativescript-vue-devtools": "^1.4.0",
+      "nativescript-toasty": "^3.0.0-alpha.2",
+      "nativescript-ui-sidedrawer": "^9.0.0",
+      "@nativescript/theme": "^2.3.3",
+      "nativescript-vue": "^2.8.1",
+      "@nativescript/core": "^7.0.3"
+    },
+    "devDependencies": {
+      "@babel/core": "^7.11.6",
+      "@babel/preset-env": "^7.11.5",
+      "@nativescript/android": "7.0.1",
+      "@nativescript/webpack": "^3.0.4",
+      "babel-loader": "^8.1.0",
+      "nativescript-vue-template-compiler": "^2.8.1",
+      "nativescript-worker-loader": "~0.12.1",
+      "sass": "^1.26.10",
+      "vue-loader": "^15.9.3"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
