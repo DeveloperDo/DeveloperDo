@@ -3,7 +3,7 @@
         <ActionBar>
             <GridLayout width="100%" columns="auto, *">
                 <Label text="MENU" @tap="$refs.drawer.nativeView.showDrawer()" col="0"/>
-                <Label class="title" text="Welcome to NativeScript-Vue!"  col="1"/>
+                <Label class="title" :text="getMsg"  col="1"/>
             </GridLayout>
         </ActionBar>
 
@@ -17,7 +17,7 @@
             </StackLayout>
 
             <GridLayout ~mainContent columns="*" rows="*">
-                <Label class="message" :text="msg" col="0" row="0"/>
+                <Label class="message" :text="getMsg" col="0" row="0"/>
             </GridLayout>
         </RadSideDrawer>
     </Page>
@@ -25,9 +25,14 @@
 
 <script >
   export default {
-    data() {
-      return {
-        msg: 'Hello World!'
+
+    created() {
+      this.$store.dispatch("fetchMsg");
+    },
+
+    computed: {
+      getMsg: function () {
+        return this.$store.getters.getMsg;
       }
     }
   }
