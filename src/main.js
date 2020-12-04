@@ -29,7 +29,22 @@ Vue.registerElement(
   () => require('nativescript-ui-sidedrawer').RadSideDrawer
 )
 
+var listener = {
+    onAuthStateChanged: async data => {
+        if (data.loggedIn) {
+            const user = data.user;
+            await store.dispatch("fetchUserData", { uid: user.uid });
+        } else {
+            await store.dispatch("signOut");
+        }
+    },
+    thisArg: this
+};
+
+firebase.addAuthStateListener(listener);
+
 new Vue({
-  store,
-  render: h => h('frame', [h(App)])
+    store,
+    render: h => h('frame', [h(App)])
 }).$start()
+

@@ -27,12 +27,12 @@
   export default {
 
     created() {
-      this.$store.dispatch("fetchMsg");
+      this.$store.dispatch("signIn", {email: "user@mail.com", password: "qwerqwer"});
     },
 
     computed: {
-      getMsg: function () {
-        return this.$store.getters.getMsg;
+      authIsLoading: function () {
+        return this.$store.getters.authIsLoading;
       }
     }
   }
