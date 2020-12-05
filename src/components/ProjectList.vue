@@ -6,8 +6,8 @@
 
             <ScrollView>
                 <StackLayout className="projectList">
-                    <FlexboxLayout v-for="project in projects"
-                        class="projectCard" flexDirection="column"
+                    <StackLayout v-for="project in projects"
+                        class="projectCard"
                         v-bind:class="{ lowPriority: project.priority == '1', mediumPriority: project.priority == '2', highPriority: project.priority == '3' }"
                         @tap="onItemTap">
                         <Label :text="project.status" class="projectStatus"
@@ -18,7 +18,7 @@
                             textWrap="true" />
                         <Label :text="project.deadline"
                             class="projectDeadline" />
-                    </FlexboxLayout>
+                    </StackLayout>
                 </StackLayout>
             </ScrollView>
 
@@ -38,13 +38,13 @@
             },
 
             onItemTap() {
-                //funkcja: przenieś do widoku projektu
+                //funkcja: przenies do widoku projektu
             }
         },
 
         data() {
             return {
-                //tu sobie wstawisz pewnie bazę danych z Firebase
+                //tu sobie wstawisz pewnie baze danych z Firebase
                 projects: [{
                         status: "do zrobienia",
                         name: "lorem ipsum dolor nie pamietam co dalej i mam to w nosie",
@@ -74,7 +74,7 @@
                         priority: "3"
                     },
                     {
-                        status: "wdrożone",
+                        status: "wdrozone",
                         name: "QWERTYUIOP",
                         imageSrc: "https://image.winudf.com/v2/image/Y29tLnNuZG53YWxscGFwZXJzLmJsYWNrd2FsbHBhcGVyc19zY3JlZW5fMl8xNTI5Mzc4ODMzXzA4OQ/screen-2.jpg?fakeurl=1&type=.jpg",
                         deadline: "brak terminu",
@@ -93,10 +93,10 @@
 
     .projectCard {
         margin-top: 40px;
-        height: 600px;
-        width: 80%;
+        height: 700px;
+        width: 600px;
         horizontal-align: center;
-        border-radius: 20%;
+        border-radius: 40px;
         background-color: lightgray;
 
         android-elevation: 10;
@@ -115,6 +115,7 @@
     }
 
     .projectStatus {
+        margin-top: 20px;
         font-size: 18rem;
         text-align: center;
         font-weight: bold;
@@ -123,22 +124,22 @@
     .projectImg {
         margin-top: 20px;
         margin-bottom: 20px;
-        height: 40%;
-        margin-left: 30%;
-        margin-right: 30%;
-        border-radius: 50%;
+        height: 250px;
+        width: 500px;
+        border-radius: 100px;
         android-elevation: 5;
     }
 
     .projectName {
-        height: 33%;
+        margin-left: 50px;
+        margin-right: 50px;
+        height: 264px;
         text-align: center;
         font-size: 20rem;
         font-weight: bold;
     }
 
     .projectDeadline {
-        margin-top: 10px;
         font-size: 18rem;
         text-align: center;
     }
