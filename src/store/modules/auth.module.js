@@ -1,28 +1,58 @@
-import * as firebase from '@nativescript/firebase'
+import {firebase} from '@nativescript/firebase';
 
 const state = {
-    msg: ""
+    authIsLoading: false,
+    user: {},
+    authError: null
 };
 
 const getters = {
-    getMsg: state => {
-        return state.msg;
-    }
+    authIsLoading: state => {
+        return state.authIsLoading;
+    },
 };
 
 const mutations = {
-    setMsg(state, msg) {
-        state.msg = msg;
+    authSuccess(state, user) {
+        state.user = user;
+        state.authIsLoading = false;
+    },
+    authStart(state) {
+        state.authIsLoading = true;
+    },
+    authError(state, error) {
+        state.authIsLoading = false;
+        state.authError = error;
+    },
+    resetAuthError(state) {
+        state.authIsLoading = false;
+        state.error = null;
     }
 };
 
 const actions = {
-    fetchMsg({commit}) {
-        console.log("start +++++++++++");
-        firebase.firestore.collection("test").doc("test").get().then(msgDoc => {
-            console.log(msgDoc.data().test);
-            commit("setMsg", msgDoc.data().test);
-        })
+    signIn({ commit, dispatch }, { email, password }) {
+        commit("authStart");
+
+        firebase.login(
+            {
+                type: firebase.LoginType.PASSWORD,
+                passwordOptions: {
+                    email: email,
+                    password: password
+                }
+            })
+            .then(result => {
+            })
+            .catch(error => console.log(error));
+    },
+
+    fetchUserData({commit}, {uid}) {
+        console.log(uid);
+    },
+
+    signOut() {
+        console.log("signOut")
     }
 };
 
