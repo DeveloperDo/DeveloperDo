@@ -92,9 +92,9 @@
     }
 
     .projectCard {
-        margin-top: 40px;
-        height: 700px;
-        width: 600px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        width: 90%;
         horizontal-align: center;
         border-radius: 40px;
         background-color: lightgray;
@@ -116,7 +116,7 @@
 
     .projectStatus {
         margin-top: 20px;
-        font-size: 18rem;
+        font-size: 18px;
         text-align: center;
         font-weight: bold;
     }
@@ -125,7 +125,7 @@
         margin-top: 20px;
         margin-bottom: 20px;
         height: 250px;
-        width: 500px;
+        width: 400px;
         border-radius: 100px;
         android-elevation: 5;
     }
@@ -133,22 +133,23 @@
     .projectName {
         margin-left: 50px;
         margin-right: 50px;
-        height: 264px;
         text-align: center;
-        font-size: 20rem;
+        font-size: 20px;
         font-weight: bold;
     }
 
     .projectDeadline {
-        font-size: 18rem;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 18px;
         text-align: center;
     }
 
     .addProjectButton {
         background-color: lightgray;
         color: black;
-        font-size: 18rem;
+        font-size: 18px;
         font-weight: bold;
-        height: 200px;
+        height: 20%;
     }
 </style>
