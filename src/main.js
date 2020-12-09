@@ -1,14 +1,27 @@
 import Vue from 'nativescript-vue'
-import App from './components/App'
+import App from './pages/App'
 import VueDevtools from 'nativescript-vue-devtools'
 import { firebase } from "@nativescript/firebase";
+import routes from "./router";
+import sideDrawer from "./components/SideDrawer/sideDrawer";
+import drawerContent from "./components/SideDrawer/drawerContent";
+
+import store from './store/store'
+import Login from "./pages/Login";
+import ProjectList from "./pages/ProjectList";
 
 firebase.init({
-  // Optionally pass in properties for database, authentication and cloud messaging,
-  // see their respective docs.
+    onAuthStateChanged: function(data) {
+        console.log(data.loggedIn ? "Logged in to firebase" : "Logged out from firebase");
+        if (data.loggedIn) {
+            console.log("user's email address: " + (data.user.email ? data.user.email : "N/A"));
+            store.dispatch("fetchUserData", {uid: data.user.uid});
+        } else {
+            store.commit("authError", null);
+        }
+    }
 }).then(
     function () {
-        this.$store.dispatch("fetchMsg");
       console.log("firebase.init done");
     },
     function (error) {
@@ -19,7 +32,6 @@ firebase.init({
 if(TNS_ENV !== 'production') {
   Vue.use(VueDevtools)
 }
-import store from './store/store'
 
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production')
@@ -29,22 +41,19 @@ Vue.registerElement(
   () => require('nativescript-ui-sidedrawer').RadSideDrawer
 )
 
-var listener = {
-    onAuthStateChanged: async data => {
-        if (data.loggedIn) {
-            const user = data.user;
-            await store.dispatch("fetchUserData", { uid: user.uid });
-        } else {
-            await store.dispatch("signOut");
-        }
-    },
-    thisArg: this
-};
+Vue.prototype.$routes = routes;
 
-firebase.addAuthStateListener(listener);
+Vue.config.silent = true;
 
 new Vue({
     store,
-    render: h => h('frame', [h(App)])
+    render (h) {
+        return h(
+            sideDrawer,
+            [
+                h(drawerContent, { slot: 'drawerContent' }),
+                h(App, { slot: 'mainContent' })
+            ]
+        )
+    }
 }).$start()
-

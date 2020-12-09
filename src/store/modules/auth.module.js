@@ -1,28 +1,35 @@
 import {firebase} from '@nativescript/firebase';
+import sideDrawer from "../../mixins/sideDrawer";
 
 const state = {
-    authIsLoading: false,
+    authIsLoading: true,
     user: {},
-    authError: null
+    authError: null,
+    isLogged: null
 };
 
 const getters = {
     authIsLoading: state => {
         return state.authIsLoading;
     },
+    isLogged: state => {
+        return state.isLogged;
+    }
 };
 
 const mutations = {
     authSuccess(state, user) {
         state.user = user;
         state.authIsLoading = false;
+        state.isLogged = true;
     },
     authStart(state) {
         state.authIsLoading = true;
     },
-    authError(state, error) {
+    authError(state, err) {
         state.authIsLoading = false;
-        state.authError = error;
+        state.isLogged = false;
+        state.authError = err;
     },
     resetAuthError(state) {
         state.authIsLoading = false;
@@ -43,15 +50,28 @@ const actions = {
                 }
             })
             .then(result => {
+                console.log(result);
+                commit('authSuccess', result);
             })
-            .catch(error => console.log(error));
+            .catch(err => {
+                console.log(err);
+                commit("authError", err);
+            });
     },
 
     fetchUserData({commit}, {uid}) {
         console.log(uid);
+        commit('authSuccess', "result");
     },
 
-    signOut() {
+    signOut({commit}) {
+        firebase.logout().then(() => {
+            console.log("logout");
+            commit("setSideDrawer", false)
+
+        }).catch(err => {
+            console.log(err);
+        })
         console.log("signOut")
     }
 };

@@ -4,11 +4,13 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 import auth from "./modules/auth.module";
-
-Vue.use(Vuex);
+import sideDrawer from "./modules/sideDrawer.module";
 
 export default new Vuex.Store({
   modules: {
-    auth
+    auth,
+    sideDrawer
   },
 });
+
+
