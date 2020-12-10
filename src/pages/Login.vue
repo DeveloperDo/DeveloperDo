@@ -22,7 +22,10 @@ export default {
 
   methods: {
     login() {
-      this.$store.dispatch("signIn", {email: 'user@mail.com', password: "qwerqwer"})
+      console.log('login');
+      this.$store.dispatch("signIn", {email: 'user@mail.com', password: "qwerqwer"}).then(() => {
+        this.$navigateTo(this.$routes.ProjectList, {clearHistory: true});
+      })
     },
   },
 };

@@ -34,7 +34,10 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.dispatch("signOut", {email: 'user@mail.com', password: "qwerqwer"})
+      console.log("ahkjasdfhjkasjdfjhkadshjflalshdflkajsdhflkjahdlfkhaksjdf");
+      this.$store.dispatch("signOut").then(() => {
+        this.$navigateTo(this.$routes.Login, {clearHistory: true});
+      })
     },
 
     goToPage (pageComponent) {

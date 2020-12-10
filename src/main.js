@@ -7,17 +7,17 @@ import sideDrawer from "./components/SideDrawer/sideDrawer";
 import drawerContent from "./components/SideDrawer/drawerContent";
 
 import store from './store/store'
-import Login from "./pages/Login";
-import ProjectList from "./pages/ProjectList";
 
 firebase.init({
-    onAuthStateChanged: function(data) {
-        console.log(data.loggedIn ? "Logged in to firebase" : "Logged out from firebase");
+    onAuthStateChanged: async function(data) {
+        console.log("onAuthStateChange");
+
         if (data.loggedIn) {
-            console.log("user's email address: " + (data.user.email ? data.user.email : "N/A"));
-            store.dispatch("fetchUserData", {uid: data.user.uid});
+            console.log('logged in');
+            await store.dispatch("fetchUserData", {uid: data.user.uid});
         } else {
-            store.commit("authError", null);
+            console.log("not logged in");
+            store.commit('authSignOut');
         }
     }
 }).then(
@@ -33,7 +33,6 @@ if(TNS_ENV !== 'production') {
   Vue.use(VueDevtools)
 }
 
-// Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production')
 
 Vue.registerElement(

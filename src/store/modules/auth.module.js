@@ -1,5 +1,7 @@
 import {firebase} from '@nativescript/firebase';
 import sideDrawer from "../../mixins/sideDrawer";
+import ProjectList from "../../pages/ProjectList";
+import Login from "../../pages/Login";
 
 const state = {
     authIsLoading: true,
@@ -34,6 +36,12 @@ const mutations = {
     resetAuthError(state) {
         state.authIsLoading = false;
         state.error = null;
+    },
+    authSignOut(state) {
+        state.isLogged = false;
+        state.error = null;
+        state.user = null;
+        state.authIsLoading = false;
     }
 };
 
@@ -49,9 +57,9 @@ const actions = {
                     password: password
                 }
             })
-            .then(result => {
-                console.log(result);
-                commit('authSuccess', result);
+            .then(async user => {
+                console.log(user);
+                await dispatch("fetchUserData", user.uid)
             })
             .catch(err => {
                 console.log(err);
@@ -61,14 +69,16 @@ const actions = {
 
     fetchUserData({commit}, {uid}) {
         console.log(uid);
-        commit('authSuccess', "result");
+        commit('authSuccess', uid);
+
+        return Promise;
     },
 
     signOut({commit}) {
         firebase.logout().then(() => {
             console.log("logout");
             commit("setSideDrawer", false)
-
+            return Promise;
         }).catch(err => {
             console.log(err);
         })

@@ -11,7 +11,7 @@
 
             <ScrollView>
                 <StackLayout className="projectList">
-                    <FlexboxLayout v-for="project in projects"
+                    <FlexboxLayout v-for="(project, index) in projects" :key="index"
                         class="projectCard" flexDirection="column"
                         v-bind:class="{ lowPriority: project.priority == '1', mediumPriority: project.priority == '2', highPriority: project.priority == '3' }"
                         @tap="onItemTap">

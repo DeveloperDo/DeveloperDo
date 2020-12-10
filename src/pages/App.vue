@@ -3,7 +3,6 @@
     <ScrollView>
       <StackLayout class="splashScreen">
         <Label text="DeveloperDo" class="splashScreenTitle" />
-        <button @tap="login">Login</button>
         <ActivityIndicator busy="true" color="black" width="150"
                            height="150" class="loadingSpinner"></ActivityIndicator>
       </StackLayout>
@@ -34,21 +33,20 @@ export default {
   },
 
   watch: {
-    authIsLoading: function (newState, oldState) {
-      console.log(newState)
-    },
-
     isLogged: {
       handler(newAuthState, oldState) {
+        console.log("new auth state")
+        console.log(newAuthState);
         if (newAuthState) {
-          this.$navigateTo(this.$routes.ProjectList);
+          this.$navigateTo(this.$routes.ProjectList, {clearHistory: true});
         } else {
-          this.$navigateTo(this.$routes.Login);
+          this.$navigateTo(this.$routes.Login, {clearHistory: true});
         }
       }
     }
   }
 };
+
 </script>
 
 <style scoped>
