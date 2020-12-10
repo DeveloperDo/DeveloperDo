@@ -1,14 +1,13 @@
 <template>
   <Page actionBarHidden="true" class="splashScreenBg" loading="loading">
-    <SplashScreen/>
+    <SplashScreen />
   </Page>
 </template>
 
 <script>
-
 import SplashScreen from "../components/SplashScreen";
 export default {
-  components: {SplashScreen},
+  components: { SplashScreen },
   data() {
     return {};
   },
@@ -19,30 +18,32 @@ export default {
     },
     authIsLoading: function () {
       return this.$store.getters.authIsLoading;
-    }
+    },
   },
 
   methods: {
     login() {
-      this.$store.dispatch("signIn", {email: 'user@mail.com', password: "qwerqwer"})
+      this.$store.dispatch("signIn", {
+        email: "user@mail.com",
+        password: "qwerqwer",
+      });
     },
   },
 
   watch: {
     isLogged: {
       handler(newAuthState, oldState) {
-        console.log("new auth state")
+        console.log("new auth state");
         console.log(newAuthState);
         if (newAuthState) {
-          this.$navigateTo(this.$routes.ProjectList, {clearHistory: true});
+          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
         } else {
-          this.$navigateTo(this.$routes.Login, {clearHistory: true});
+          this.$navigateTo(this.$routes.Login, { clearHistory: true });
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
-
 </script>
 
 <style scoped>

@@ -4,7 +4,6 @@
       <StackLayout class="splashScreen">
         <Label text="Login" class="splashScreenTitle" />
         <button @tap="login">Login</button>
-
       </StackLayout>
     </ScrollView>
   </Page>
@@ -22,14 +21,15 @@ export default {
 
   methods: {
     login() {
-      console.log('login');
-      this.$store.dispatch("signIn", {email: 'user@mail.com', password: "qwerqwer"}).then(() => {
-        this.$navigateTo(this.$routes.ProjectList, {clearHistory: true});
-      })
+      console.log("login");
+      this.$store
+        .dispatch("signIn", { email: "user@mail.com", password: "qwerqwer" })
+        .then(() => {
+          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+        });
     },
   },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
