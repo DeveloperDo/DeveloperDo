@@ -12,8 +12,11 @@
         "sourceType": "module"
     },
     "plugins": [
-        "vue"
+        "html",
+        "vue",
+        "prettier"
     ],
     "rules": {
+        "prettier/prettier": "error"
     }
 }

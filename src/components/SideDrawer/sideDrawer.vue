@@ -1,5 +1,9 @@
 <template lang="html">
-  <RadSideDrawer ref="drawer" drawerLocation="Left" :gesturesEnabled="gesturesEnabled">
+  <RadSideDrawer
+    ref="drawer"
+    drawerLocation="Left"
+    :gesturesEnabled="gesturesEnabled"
+  >
     <StackLayout ~drawerContent backgroundColor="#ffffff">
       <slot name="drawerContent"></slot>
     </StackLayout>
@@ -10,11 +14,10 @@
 </template>
 
 <script>
-import sideDrawer from '~/mixins/sideDrawer'
+import sideDrawer from "~/mixins/sideDrawer";
 export default {
-  mixins: [sideDrawer]
-}
+  mixins: [sideDrawer],
+};
 </script>
 
-<style lang="css">
-</style>
+<style lang="css"></style>

@@ -26,9 +26,7 @@ export default {
     return {
       // define our pages, making sure the component matches that defined in /app/router/index.js
       pages: [
-        { name: 'Home', component: this.$routes.SplashScreen },
-        { name: 'Page One', component: this.$routes.ProjectList },
-        { name: 'Page Two', component: this.$routes.Login }
+        { name: 'Lista Projektów', component: this.$routes.ProjectList },
       ]
     }
   },

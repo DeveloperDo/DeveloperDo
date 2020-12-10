@@ -23,9 +23,15 @@
     "@nativescript/android": "7.0.1",
     "@nativescript/webpack": "^3.0.4",
     "babel-loader": "^8.1.0",
+    "eslint": "^7.15.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-html": "^6.1.1",
+    "eslint-plugin-prettier": "^3.2.0",
+    "eslint-plugin-vue": "^7.2.0",
     "nativescript-plugin-firebase": "^10.6.3",
     "nativescript-vue-template-compiler": "^2.8.1",
     "nativescript-worker-loader": "~0.12.1",
+    "prettier": "2.2.1",
     "sass": "^1.26.10",
     "vue-loader": "^15.9.3"
   }

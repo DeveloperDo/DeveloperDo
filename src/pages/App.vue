@@ -1,18 +1,14 @@
 <template>
   <Page actionBarHidden="true" class="splashScreenBg" loading="loading">
-    <ScrollView>
-      <StackLayout class="splashScreen">
-        <Label text="DeveloperDo" class="splashScreenTitle" />
-        <ActivityIndicator busy="true" color="black" width="150"
-                           height="150" class="loadingSpinner"></ActivityIndicator>
-      </StackLayout>
-    </ScrollView>
+    <SplashScreen/>
   </Page>
 </template>
 
 <script>
 
+import SplashScreen from "../components/SplashScreen";
 export default {
+  components: {SplashScreen},
   data() {
     return {};
   },
