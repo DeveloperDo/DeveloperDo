@@ -73,7 +73,7 @@
         height: 500px;
         width: 500px;
         border-radius: 50%;
-        android-elevation: 10;
+        android-elevation: 5;
     }
 
     .addProjectTextField {
