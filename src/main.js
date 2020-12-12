@@ -14,7 +14,6 @@ firebase
       console.log("onAuthStateChange");
 
       if (data.loggedIn) {
-        console.log("logged in");
         await store.dispatch("fetchUserData", { uid: data.user.uid });
       } else {
         console.log("not logged in");
@@ -44,7 +43,7 @@ Vue.registerElement(
 
 Vue.prototype.$routes = routes;
 
-Vue.config.silent = true;
+// Vue.config.silent = true;
 
 new Vue({
   store,

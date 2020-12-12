@@ -58,6 +58,23 @@ export default {
       this.$navigateTo(this.$routes.ProjectView);
     },
   },
+
+  mounted() {
+    this.$store.dispatch("fetchProjectList", {
+      msg:
+        "dsfjklasdfjklsdfljkadsfjkladsfjlkfadsjklsfdjklsfadj;kldsf;klfdsjkl;adsfjkl;fadsjkl;fdsaljk;fdsjkl;fads",
+    });
+  },
+
+  computed: {
+    projectListLoading: function () {
+      return this.$store.getters.getProjectListLoading;
+    },
+    projectList: function () {
+      return this.$store.getters.getProjectList;
+    },
+  },
+
   data() {
     return {
       //tu sobie wstawisz pewnie bazę danych z Firebase
