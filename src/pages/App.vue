@@ -6,6 +6,7 @@
 
 <script>
 import SplashScreen from "../components/SplashScreen";
+import ProjectList from "./ProjectList";
 export default {
   components: { SplashScreen },
   data() {
@@ -32,10 +33,10 @@ export default {
 
   watch: {
     isLogged: {
-      handler(newAuthState, oldState) {
+      handler(newAuthState) {
         console.log("new auth state");
-        console.log(newAuthState);
         if (newAuthState) {
+          console.log("Should redirect");
           this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
         } else {
           this.$navigateTo(this.$routes.Login, { clearHistory: true });

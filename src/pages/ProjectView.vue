@@ -28,9 +28,9 @@
             <StackLayout
               class="projectPriorityContainer"
               v-bind:class="{
-                lowPriority: project.priority == '1',
-                mediumPriority: project.priority == '2',
-                highPriority: project.priority == '3',
+                lowPriority: project.priority === '1',
+                mediumPriority: project.priority === '2',
+                highPriority: project.priority === '3',
               }"
             >
               <Label text="PRIORYTET" class="projectHeader" />
@@ -49,7 +49,11 @@
             <StackLayout class="projectUsersContainer">
               <Label text="ZESPÓŁ" class="projectHeader" />
               <WrapLayout orientation="horizontal" class="usersList">
-                <StackLayout v-for="user in project.users" @tap="onUsersTap">
+                <StackLayout
+                  v-for="(user, index) in project.users"
+                  :key="index"
+                  @tap="onUsersTap"
+                >
                   <Image
                     :src="user.imageSrc"
                     stretch="aspectFill"
@@ -62,7 +66,8 @@
             <StackLayout class="projectChangesContainer">
               <Label text="HISTORIA ZMIAN" class="projectHeader" />
               <StackLayout
-                v-for="change in project.changes"
+                v-for="(change, index) in project.changes"
+                :key="index"
                 @tap="onChangeTap"
                 class="changeCard"
               >
@@ -78,17 +83,25 @@
         <ScrollView>
           <StackLayout>
             <StackLayout
-              v-for="taskGroup in project.taskGroups"
+              v-for="(taskGroup, index) in project.taskGroups"
+              :key="index"
               class="projectTasksContainer"
             >
               <Label :text="taskGroup.name" class="projectHeader" />
-              <StackLayout v-for="task in taskGroup.tasks" class="taskCard">
+              <StackLayout
+                v-for="(task, index) in taskGroup.tasks"
+                :key="index"
+                class="taskCard"
+              >
                 <Label :text="task.name" class="taskText" textWrap="true" />
                 <WrapLayout
                   orientation="horizontal"
                   horizontalAlignment="right"
                 >
-                  <StackLayout v-for="user in task.users">
+                  <StackLayout
+                    v-for="(user, index) in task.users"
+                    :key="index"
+                  >
                     <Image
                       :src="user.userImageSrc"
                       class="userTaskPhoto"
@@ -115,10 +128,11 @@
 
       <TabViewItem title="Czat">
         <FlexboxLayout flexDirection="column">
-          <ScrollView height="88%">
+          <ScrollView height="90%">
             <StackLayout class="chatWindow">
               <StackLayout
-                v-for="message in project.chatMessages"
+                v-for="(message, index) in project.chatMessages"
+                :key="index"
                 class="chatMessageInContainer"
                 v-bind:class="{
                   chatMessageOutContainer: message.userID == '1',
@@ -145,7 +159,7 @@
             </StackLayout>
           </ScrollView>
 
-          <StackLayout orientation="horizontal" height="12%">
+          <StackLayout orientation="horizontal" height="10%">
             <TextField
               v-model="textFieldValue"
               hint="Napisz wiadomość"
@@ -613,7 +627,6 @@ export default {
 }
 
 .chatTextField {
-  font-size: 16px;
   padding-right: 0;
   margin-right: 0;
 }

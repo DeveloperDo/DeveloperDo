@@ -1,7 +1,4 @@
 import { firebase } from "@nativescript/firebase";
-import sideDrawer from "../../mixins/sideDrawer";
-import ProjectList from "../../pages/ProjectList";
-import Login from "../../pages/Login";
 
 const state = {
   authIsLoading: true,
@@ -11,6 +8,9 @@ const state = {
 };
 
 const getters = {
+  getUser: (state) => {
+    return state.user;
+  },
   authIsLoading: (state) => {
     return state.authIsLoading;
   },
@@ -49,7 +49,7 @@ const actions = {
   signIn({ commit, dispatch }, { email, password }) {
     commit("authStart");
 
-    firebase
+    return firebase
       .login({
         type: firebase.LoginType.PASSWORD,
         passwordOptions: {
@@ -58,7 +58,6 @@ const actions = {
         },
       })
       .then(async (user) => {
-        console.log(user);
         await dispatch("fetchUserData", user.uid);
       })
       .catch((err) => {
@@ -67,8 +66,12 @@ const actions = {
       });
   },
 
+  signUp({ commit, dispatch }, { userName, password, email }) {
+    console.log("register");
+  },
+
   fetchUserData({ commit }, { uid }) {
-    console.log(uid);
+    console.log("fetchUserData");
     commit("authSuccess", uid);
 
     return Promise;
