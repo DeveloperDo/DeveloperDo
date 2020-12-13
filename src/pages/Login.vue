@@ -13,7 +13,7 @@
           :disabled="authIsLoading"
           :class="{ 'btn btn--disabled': authIsLoading }"
           text="Zaloguj"
-          @tap="redirectToRegister"
+          @tap="login"
         />
         <Label text="" />
         <Button text="Do rejestracji" @tap="redirectToRegister" />
@@ -48,7 +48,7 @@ export default {
 
     login() {
       this.$store
-        .dispatch("signIn", { email: "user@mail.com", password: "qwerqwer" })
+        .dispatch("signIn", { email: this.email, password: this.password })
         .then(() => {
           if (this.isLogged) {
             this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });

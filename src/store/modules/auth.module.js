@@ -47,11 +47,15 @@ const mutations = {
 
 const actions = {
   async authInit({ commit, dispatch }) {
+    console.log("authInit");
+
     commit("authStart");
 
     return firebase
       .getCurrentUser()
       .then(async (currentUser) => {
+        console.log("authInit succeded");
+        console.log("user is logged: " + !!currentUser);
         if (currentUser !== null) {
           await dispatch("fetchUserData", currentUser.uid);
         } else {
@@ -64,6 +68,8 @@ const actions = {
   },
 
   signIn({ commit, dispatch }, { email, password }) {
+    console.log("signIn");
+
     commit("authStart");
 
     return firebase
@@ -75,9 +81,13 @@ const actions = {
         },
       })
       .then(async (user) => {
+        console.log("user");
+        console.log(user);
+        console.log("signIn succeeded");
         await dispatch("fetchUserData", user.uid);
       })
       .catch((err) => {
+        console.log("signIn error");
         console.log(err);
         commit("authError", err);
       });
