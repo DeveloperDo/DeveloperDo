@@ -2,9 +2,9 @@ import { firebase } from "@nativescript/firebase";
 
 const state = {
   authIsLoading: true,
-  user: {},
+  user: null,
   authError: null,
-  isLogged: null,
+  isLogged: false,
 };
 
 const getters = {
@@ -46,6 +46,25 @@ const mutations = {
 };
 
 const actions = {
+  async authInit({ commit, dispatch }) {
+    commit("authStart");
+
+    return firebase
+      .getCurrentUser()
+      .then(async (currentUser) => {
+        if (currentUser !== null) {
+          console.log("Auth state change --> Logged");
+          console.log("UID: " + currentUser.uid);
+          await dispatch("fetchUserData", currentUser.uid);
+        } else {
+          commit("authError", null);
+        }
+      })
+      .catch((err) => {
+        commit("authError", err);
+      });
+  },
+
   signIn({ commit, dispatch }, { email, password }) {
     commit("authStart");
 
@@ -74,10 +93,10 @@ const actions = {
         email: email,
         password: password,
       })
-      .then((userData) => {
+      .then(async (userData) => {
         console.log(userData);
 
-        dispatch("createUserDoc", {
+        await dispatch("createUserDoc", {
           uid: userData.uid,
           email: email,
           userName: userName,
@@ -105,8 +124,21 @@ const actions = {
   },
 
   async fetchUserData({ commit }, { uid }) {
-    console.log("fetchUserData");
-    commit("authSuccess", uid);
+    console.log("fetchUserData ++++++++++++++++++++++++++++++++++++++++++");
+
+    const userRef = firebase.firestore.collection("users").doc(uid);
+
+    return userRef
+      .get()
+      .then((docSnapshot) => {
+        console.log("fetchUserData Finish ++++++++++++++++++++++++++++++++++++++++++");
+
+        commit("authSuccess", docSnapshot.data());
+      })
+      .catch((err) => {
+        console.log(err);
+        commit("authError", err);
+      });
 
     return Promise;
   },
