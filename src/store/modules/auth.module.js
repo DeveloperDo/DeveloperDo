@@ -57,7 +57,7 @@ const actions = {
         console.log("authInit succeded");
         console.log("user is logged: " + !!currentUser);
         if (currentUser !== null) {
-          await dispatch("fetchUserData", currentUser.uid);
+          await dispatch("fetchUserData", { uid: currentUser.uid });
         } else {
           commit("authError", null);
         }
@@ -84,7 +84,7 @@ const actions = {
         console.log("user");
         console.log(user);
         console.log("signIn succeeded");
-        await dispatch("fetchUserData", user.uid);
+        await dispatch("fetchUserData", { uid: user.uid });
       })
       .catch((err) => {
         console.log("signIn error");
@@ -129,7 +129,7 @@ const actions = {
       })
       .then(async () => {
         console.log("succeeded");
-        await dispatch("fetchUserData", uid);
+        await dispatch("fetchUserData", { uid: uid });
       })
       .catch((err) => {
         console.log("error");
@@ -138,6 +138,7 @@ const actions = {
   },
 
   async fetchUserData({ commit }, { uid }) {
+    console.log(uid);
     console.log("fetchUserData");
     const userRef = firebase.firestore.collection("users").doc(uid);
 
@@ -145,7 +146,13 @@ const actions = {
       .get()
       .then((docSnapshot) => {
         console.log("succeeded");
-        commit("authSuccess", docSnapshot.data());
+
+        const user = {
+          ...docSnapshot.data(),
+          uid: uid,
+        };
+        console.log(user)
+        commit("authSuccess", user);
       })
       .catch((err) => {
         console.log("error");
