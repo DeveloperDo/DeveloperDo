@@ -53,8 +53,6 @@ const actions = {
       .getCurrentUser()
       .then(async (currentUser) => {
         if (currentUser !== null) {
-          console.log("Auth state change --> Logged");
-          console.log("UID: " + currentUser.uid);
           await dispatch("fetchUserData", currentUser.uid);
         } else {
           commit("authError", null);
@@ -124,37 +122,29 @@ const actions = {
   },
 
   async fetchUserData({ commit }, { uid }) {
-    console.log("fetchUserData ++++++++++++++++++++++++++++++++++++++++++");
-
     const userRef = firebase.firestore.collection("users").doc(uid);
 
     return userRef
       .get()
       .then((docSnapshot) => {
-        console.log("fetchUserData Finish ++++++++++++++++++++++++++++++++++++++++++");
-
         commit("authSuccess", docSnapshot.data());
       })
       .catch((err) => {
         console.log(err);
         commit("authError", err);
       });
-
-    return Promise;
   },
 
   signOut({ commit }) {
     firebase
       .logout()
       .then(() => {
-        console.log("logout");
         commit("setSideDrawer", false);
         return Promise;
       })
       .catch((err) => {
         console.log(err);
       });
-    console.log("signOut");
   },
 };
 

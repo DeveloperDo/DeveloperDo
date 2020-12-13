@@ -15,15 +15,9 @@ export default {
 
   mounted() {
     this.$store.dispatch("authInit").then(() => {
-      console.log("authInit");
-      console.log(this.isLogged);
-      console.log(this.authIsLoading);
       if (this.isLogged) {
-        console.log(this.isLogged);
         this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
       } else {
-        console.log(this.isLogged);
-
         this.$navigateTo(this.$routes.Login, { clearHistory: true });
       }
     });
@@ -35,22 +29,6 @@ export default {
     },
     authIsLoading: function () {
       return this.$store.getters.authIsLoading;
-    },
-  },
-
-  //
-  watch: {
-    isLogged: {
-      handler(newAuthState) {
-        console.log("new auth state");
-        console.log(newAuthState);
-        // if (newAuthState) {
-        //   console.log("Should redirect");
-        //   this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
-        // } else {
-        //   this.$navigateTo(this.$routes.Login, { clearHistory: true });
-        // }
-      },
     },
   },
 };
