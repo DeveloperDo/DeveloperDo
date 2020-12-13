@@ -27,9 +27,6 @@ export default {
     isLogged: function () {
       return this.$store.getters.isLogged;
     },
-    authIsLoading: function () {
-      return this.$store.getters.authIsLoading;
-    },
   },
 };
 </script>

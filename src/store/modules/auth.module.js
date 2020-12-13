@@ -85,6 +85,7 @@ const actions = {
 
   signUp({ commit, dispatch }, { userName, password, email }) {
     commit("authStart");
+    console.log("signUp");
 
     return firebase
       .createUser({
@@ -92,7 +93,7 @@ const actions = {
         password: password,
       })
       .then(async (userData) => {
-        console.log(userData);
+        console.log("succeeded");
 
         await dispatch("createUserDoc", {
           uid: userData.uid,
@@ -101,11 +102,14 @@ const actions = {
         });
       })
       .catch((err) => {
+        commit("authError", err);
         console.log(err);
       });
   },
 
   async createUserDoc({ dispatch }, { uid, email, userName }) {
+    console.log("createUserDoc");
+
     const usersRef = firebase.firestore.collection("users").doc(uid);
 
     usersRef
@@ -114,22 +118,27 @@ const actions = {
         userName: userName,
       })
       .then(async () => {
+        console.log("succeeded");
         await dispatch("fetchUserData", uid);
       })
       .catch((err) => {
+        console.log("error");
         console.log(err);
       });
   },
 
   async fetchUserData({ commit }, { uid }) {
+    console.log("fetchUserData");
     const userRef = firebase.firestore.collection("users").doc(uid);
 
     return userRef
       .get()
       .then((docSnapshot) => {
+        console.log("succeeded");
         commit("authSuccess", docSnapshot.data());
       })
       .catch((err) => {
+        console.log("error");
         console.log(err);
         commit("authError", err);
       });

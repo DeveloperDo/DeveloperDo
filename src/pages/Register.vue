@@ -34,7 +34,12 @@
         <TextField v-model="email" hint="" class="inputTextSize" />
 
         <Label text="" />
-        <Button text="Zarejestruj" @tap="register" />
+        <Button
+          :disabled="authIsLoading"
+          :class="{ 'btn btn--disabled': authIsLoading }"
+          text="Zarejestruj"
+          @tap="register"
+        />
         <Label text="" />
         <Button text="Powrót" @tap="redirectToLogin" />
       </StackLayout>
@@ -52,6 +57,15 @@ export default {
     };
   },
 
+  computed: {
+    isLogged: function () {
+      return this.$store.getters.isLogged;
+    },
+    authIsLoading: function () {
+      return this.$store.getters.authIsLoading;
+    },
+  },
+
   methods: {
     redirectToLogin() {
       this.$navigateTo(this.$routes.Login);
@@ -65,7 +79,9 @@ export default {
           password: this.password,
         })
         .then(() => {
-          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+          if (this.isLogged) {
+            this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+          }
         });
     },
   },

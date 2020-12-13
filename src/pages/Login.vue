@@ -9,9 +9,14 @@
         <TextField v-model="email" hint="Login" class="inputTextSize" />
         <TextField v-model="password" hint="Haslo" class="inputTextSize" />
         <Label text="" />
-        <Button text="Zaloguj" @tap="login" />
+        <Button
+          :disabled="authIsLoading"
+          :class="{ 'btn btn--disabled': authIsLoading }"
+          text="Zaloguj"
+          @tap="redirectToRegister"
+        />
         <Label text="" />
-        <Button text="Rejestracja" @tap="redirectToRegister" />
+        <Button text="Do rejestracji" @tap="redirectToRegister" />
         <Label text="" />
       </StackLayout>
     </ScrollView>
@@ -27,6 +32,15 @@ export default {
     };
   },
 
+  computed: {
+    isLogged: function () {
+      return this.$store.getters.isLogged;
+    },
+    authIsLoading: function () {
+      return this.$store.getters.authIsLoading;
+    },
+  },
+
   methods: {
     redirectToRegister() {
       this.$navigateTo(this.$routes.Register);
@@ -36,7 +50,9 @@ export default {
       this.$store
         .dispatch("signIn", { email: "user@mail.com", password: "qwerqwer" })
         .then(() => {
-          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+          if (this.isLogged) {
+            this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+          }
         });
     },
   },
