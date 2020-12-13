@@ -8,27 +8,14 @@ import drawerContent from "./components/SideDrawer/drawerContent";
 
 import store from "./store/store";
 
-firebase
-  .init({
-    onAuthStateChanged: async function (data) {
-      console.log("onAuthStateChange");
-
-      if (data.loggedIn) {
-        await store.dispatch("fetchUserData", { uid: data.user.uid });
-      } else {
-        console.log("not logged in");
-        store.commit("authSignOut");
-      }
-    },
-  })
-  .then(
-    function () {
-      console.log("firebase.init done");
-    },
-    function (error) {
-      console.log("firebase.init error: " + error);
-    }
-  );
+firebase.init({}).then(
+  function () {
+    console.log("firebase.init done");
+  },
+  function (error) {
+    console.log("firebase.init error: " + error);
+  }
+);
 
 if (TNS_ENV !== "production") {
   Vue.use(VueDevtools);

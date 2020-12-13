@@ -98,10 +98,7 @@
                   orientation="horizontal"
                   horizontalAlignment="right"
                 >
-                  <StackLayout
-                    v-for="(user, index) in task.users"
-                    :key="index"
-                  >
+                  <StackLayout v-for="(user, index) in task.users" :key="index">
                     <Image
                       :src="user.userImageSrc"
                       class="userTaskPhoto"

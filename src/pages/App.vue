@@ -6,42 +6,26 @@
 
 <script>
 import SplashScreen from "../components/SplashScreen";
-import ProjectList from "./ProjectList";
+
 export default {
   components: { SplashScreen },
   data() {
     return {};
   },
 
+  mounted() {
+    this.$store.dispatch("authInit").then(() => {
+      if (this.isLogged) {
+        this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+      } else {
+        this.$navigateTo(this.$routes.Login, { clearHistory: true });
+      }
+    });
+  },
+
   computed: {
     isLogged: function () {
       return this.$store.getters.isLogged;
-    },
-    authIsLoading: function () {
-      return this.$store.getters.authIsLoading;
-    },
-  },
-
-  methods: {
-    login() {
-      this.$store.dispatch("signIn", {
-        email: "user@mail.com",
-        password: "qwerqwer",
-      });
-    },
-  },
-
-  watch: {
-    isLogged: {
-      handler(newAuthState) {
-        console.log("new auth state");
-        if (newAuthState) {
-          console.log("Should redirect");
-          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
-        } else {
-          this.$navigateTo(this.$routes.Login, { clearHistory: true });
-        }
-      },
     },
   },
 };

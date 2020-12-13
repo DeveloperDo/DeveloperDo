@@ -2,9 +2,9 @@ import { firebase } from "@nativescript/firebase";
 
 const state = {
   authIsLoading: true,
-  user: {},
+  user: null,
   authError: null,
-  isLogged: null,
+  isLogged: false,
 };
 
 const getters = {
@@ -46,7 +46,30 @@ const mutations = {
 };
 
 const actions = {
+  async authInit({ commit, dispatch }) {
+    console.log("authInit");
+
+    commit("authStart");
+
+    return firebase
+      .getCurrentUser()
+      .then(async (currentUser) => {
+        console.log("authInit succeded");
+        console.log("user is logged: " + !!currentUser);
+        if (currentUser !== null) {
+          await dispatch("fetchUserData", currentUser.uid);
+        } else {
+          commit("authError", null);
+        }
+      })
+      .catch((err) => {
+        commit("authError", err);
+      });
+  },
+
   signIn({ commit, dispatch }, { email, password }) {
+    console.log("signIn");
+
     commit("authStart");
 
     return firebase
@@ -58,9 +81,13 @@ const actions = {
         },
       })
       .then(async (user) => {
+        console.log("user");
+        console.log(user);
+        console.log("signIn succeeded");
         await dispatch("fetchUserData", user.uid);
       })
       .catch((err) => {
+        console.log("signIn error");
         console.log(err);
         commit("authError", err);
       });
@@ -68,27 +95,31 @@ const actions = {
 
   signUp({ commit, dispatch }, { userName, password, email }) {
     commit("authStart");
+    console.log("signUp");
 
     return firebase
       .createUser({
         email: email,
         password: password,
       })
-      .then((userData) => {
-        console.log(userData);
+      .then(async (userData) => {
+        console.log("succeeded");
 
-        dispatch("createUserDoc", {
+        await dispatch("createUserDoc", {
           uid: userData.uid,
           email: email,
           userName: userName,
         });
       })
       .catch((err) => {
+        commit("authError", err);
         console.log(err);
       });
   },
 
   async createUserDoc({ dispatch }, { uid, email, userName }) {
+    console.log("createUserDoc");
+
     const usersRef = firebase.firestore.collection("users").doc(uid);
 
     usersRef
@@ -97,32 +128,42 @@ const actions = {
         userName: userName,
       })
       .then(async () => {
+        console.log("succeeded");
         await dispatch("fetchUserData", uid);
       })
       .catch((err) => {
+        console.log("error");
         console.log(err);
       });
   },
 
   async fetchUserData({ commit }, { uid }) {
     console.log("fetchUserData");
-    commit("authSuccess", uid);
+    const userRef = firebase.firestore.collection("users").doc(uid);
 
-    return Promise;
+    return userRef
+      .get()
+      .then((docSnapshot) => {
+        console.log("succeeded");
+        commit("authSuccess", docSnapshot.data());
+      })
+      .catch((err) => {
+        console.log("error");
+        console.log(err);
+        commit("authError", err);
+      });
   },
 
   signOut({ commit }) {
     firebase
       .logout()
       .then(() => {
-        console.log("logout");
         commit("setSideDrawer", false);
         return Promise;
       })
       .catch((err) => {
         console.log(err);
       });
-    console.log("signOut");
   },
 };
 

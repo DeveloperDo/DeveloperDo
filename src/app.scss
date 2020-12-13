@@ -42,3 +42,10 @@ ActionBar {
   color: #333333;
   font-size: 16;
 }
+
+.btn {
+
+  &--disabled {
+  }
+  opacity: 0.6;
+}
