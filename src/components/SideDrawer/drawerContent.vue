@@ -11,6 +11,8 @@
         :key="i"
       />
 
+      <label :text="isLogged"></label>
+
       <Button class="drawer-close-button" @tap="closeDrawer()"
         >Close Drawer</Button
       >
@@ -43,6 +45,12 @@ export default {
       this.$navigateTo(pageComponent);
       // and we probably want to close the drawer when changing pages
       this.closeDrawer();
+    },
+  },
+
+  computed: {
+    isLogged() {
+      return this.$store.getters.isLogged;
     },
   },
 };

@@ -67,10 +67,44 @@ const actions = {
   },
 
   signUp({ commit, dispatch }, { userName, password, email }) {
-    console.log("register");
+    commit("authStart");
+
+    return firebase
+      .createUser({
+        email: email,
+        password: password,
+      })
+      .then((userData) => {
+        console.log(userData);
+
+        dispatch("createUserDoc", {
+          uid: userData.uid,
+          email: email,
+          userName: userName,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   },
 
-  fetchUserData({ commit }, { uid }) {
+  async createUserDoc({ dispatch }, { uid, email, userName }) {
+    const usersRef = firebase.firestore.collection("users").doc(uid);
+
+    usersRef
+      .set({
+        email: email,
+        userName: userName,
+      })
+      .then(async () => {
+        await dispatch("fetchUserData", uid);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
+  async fetchUserData({ commit }, { uid }) {
     console.log("fetchUserData");
     commit("authSuccess", uid);
 

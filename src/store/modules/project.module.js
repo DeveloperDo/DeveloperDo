@@ -39,14 +39,11 @@ const actions = {
   fetchProjectList({ commit, rootGetters }, { msg }) {
     console.log(msg);
     commit("fetchProjectListStart");
-    //
     const uid = rootGetters.getUser;
-    console.log("asdfa");
 
     const projectRef = firebase.firestore
       .collection("projects")
-      .where("users", "array-contains", uid)
-      .limit(10);
+      .where("users", "array-contains", uid);
 
     projectRef
       .get()

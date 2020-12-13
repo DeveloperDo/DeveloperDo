@@ -15,7 +15,7 @@
         <Label text="" />
         <label text="Hasło" style="horizontal-align: center; font-size: 20px">
         </label>
-        <TextField v-model="userPassword" hint="" class="inputTextSize" />
+        <TextField v-model="password" hint="" class="inputTextSize" />
 
         <Label text="" />
         <label
@@ -23,11 +23,7 @@
           style="horizontal-align: center; font-size: 20px"
         >
         </label>
-        <TextField
-          v-model="userPasswordConfirm"
-          hint=""
-          class="inputTextSize"
-        />
+        <TextField v-model="passwordConfirm" hint="" class="inputTextSize" />
 
         <Label text="" />
         <label
@@ -35,7 +31,7 @@
           style="horizontal-align: center; font-size: 20px"
         >
         </label>
-        <TextField v-model="userEmail" hint="" class="inputTextSize" />
+        <TextField v-model="email" hint="" class="inputTextSize" />
 
         <Label text="" />
         <Button text="Zarejestruj" @tap="register" />
@@ -50,8 +46,8 @@ export default {
   data() {
     return {
       userName: "",
-      userPassword: "",
-      userPasswordConfirm: "",
+      password: "",
+      passwordConfirm: "",
       email: "",
     };
   },
@@ -62,7 +58,15 @@ export default {
     },
 
     register() {
-      this.$store.dispatch("signUp", {});
+      this.$store
+        .dispatch("signUp", {
+          userName: this.userName,
+          email: this.email.toLowerCase(),
+          password: this.password,
+        })
+        .then(() => {
+          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+        });
     },
   },
 };

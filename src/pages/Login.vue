@@ -6,8 +6,8 @@
         <!--Add your page content here-->
         <label text="Logowanie" style="horizontal-align: center"> </label>
         <Label text="" />
-        <TextField v-model="loginInput" hint="Login" class="inputTextSize" />
-        <TextField v-model="passwordInput" hint="Haslo" class="inputTextSize" />
+        <TextField v-model="email" hint="Login" class="inputTextSize" />
+        <TextField v-model="password" hint="Haslo" class="inputTextSize" />
         <Label text="" />
         <Button text="Zaloguj" @tap="login" />
         <Label text="" />
@@ -21,7 +21,10 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      email: "",
+      password: "",
+    };
   },
 
   methods: {
