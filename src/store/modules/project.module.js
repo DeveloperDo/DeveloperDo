@@ -100,6 +100,7 @@ const actions = {
           chat.push(msgDoc.data());
         });
 
+        console.log(chat);
         commit("fetchChatSuccess", chat);
       })
       .catch((err) => {
