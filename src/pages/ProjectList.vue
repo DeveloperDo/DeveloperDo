@@ -15,11 +15,11 @@
             :key="index"
             class="projectCard"
             v-bind:class="{
-              lowPriority: project.priority === '1',
-              mediumPriority: project.priority === '2',
-              highPriority: project.priority === '3',
+              lowPriority: project.priority === 1,
+              mediumPriority: project.priority === 2,
+              highPriority: project.priority === 3,
             }"
-            @tap="onItemTap"
+            @tap="openProjectView(project)"
           >
             <Label
               :text="project.status"
@@ -54,8 +54,8 @@ export default {
     onButtonTap() {
       //funkcja: dodaj nowy projekt
     },
-    onItemTap() {
-      this.$navigateTo(this.$routes.ProjectView);
+    openProjectView(project) {
+      this.$navigateTo(this.$routes.ProjectView, { props: { project } });
     },
   },
 
@@ -65,10 +65,10 @@ export default {
 
   computed: {
     projectListLoading: function () {
-      return this.$store.getters.getProjectListLoading;
+      return this.$store.getters.projectListIsLoading;
     },
     projectList: function () {
-      return this.$store.getters.getProjectList;
+      return this.$store.getters.projectList;
     },
   },
 };

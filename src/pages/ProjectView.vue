@@ -7,7 +7,7 @@
       </GridLayout>
     </ActionBar>
 
-    <TabView :selectedIndex="selectedIndex">
+    <TabView @selectedIndexChange="selectedIndexChange">
       <TabViewItem title="Podsumowanie">
         <ScrollView>
           <StackLayout>
@@ -28,9 +28,9 @@
             <StackLayout
               class="projectPriorityContainer"
               v-bind:class="{
-                lowPriority: project.priority === '1',
-                mediumPriority: project.priority === '2',
-                highPriority: project.priority === '3',
+                lowPriority: project.priority === 1,
+                mediumPriority: project.priority === 2,
+                highPriority: project.priority === 3,
               }"
             >
               <Label text="PRIORYTET" class="projectHeader" />
@@ -81,15 +81,17 @@
 
       <TabViewItem title="Zadania">
         <ScrollView>
-          <StackLayout>
+          <Spinner v-if="todoGroupListIsLoading" />
+
+          <StackLayout v-else>
             <StackLayout
-              v-for="(taskGroup, index) in project.taskGroups"
+              v-for="(todoGroup, index) in todoGroupList"
               :key="index"
               class="projectTasksContainer"
             >
-              <Label :text="taskGroup.name" class="projectHeader" />
+              <Label :text="todoGroup.name" class="projectHeader" />
               <StackLayout
-                v-for="(task, index) in taskGroup.tasks"
+                v-for="(task, index) in todoGroup.todos"
                 :key="index"
                 class="taskCard"
               >
@@ -99,6 +101,7 @@
                   horizontalAlignment="right"
                 >
                   <StackLayout v-for="(user, index) in task.users" :key="index">
+                    <!--                    TODO fetching user avatar-->
                     <Image
                       :src="user.userImageSrc"
                       class="userTaskPhoto"
@@ -125,29 +128,33 @@
 
       <TabViewItem title="Czat">
         <FlexboxLayout flexDirection="column">
-          <ScrollView height="90%">
+          <Spinner v-if="chatIsLoading" />
+
+          <ScrollView height="90%" v-if="!chatIsLoading">
             <StackLayout class="chatWindow">
               <StackLayout
-                v-for="(message, index) in project.chatMessages"
+                v-for="(msg, index) in chat"
                 :key="index"
                 class="chatMessageInContainer"
-                v-bind:class="{
-                  chatMessageOutContainer: message.userID == '1',
+                :class="{
+                  chatMessageOutContainer: ownMsg(msg.userID),
                 }"
               >
-                <Label :text="message.userName" class="messageUsername" />
+                <!--                TODO user name-->
+                <Label :text="userName" class="messageUsername" />
                 <StackLayout
                   class="chatMessageIn"
-                  v-bind:class="{ chatMessageOut: message.userID == '1' }"
+                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"
                   orientation="horizontal"
                 >
+                  <!--                  TODO getUserImage-->
                   <Image
-                    :src="message.userImageSrc"
+                    :src="msg.userImageSrc"
                     class="userPhoto"
                     stretch="aspectFill"
                   />
                   <Label
-                    :text="message.text"
+                    :text="msg.text"
                     textWrap="true"
                     verticalAlignment="center"
                   />
@@ -156,9 +163,13 @@
             </StackLayout>
           </ScrollView>
 
-          <StackLayout orientation="horizontal" height="10%">
+          <StackLayout
+            orientation="horizontal"
+            height="10%"
+            v-if="!chatIsLoading"
+          >
             <TextField
-              v-model="textFieldValue"
+              v-model="msgTextField"
               hint="Napisz wiadomość"
               width="65%"
               class="chatTextField"
@@ -178,11 +189,45 @@
 
 <script>
 import sideDrawer from "../mixins/sideDrawer";
+import { mapGetters } from "vuex";
+import Spinner from "../components/Spinner";
 
 export default {
+  components: { Spinner },
+  data() {
+    return {
+      currentIndex: 0,
+      chatInitialised: false,
+      todoInitialised: false,
+      event: "",
+      msgTextField: "",
+    };
+  },
+
   mixins: [sideDrawer],
 
+  props: {
+    project: Object,
+  },
+
   methods: {
+    selectedIndexChange(event) {
+      this.currentIndex = event.value;
+
+      console.log(this.currentIndex);
+      if (this.currentIndex === 1 && !this.todoInitialised) {
+        console.log("dispatch fetchTodoGroupLists");
+        this.$store.dispatch("fetchTodoGroupList", {
+          projectID: this.project.id,
+        });
+        this.todoInitialised = true;
+      } else if (this.currentIndex === 2 && !this.chatInitialised) {
+        console.log("dispatch fetchChat");
+        this.$store.dispatch("fetchChat", { projectID: this.project.id });
+        this.chatInitialised = true;
+      }
+    },
+
     onAddTaskButtonTap() {
       console.log("Add task button was pressed");
     },
@@ -195,208 +240,19 @@ export default {
     onUsersTap: function (args) {
       console.log("Item with index: " + args.index + " tapped");
     },
+    ownMsg(userID) {
+      return userID === this.getUser.uid;
+    },
   },
 
-  data() {
-    return {
-      project: {
-        imageSrc:
-          "https://www.streamscheme.com/wp-content/uploads/2020/07/kekw-emote.jpg",
-        name: "SUPER COOL PROJECT NAME!!!!!!",
-        status: "do zrobienia",
-        priority: "3",
-        description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur .Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        users: [
-          {
-            imageSrc:
-              "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-          },
-          {
-            imageSrc:
-              "https://www.pinclipart.com/picdir/middle/324-3242324_free-png-download-open-eye-crying-laughing-emoji.png",
-          },
-          {
-            imageSrc:
-              "https://ih1.redbubble.net/image.984211807.4879/ur,mounted_print_canvas_portrait_small_front,square,1000x1000.1.jpg",
-          },
-          {
-            imageSrc:
-              "https://media.tenor.com/images/db6a2db8639a596cd5b96ec9c7d0087b/tenor.png",
-          },
-        ],
-        changes: [
-          {
-            name:
-              "Lorem ipsum dolor sit amet coś tam coś tam bla bla blablabla bla bla sa dh gf sa f qhb fuf ds sd kjsd ds age kjr gd kdj fg sdfg et 345r5w",
-            date: "12.01.2021",
-          },
-          {
-            name: "W Szczebrzeszynie chrząszcz brzmi w trzcinie",
-            date: "17.05.2021",
-          },
-          {
-            name: "Hokus pokus, czary mary, twoja stara to twój stary",
-            date: "08.12.2022",
-          },
-          {
-            name: "Change 4",
-            date: "01.04.2021",
-          },
-          {
-            name: "Change 5",
-            date: "19.11.2021",
-          },
-          {
-            name:
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-            date: "01.04.2021",
-          },
-        ],
-        taskGroups: [
-          {
-            name: "Backend",
-            tasks: [
-              {
-                name: "Firebase Fire base Firebase Firebase Fireba se",
-                users: [
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                ],
-              },
-              {
-                name: "Laravel",
-                users: [
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                ],
-              },
-              {
-                name: "Każdy programista dupa kiedy projektów kupa",
-                users: [
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            name: "Frontend",
-            tasks: [
-              {
-                name: "Vue",
-                users: [
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://i.pinimg.com/originals/5c/99/6e/5c996e6663a3c2ef1b92ad9ef13ffef7.png",
-                  },
-                ],
-              },
-              {
-                name: "Bootstrap",
-                users: [
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                ],
-              },
-              {
-                name:
-                  "Lorem ipsum dolor trololololor lololololo lo o lo l ol oretkwghs dg jlsdgh df gd sdlg",
-                users: [
-                  {
-                    userImageSrc:
-                      "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        chatMessages: [
-          {
-            userID: "1",
-            userImageSrc:
-              "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-            userName: "lolo",
-            text: "okj",
-          },
-          {
-            userID: "2",
-            userImageSrc:
-              "https://pbs.twimg.com/profile_images/1318131574857150464/2rhjXSCr_400x400.jpg",
-            userName: "twoj stary",
-            text:
-              "heuehuehheuueheueheheuehuehheuueheueheuheuehuehheuueheueheuheuehuehheuueheueheuuheuehuehheuueheueheuheuehuehheuueheueheu",
-          },
-          {
-            userID: "2",
-            userImageSrc:
-              "https://pbs.twimg.com/profile_images/1318131574857150464/2rhjXSCr_400x400.jpg",
-            userName: "twoj stary",
-            text:
-              "hokus pokus, czary mary, twoja stara to twoj stary... wait a minute",
-          },
-          {
-            userID: "1",
-            userImageSrc:
-              "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-            userName: "lolo",
-            text: "nie no, co ty, tato",
-          },
-          {
-            userID: "3",
-            userImageSrc:
-              "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/38577360/original/fe4a778310a86b3072d4f2d2c0b1ee38a4e2a3e7/do-a-spoderman-meme-avatar-of-you.png",
-            userName: "spoderman",
-            text: "lorem ipsum ręce z gipsu",
-          },
-          {
-            userID: "1",
-            userImageSrc:
-              "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-            userName: "lolo",
-            text:
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-          },
-        ],
-      },
-    };
+  computed: {
+    ...mapGetters([
+      "todoGroupList",
+      "todoGroupListIsLoading",
+      "chat",
+      "chatIsLoading",
+      "getUser",
+    ]),
   },
 };
 </script>
