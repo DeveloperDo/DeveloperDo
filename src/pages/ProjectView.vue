@@ -193,6 +193,8 @@
 import sideDrawer from "../mixins/sideDrawer";
 import { mapGetters } from "vuex";
 import Spinner from "../components/Spinner";
+import AddTaskCategoryModal from "../components/Modals/AddTaskCategoryModal";
+import AddTaskModal from "../components/Modals/AddTaskModal";
 
 export default {
   components: { Spinner },
@@ -234,10 +236,10 @@ export default {
     },
 
     onAddTaskButtonTap() {
-      console.log("Add task button was pressed");
+      this.$showModal(AddTaskModal);
     },
     onAddTaskGroupButtonTap() {
-      console.log("Add task group button was pressed");
+      this.$showModal(AddTaskCategoryModal)
     },
     onChangeTap: function (args) {
       console.log("Item with index: " + args.index + " tapped");

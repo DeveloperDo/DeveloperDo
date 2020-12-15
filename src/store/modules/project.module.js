@@ -6,8 +6,6 @@ const state = {
   project: {},
   chat: [],
   chatIsLoading: true,
-  todoGroupList: [],
-  todoGroupListIsLoading: true,
   changesIsLoading: true,
 };
 
@@ -39,14 +37,6 @@ const getters = {
   chatIsLoading: (state) => {
     return state.chatIsLoading;
   },
-
-  todoGroupList: (state) => {
-    return state.todoGroupList;
-  },
-
-  todoGroupListIsLoading: (state) => {
-    return state.todoGroupListIsLoading;
-  },
 };
 
 const mutations = {
@@ -74,19 +64,6 @@ const mutations = {
 
   fetchChatError(state) {
     state.chatIsLoading = false;
-  },
-
-  fetchTodoGroupListStart(state) {
-    state.todoGroupListIsLoading = true;
-  },
-
-  fetchTodoGroupListSuccess(state, todoGroupList) {
-    state.todoGroupList = todoGroupList;
-    state.todoGroupListIsLoading = false;
-  },
-
-  fetchTodoGroupListError(state) {
-    state.todoGroupListIsLoading = false;
   },
 
   fetchProjectListSuccess(state, projectList) {
@@ -168,33 +145,6 @@ const actions = {
       .catch((err) => {
         console.log(err);
         commit("fetchChatError");
-      });
-  },
-
-  fetchTodoGroupList({ commit }, { projectID }) {
-    console.log("fetchTodoGroupList");
-
-    commit("fetchTodoGroupListStart");
-
-    const projectTodoRef = firebase.firestore.collection(
-      "projects/" + projectID + "/todo"
-    );
-
-    projectTodoRef
-      .get()
-      .then((collectionSnapshot) => {
-        let todoGroupList = [];
-
-        collectionSnapshot.forEach((todoGroupDoc) => {
-          todoGroupList.push(todoGroupDoc.data());
-        });
-
-        console.log(todoGroupList);
-        commit("fetchTodoGroupListSuccess", todoGroupList);
-      })
-      .catch((err) => {
-        console.log(err);
-        commit("fetchTodoGroupListError");
       });
   },
 
