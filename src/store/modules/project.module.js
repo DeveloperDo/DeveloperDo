@@ -1,5 +1,4 @@
 import { firebase } from "@nativescript/firebase";
-import { time } from "@nativescript/core/profiling";
 
 const state = {
   projectList: [],
@@ -98,15 +97,23 @@ const actions = {
     projectRef
       .add(project)
       .then(async (res) => {
-        console.log(res);
-        console.log(res.data());
+        //TODO parallel function
+        const changesRef = firebase.firestore.collection(
+          "projects/" + res.id + "/changes"
+        );
+
+        await changesRef
+          .add({
+            name: "Utworzono projekt",
+          })
+          .then(async (change) => {
+            await changesRef.doc(change.id).update({
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          });
 
         await projectRef.doc(res.id).update({
-          createdAt: firebase.FieldValue().serverTimestamp(),
-          // changes: firebase.firestore.FieldValue.arrayUnion({
-          //   timestamp: firebase.FieldValue().serverTimestamp(),
-          //   name: "Utworzono projekt",
-          // }),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
         await dispatch("fetchProjectList");
@@ -180,13 +187,30 @@ const actions = {
 
     projectRef
       .get()
-      .then((collectionSnapshot) => {
+      .then(async (collectionSnapshot) => {
         let projectList = [];
-        collectionSnapshot.forEach((projectDoc) => {
-          projectList.push({ ...projectDoc.data(), id: projectDoc.id });
-        });
+        const docs = collectionSnapshot.docs;
 
-        console.log(projectList);
+        for (let i = 0; i < docs.length; i++) {
+          const changesRef = firebase.firestore
+            .collection("projects/" + docs[i].id + "/changes")
+            .orderBy("timestamp", "desc");
+
+          let changes = [];
+
+          await changesRef.get().then((changesSnapshot) => {
+            changesSnapshot.forEach((change) => {
+              changes.push(change.data());
+            });
+          });
+
+          projectList.push({
+            ...docs[i].data(),
+            id: docs[i].id,
+            changes: changes,
+          });
+        }
+
         commit("fetchProjectListSuccess", projectList);
       })
       .catch((err) => {
