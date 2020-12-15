@@ -83,6 +83,39 @@ const mutations = {
 };
 
 const actions = {
+  async addProject({ dispatch, rootGetters }, { project }) {
+    console.log("addProject");
+
+    const projectRef = firebase.firestore.collection("projects");
+    const uid = rootGetters.getUser.uid;
+
+    project.deadline = null;
+    project.imageSrc = null;
+    project.status = null;
+    project.users = [uid];
+    project.changes = [];
+
+    projectRef
+      .add(project)
+      .then(async (res) => {
+        console.log(res);
+        console.log(res.data());
+
+        await projectRef.doc(res.id).update({
+          createdAt: firebase.FieldValue().serverTimestamp(),
+          // changes: firebase.firestore.FieldValue.arrayUnion({
+          //   timestamp: firebase.FieldValue().serverTimestamp(),
+          //   name: "Utworzono projekt",
+          // }),
+        });
+
+        await dispatch("fetchProjectList");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   fetchChat({ commit }, { projectID }) {
     console.log("fetchChat");
     commit("fetchChatStart");
@@ -137,6 +170,7 @@ const actions = {
   },
 
   fetchProjectList({ commit, rootGetters }) {
+    console.log("fetchProjectList");
     commit("fetchProjectListStart");
     const uid = rootGetters.getUser.uid;
 
@@ -151,6 +185,8 @@ const actions = {
         collectionSnapshot.forEach((projectDoc) => {
           projectList.push({ ...projectDoc.data(), id: projectDoc.id });
         });
+
+        console.log(projectList);
         commit("fetchProjectListSuccess", projectList);
       })
       .catch((err) => {

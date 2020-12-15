@@ -138,24 +138,19 @@ const actions = {
   },
 
   async fetchUserData({ commit }, { uid }) {
-    console.log(uid);
     console.log("fetchUserData");
     const userRef = firebase.firestore.collection("users").doc(uid);
 
     return userRef
       .get()
       .then((docSnapshot) => {
-        console.log("succeeded");
-
         const user = {
           ...docSnapshot.data(),
           uid: uid,
         };
-        console.log(user)
         commit("authSuccess", user);
       })
       .catch((err) => {
-        console.log("error");
         console.log(err);
         commit("authError", err);
       });
