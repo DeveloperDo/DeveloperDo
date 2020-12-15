@@ -193,8 +193,8 @@
 import sideDrawer from "../mixins/sideDrawer";
 import { mapGetters } from "vuex";
 import Spinner from "../components/Spinner";
-import AddTaskCategoryModal from "../components/Modals/AddTaskCategoryModal";
-import AddTaskModal from "../components/Modals/AddTaskModal";
+import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
+import AddTodoModal from "../components/Modals/AddTodoModal";
 
 export default {
   components: { Spinner },
@@ -223,23 +223,20 @@ export default {
       this.currentIndex = event.value;
 
       if (this.currentIndex === 1 && !this.todoInitialised) {
-        console.log("dispatch fetchTodoGroupLists");
-        this.$store.dispatch("fetchTodoGroupList", {
-          projectID: this.project.id,
-        });
+        this.$store.dispatch("fetchTodoGroupList", this.project.id);
         this.todoInitialised = true;
       } else if (this.currentIndex === 2 && !this.chatInitialised) {
-        console.log("dispatch fetchChat");
         this.$store.dispatch("fetchChat", { projectID: this.project.id });
         this.chatInitialised = true;
       }
     },
-
     onAddTaskButtonTap() {
-      this.$showModal(AddTaskModal);
+      this.$showModal(AddTodoModal);
     },
     onAddTaskGroupButtonTap() {
-      this.$showModal(AddTaskCategoryModal)
+      this.$showModal(AddTodoGroupModal, {
+        props: { projectID: this.project.id },
+      });
     },
     onChangeTap: function (args) {
       console.log("Item with index: " + args.index + " tapped");

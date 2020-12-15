@@ -31,7 +31,25 @@ const mutations = {
 };
 
 const actions = {
-  fetchTodoGroupList({ commit }, { projectID }) {
+  addTodoGroup({ dispatch }, { projectID, categoryName }) {
+    console.log("addTodoGroup");
+
+    const projectTodoRef = firebase.firestore.collection(
+      "projects/" + projectID + "/todo"
+    );
+
+    return projectTodoRef
+      .add({
+        name: categoryName,
+        todos: [],
+      })
+      .then(async () => {
+        await dispatch("fetchTodoGroupList", projectID);
+      });
+  },
+
+  fetchTodoGroupList({ commit }, projectID) {
+    //TODO on shapshot change
     console.log("fetchTodoGroupList");
 
     commit("fetchTodoGroupListStart");
