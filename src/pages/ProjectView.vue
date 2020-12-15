@@ -10,7 +10,9 @@
     <TabView @selectedIndexChange="selectedIndexChange">
       <TabViewItem title="Podsumowanie">
         <ScrollView>
-          <StackLayout>
+          <spinner v-if="changesIsLoading" />
+
+          <StackLayout v-else>
             <StackLayout class="projectNameContainer">
               <Image
                 :src="project.imageSrc"
@@ -206,6 +208,10 @@ export default {
 
   mixins: [sideDrawer],
 
+  created() {
+    this.$store.dispatch("fetchChanges");
+  },
+
   props: {
     project: Object,
   },
@@ -214,7 +220,6 @@ export default {
     selectedIndexChange(event) {
       this.currentIndex = event.value;
 
-      console.log(this.currentIndex);
       if (this.currentIndex === 1 && !this.todoInitialised) {
         console.log("dispatch fetchTodoGroupLists");
         this.$store.dispatch("fetchTodoGroupList", {
@@ -252,6 +257,8 @@ export default {
       "chat",
       "chatIsLoading",
       "getUser",
+      "changes",
+      "changesIsLoading",
     ]),
   },
 };

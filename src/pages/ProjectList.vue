@@ -7,6 +7,8 @@
       </GridLayout>
     </ActionBar>
 
+    <AddProjectModal v-if="showAddProjectModal" />
+
     <FlexboxLayout flexDirection="column">
       <ScrollView>
         <StackLayout className="projectList">
@@ -39,7 +41,7 @@
 
       <Button
         text="DODAJ PROJEKT"
-        @tap="onButtonTap"
+        @tap="openAddProjectModal"
         class="addProjectButton"
       />
     </FlexboxLayout>
@@ -48,12 +50,24 @@
 
 <script>
 import sideDrawer from "../mixins/sideDrawer";
+import AddProjectModal from "../components/Modals/AddProjectModal";
+
 export default {
+  components: { AddProjectModal },
+
   mixins: [sideDrawer],
+
+  data() {
+    return {
+      showAddProjectModal: false,
+    };
+  },
+
   methods: {
-    onButtonTap() {
-      //funkcja: dodaj nowy projekt
+    openAddProjectModal() {
+      this.$showModal(AddProjectModal, { fullscreen: true });
     },
+
     openProjectView(project) {
       this.$navigateTo(this.$routes.ProjectView, { props: { project } });
     },
