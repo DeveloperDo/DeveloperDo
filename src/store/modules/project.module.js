@@ -8,9 +8,18 @@ const state = {
   chatIsLoading: true,
   todoGroupList: [],
   todoGroupListIsLoading: true,
+  changesIsLoading: true,
 };
 
 const getters = {
+  changesIsLoading: (state) => {
+    return state.changesIsLoading;
+  },
+
+  changes: (state) => {
+    return state.changes;
+  },
+
   projectListIsLoading: (state) => {
     return state.projectListLoading;
   },
@@ -41,6 +50,19 @@ const getters = {
 };
 
 const mutations = {
+  fetchChangesSuccess(state, changes) {
+    state.project.changes = changes;
+    state.changesIsLoading = false;
+  },
+
+  fetchChangesStart(state) {
+    state.changesIsLoading = true;
+  },
+
+  fetchChangesError(state) {
+    state.changesIsLoading = false;
+  },
+
   fetchChatStart(state) {
     state.chatIsLoading = true;
   },
@@ -189,32 +211,39 @@ const actions = {
       .get()
       .then(async (collectionSnapshot) => {
         let projectList = [];
-        const docs = collectionSnapshot.docs;
 
-        for (let i = 0; i < docs.length; i++) {
-          const changesRef = firebase.firestore
-            .collection("projects/" + docs[i].id + "/changes")
-            .orderBy("timestamp", "desc");
-
-          let changes = [];
-
-          await changesRef.get().then((changesSnapshot) => {
-            changesSnapshot.forEach((change) => {
-              changes.push(change.data());
-            });
-          });
-
-          projectList.push({
-            ...docs[i].data(),
-            id: docs[i].id,
-            changes: changes,
-          });
-        }
+        collectionSnapshot.forEach((projectDoc) => {
+          projectList.push({ ...projectDoc.data(), id: projectDoc.id });
+        });
 
         commit("fetchProjectListSuccess", projectList);
       })
       .catch((err) => {
         commit("fetchProjectListError");
+        console.log(err);
+      });
+  },
+
+  fetchChanges({ commit }, projectID) {
+    commit("fetchChangesStart");
+
+    const changesRef = firebase.firestore
+      .collection("projects/" + projectID + "/changes")
+      .orderBy("timestamp", "desc");
+
+    changesRef
+      .get()
+      .then((changesSnapshot) => {
+        const changes = [];
+
+        changesSnapshot.forEach((change) => {
+          changes.push(change.data());
+        });
+
+        commit("fetchChangesSuccess", changes);
+      })
+      .catch((err) => {
+        commit("fetchChangesError");
         console.log(err);
       });
   },
