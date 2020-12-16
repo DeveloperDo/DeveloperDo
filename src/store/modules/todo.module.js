@@ -32,16 +32,19 @@ const mutations = {
 
 const actions = {
   addTodo({ dispatch }, { projectID, todoGroupID, todo }) {
+    console.log("fasdfasdfasdfasdfasdf");
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
       .doc(todoGroupID);
 
-    todoGroupRef
+    console.log("fasdfasdfasdfasdfasdf");
+
+    return todoGroupRef
       .update({
         todos: firebase.firestore.FieldValue.arrayUnion(todo),
       })
-      .then(() => {
-        dispatch("fetchTodoGroupList", projectID);
+      .then(async () => {
+        await dispatch("fetchTodoGroupList", projectID);
       });
   },
 

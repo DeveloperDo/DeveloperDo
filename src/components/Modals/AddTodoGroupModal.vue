@@ -33,7 +33,6 @@ export default {
           categoryName: this.categoryName,
         })
         .then(() => {
-          console.log("afteaadaaaaaaaaaa");
           this.$modal.close();
         });
     },

@@ -7,7 +7,7 @@
         class="addTaskHeader"
       />
       <TextField
-        v-model="taskNameTextField"
+        v-model="taskName"
         hint="Wpisz nazwę zadania"
         class="addTaskTextField"
       />
@@ -57,7 +57,7 @@
 
       <Button
         text="DODAJ ZADANIE"
-        @tap="onAddTaskConfirmButtonTap"
+        @tap="addTask"
         class="addTaskConfirmButton"
       />
     </StackLayout>
@@ -72,7 +72,7 @@ export default {
     return {
       searchPhrase: "",
       selectedUsers: [],
-      taskNameTextField: "",
+      taskName: "",
     };
   },
 
@@ -98,26 +98,37 @@ export default {
       });
     },
 
-    onAddTaskConfirmButtonTap() {
-      console.log("Task added!");
+    addTask() {
+      if (this.taskName === null) {
+        return;
+      }
+
+      const users = [];
+
+      this.selectedUsers.forEach((user) => {
+        users.push(user.uid);
+      });
+
+      const todo = {
+        name: this.taskName,
+        users: users,
+        done: false,
+      };
+      this.$store
+        .dispatch("addTodo", {
+          projectID: this.projectID,
+          todoGroupID: this.todoGroupID,
+          todo,
+        })
+        .then(() => {
+          this.$modal.close();
+        });
     },
   },
 
   computed: {
     filteredUsers: function () {
       const options = {
-        // isCaseSensitive: false,
-        // includeScore: false,
-        // shouldSort: true,
-        // includeMatches: false,
-        // findAllMatches: false,
-        // minMatchCharLength: 1,
-        // location: 0,
-        // threshold: 0.6,
-        // distance: 100,
-        // useExtendedSearch: false,
-        // ignoreLocation: false,
-        // ignoreFieldNorm: false,
         keys: ["name"],
       };
 

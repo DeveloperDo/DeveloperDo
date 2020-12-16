@@ -84,7 +84,7 @@ export default {
     register() {
       this.$store
         .dispatch("signUp", {
-          userName: this.userName,
+          name: this.name,
           email: this.email.toLowerCase(),
           password: this.password,
         })
