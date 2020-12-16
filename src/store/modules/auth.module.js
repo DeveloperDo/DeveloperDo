@@ -157,11 +157,10 @@ const actions = {
   },
 
   signOut({ commit }) {
-    firebase
+    return firebase
       .logout()
       .then(() => {
         commit("setSideDrawer", false);
-        return Promise;
       })
       .catch((err) => {
         console.log(err);

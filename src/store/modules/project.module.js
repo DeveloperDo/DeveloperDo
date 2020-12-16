@@ -2,7 +2,7 @@ import { firebase } from "@nativescript/firebase";
 
 const state = {
   projectList: [],
-  projectListLoading: false,
+  projectListLoading: true,
   users: {},
   chat: [],
   chatIsLoading: true,
