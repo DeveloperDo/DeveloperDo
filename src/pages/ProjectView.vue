@@ -7,10 +7,13 @@
       </GridLayout>
     </ActionBar>
 
-    <TabView @selectedIndexChange="selectedIndexChange">
+    <TabView
+      @selectedIndexChange="selectedIndexChange"
+      :isUserInteractionEnabled="false"
+    >
       <TabViewItem title="Podsumowanie">
         <ScrollView>
-          <spinner v-if="changesIsLoading" />
+          <spinner v-if="detailsIsLoading" />
 
           <StackLayout v-else>
             <StackLayout class="projectNameContainer">
@@ -52,7 +55,7 @@
               <Label text="ZESPÓŁ" class="projectHeader" />
               <WrapLayout orientation="horizontal" class="usersList">
                 <StackLayout
-                  v-for="(user, index) in project.users"
+                  v-for="(user, index) in users"
                   :key="index"
                   @tap="onUsersTap"
                 >
@@ -68,22 +71,25 @@
             <StackLayout class="projectChangesContainer">
               <Label text="HISTORIA ZMIAN" class="projectHeader" />
               <StackLayout
-                v-for="(change, index) in project.changes"
+                v-for="(change, index) in changes"
                 :key="index"
                 @tap="onChangeTap"
                 class="changeCard"
               >
                 <Label :text="change.name" class="changeText" textWrap="true" />
-                <Label horizontalAlignment="right" :text="change.date" />
+                <Label
+                  horizontalAlignment="right"
+                  :text="readTimestamp(change.timestamp)"
+                />
               </StackLayout>
             </StackLayout>
           </StackLayout>
         </ScrollView>
       </TabViewItem>
 
-      <TabViewItem title="Zadania">
+      <TabViewItem title="Zadania" visibility="collapse">
         <ScrollView>
-          <Spinner v-if="todoGroupListIsLoading" />
+          <Spinner v-if="todoGroupListIsLoading || detailsIsLoading" />
 
           <StackLayout v-else>
             <StackLayout
@@ -105,7 +111,7 @@
                   <StackLayout v-for="(user, index) in task.users" :key="index">
                     <!--                    TODO fetching user avatar-->
                     <Image
-                      :src="user.userImageSrc"
+                      :src="user.imageSrc"
                       class="userTaskPhoto"
                       stretch="aspectFill"
                     />
@@ -114,7 +120,7 @@
               </StackLayout>
               <Button
                 text="DODAJ ZADANIE"
-                @tap="onAddTaskButtonTap"
+                @tap="onAddTaskButtonTap(todoGroup.id)"
                 class="addTaskButton"
               />
             </StackLayout>
@@ -130,7 +136,7 @@
 
       <TabViewItem title="Czat">
         <FlexboxLayout flexDirection="column">
-          <Spinner v-if="chatIsLoading" />
+          <Spinner v-if="chatIsLoading || detailsIsLoading" />
 
           <ScrollView height="90%" v-if="!chatIsLoading">
             <StackLayout class="chatWindow">
@@ -205,13 +211,17 @@ export default {
       todoInitialised: false,
       event: "",
       msgTextField: "",
+      todoGroupListID: "",
     };
   },
 
   mixins: [sideDrawer],
 
   created() {
-    this.$store.dispatch("fetchChanges");
+    this.$store.dispatch("fetchDetails", {
+      projectID: this.project.id,
+      projectUsers: this.project.users,
+    });
   },
 
   props: {
@@ -219,31 +229,64 @@ export default {
   },
 
   methods: {
+    readTimestamp(timestamp) {
+      return (
+        timestamp.getHours() +
+        ":" +
+        timestamp.getMinutes() +
+        " " +
+        timestamp.getDate() +
+        "/" +
+        timestamp.getMonth() +
+        "/" +
+        timestamp.getFullYear()
+      );
+    },
+
     selectedIndexChange(event) {
       this.currentIndex = event.value;
 
-      if (this.currentIndex === 1 && !this.todoInitialised) {
+      if (
+        this.currentIndex === 1 &&
+        !this.todoInitialised &&
+        !this.detailsIsLoading
+      ) {
         this.$store.dispatch("fetchTodoGroupList", this.project.id);
         this.todoInitialised = true;
-      } else if (this.currentIndex === 2 && !this.chatInitialised) {
+      } else if (
+        this.currentIndex === 2 &&
+        !this.chatInitialised &&
+        !this.detailsIsLoading
+      ) {
         this.$store.dispatch("fetchChat", { projectID: this.project.id });
         this.chatInitialised = true;
       }
     },
-    onAddTaskButtonTap() {
-      this.$showModal(AddTodoModal);
+
+    onAddTaskButtonTap(todoGroupID) {
+      this.$showModal(AddTodoModal, {
+        props: {
+          users: this.project.users,
+          todoGroupID: todoGroupID,
+          projectID: this.project.id,
+        },
+      });
     },
+
     onAddTaskGroupButtonTap() {
       this.$showModal(AddTodoGroupModal, {
         props: { projectID: this.project.id },
       });
     },
+
     onChangeTap: function (args) {
       console.log("Item with index: " + args.index + " tapped");
     },
+
     onUsersTap: function (args) {
       console.log("Item with index: " + args.index + " tapped");
     },
+
     ownMsg(userID) {
       return userID === this.getUser.uid;
     },
@@ -257,7 +300,8 @@ export default {
       "chatIsLoading",
       "getUser",
       "changes",
-      "changesIsLoading",
+      "detailsIsLoading",
+      "users",
     ]),
   },
 };

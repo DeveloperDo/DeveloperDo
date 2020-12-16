@@ -21,7 +21,6 @@
       <SearchBar
         hint="Szukaj członków projektu"
         v-model="searchPhrase"
-        @submit="onSearchSubmit"
         class="addTaskSearchUsers"
       />
       <StackLayout
@@ -69,6 +68,20 @@
 import Fuse from "fuse.js";
 
 export default {
+  data() {
+    return {
+      searchPhrase: "",
+      selectedUsers: [],
+      taskNameTextField: "",
+    };
+  },
+
+  props: {
+    users: Array,
+    todoGroupID: String,
+    projectID: String,
+  },
+
   methods: {
     switchChanged(event, user) {
       if (event.value) {
@@ -85,51 +98,9 @@ export default {
       });
     },
 
-    onSearchSubmit(args) {
-      let searchBar = args.object;
-      console.log("You are searching for " + searchBar.text);
-    },
-
     onAddTaskConfirmButtonTap() {
       console.log("Task added!");
     },
-  },
-
-  data() {
-    return {
-      searchPhrase: "",
-      selectedUsers: [],
-      project: {
-        users: [
-          {
-            name: "biggus dickus",
-            role: "programista backend",
-          },
-          {
-            name: "mike hunt",
-            role: "programista frontend",
-          },
-          {
-            name: "Lorem Ipsum",
-            role: "tester",
-          },
-          {
-            name: "Cyberbug 2077",
-            role: "PR manager",
-          },
-          {
-            name: "p",
-            role: "t",
-          },
-          {
-            name: "Lorem ipsum dolor sit amet dfgjdfg dflkg sdlkf",
-            role: "123 hife ds kdsng kdfs sd",
-          },
-        ],
-      },
-
-      taskNameTextField: "",
-    };
   },
 
   computed: {
@@ -150,7 +121,7 @@ export default {
         keys: ["name"],
       };
 
-      const fuse = new Fuse(this.project.users, options);
+      const fuse = new Fuse(this.users, options);
 
       return fuse.search(this.searchPhrase);
     },

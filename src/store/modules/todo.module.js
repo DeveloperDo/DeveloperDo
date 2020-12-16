@@ -62,7 +62,7 @@ const actions = {
       });
   },
 
-  fetchTodoGroupList({ commit }, projectID) {
+  fetchTodoGroupList({ commit, rootGetters }, projectID) {
     //TODO on shapshot change
     console.log("fetchTodoGroupList");
 
@@ -81,7 +81,16 @@ const actions = {
           todoGroupList.push({ ...todoGroupDoc.data(), id: todoGroupDoc.id });
         });
 
-        console.log(todoGroupList);
+        todoGroupList.forEach((todoGroup) => {
+          todoGroup.todos.forEach((todo) => {
+            todo.users.forEach((todoUser, index, array) => {
+              array[index] = rootGetters.users.find(
+                (user) => user.uid === todoUser
+              );
+            });
+          });
+        });
+
         commit("fetchTodoGroupListSuccess", todoGroupList);
       })
       .catch((err) => {
