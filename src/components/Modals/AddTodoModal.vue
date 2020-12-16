@@ -1,145 +1,203 @@
 <template>
-    <ScrollView>
-        <StackLayout class="addTaskModal">
+  <ScrollView>
+    <StackLayout class="addTaskModal">
+      <Label
+        text="Nazwa zadania"
+        textAlignment="center"
+        class="addTaskHeader"
+      />
+      <TextField
+        v-model="taskNameTextField"
+        hint="Wpisz nazwę zadania"
+        class="addTaskTextField"
+      />
 
-            <Label text="Nazwa zadania" textAlignment="center"
-                class="addTaskHeader" />
-            <TextField v-model="taskNameTextField" hint="Wpisz nazwę zadania"
-                class="addTaskTextField" />
-
-            <Label text="Przydziel członków projektu do zadania"
-                textAlignment="center" class="addTaskHeader"
-                textWrap="true" />
-            <SearchBar hint="Szukaj członków projektu" :text="searchUsers"
-                @submit="onSearchSubmit" class="addTaskSearchUsers"/>
-            <StackLayout v-for="user in project.users"
-                class="projectUsersList" orientation="horizontal">
-                <Image :src="user.imageSrc" stretch="aspectFill"
-                    class="userPhoto" />
-                <StackLayout verticalAlignment="center"
-                    class="userTextContainer">
-                    <Label :text="user.name" class="addUserTaskName"
-                        textWrap="true" />
-                    <Label :text="user.role" class="addUserTaskRole"
-                        textWrap="true" />
-                </StackLayout>
-                <Switch checked="false" color="black" backgroundColor="green"
-                    offBackgroundColor="gray" />
-            </StackLayout>
-
-            <Button text="DODAJ ZADANIE" @tap="onAddTaskConfirmButtonTap"
-                class="addTaskConfirmButton" />
-
+      <Label
+        text="Przydziel członków projektu do zadania"
+        textAlignment="center"
+        class="addTaskHeader"
+        textWrap="true"
+      />
+      <SearchBar
+        hint="Szukaj członków projektu"
+        v-model="searchPhrase"
+        @submit="onSearchSubmit"
+        class="addTaskSearchUsers"
+      />
+      <StackLayout
+        v-for="(user, index) in filteredUsers"
+        :key="index"
+        class="projectUsersList"
+        orientation="horizontal"
+      >
+        <Image
+          :src="user.item.imageSrc"
+          stretch="aspectFill"
+          class="userPhoto"
+        />
+        <StackLayout verticalAlignment="center" class="userTextContainer">
+          <Label
+            :text="user.item.name"
+            class="addUserTaskName"
+            textWrap="true"
+          />
+          <Label
+            :text="user.item.role"
+            class="addUserTaskRole"
+            textWrap="true"
+          />
         </StackLayout>
-    </ScrollView>
+        <Switch
+          checked="false"
+          color="black"
+          backgroundColor="green"
+          offBackgroundColor="gray"
+        />
+      </StackLayout>
+
+      <Button
+        text="DODAJ ZADANIE"
+        @tap="onAddTaskConfirmButtonTap"
+        class="addTaskConfirmButton"
+      />
+    </StackLayout>
+  </ScrollView>
 </template>
 
 <script>
-    export default {
-        methods: {
-            onSearchSubmit(args) {
-                let searchBar = args.object;
-                console.log("You are searching for " + searchBar.text);
-            },
+import Fuse from "fuse.js";
 
-            onAddTaskConfirmButtonTap() {
-                console.log("Task added!");
-            }
-        },
+export default {
+  methods: {
+    onSearchSubmit(args) {
+      let searchBar = args.object;
+      console.log("You are searching for " + searchBar.text);
+    },
 
-        data() {
-            return {
-                searchPhrase: "",
+    onAddTaskConfirmButtonTap() {
+      console.log("Task added!");
+    },
+  },
 
-                project: {
-                    users: [{
-                            imageSrc: "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-                            name: "biggus dickus",
-                            role: "programista backend"
-                        },
-                        {
-                            imageSrc: "https://www.pinclipart.com/picdir/middle/324-3242324_free-png-download-open-eye-crying-laughing-emoji.png",
-                            name: "mike hunt",
-                            role: "programista frontend"
-                        },
-                        {
-                            imageSrc: "https://ih1.redbubble.net/image.984211807.4879/ur,mounted_print_canvas_portrait_small_front,square,1000x1000.1.jpg",
-                            name: "Lorem Ipsum",
-                            role: "tester"
-                        },
-                        {
-                            imageSrc: "https://media.tenor.com/images/db6a2db8639a596cd5b96ec9c7d0087b/tenor.png",
-                            name: "Cyberbug 2077",
-                            role: "PR manager"
-                        },
-                        {
-                            imageSrc: "https://media.tenor.com/images/db6a2db8639a596cd5b96ec9c7d0087b/tenor.png",
-                            name: "p",
-                            role: "t"
-                        },
-                        {
-                            imageSrc: "https://ih1.redbubble.net/image.984211807.4879/ur,mounted_print_canvas_portrait_small_front,square,1000x1000.1.jpg",
-                            name: "Lorem ipsum dolor sit amet dfgjdfg dflkg sdlkf",
-                            role: "123 hife ds kdsng kdfs sd"
-                        }
-                    ]
-                },
+  data() {
+    return {
+      searchPhrase: "",
 
-                taskNameTextField: ""
-            };
-        }
+      project: {
+        users: [
+          {
+            name: "biggus dickus",
+            role: "programista backend",
+          },
+          {
+            name: "mike hunt",
+            role: "programista frontend",
+          },
+          {
+            name: "Lorem Ipsum",
+            role: "tester",
+          },
+          {
+            name: "Cyberbug 2077",
+            role: "PR manager",
+          },
+          {
+            name: "p",
+            role: "t",
+          },
+          {
+            name: "Lorem ipsum dolor sit amet dfgjdfg dflkg sdlkf",
+            role: "123 hife ds kdsng kdfs sd",
+          },
+        ],
+      },
+
+      taskNameTextField: "",
     };
+  },
+
+  computed: {
+    filteredUsers: function () {
+      const options = {
+        // isCaseSensitive: false,
+        // includeScore: false,
+        // shouldSort: true,
+        // includeMatches: false,
+        // findAllMatches: false,
+        // minMatchCharLength: 1,
+        // location: 0,
+        // threshold: 0.6,
+        // distance: 100,
+        // useExtendedSearch: false,
+        // ignoreLocation: false,
+        // ignoreFieldNorm: false,
+        keys: ["name"],
+      };
+
+      const fuse = new Fuse(this.project.users, options);
+
+      const search = fuse.search(this.searchPhrase);
+      console.log(search);
+      return search;
+    },
+  },
+};
 </script>
 
 <style scoped>
-    .addTaskModal {
-        margin: 20px;
-        vertical-align: center;
-        background-color: white;
-    }
+.userPhoto {
+  max-width: 100%;
+  max-height: 100%;
+}
 
-    .addTaskHeader {
-        margin-bottom: 20px;
-        font-size: 18px;
-        font-weight: bold;
-    }
+.addTaskModal {
+  margin: 20px;
+  vertical-align: center;
+  background-color: white;
+}
 
-    .addTaskTextField {
-        font-size: 16px;
-        margin-bottom: 50px;
-    }
+.addTaskHeader {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
 
-    .projectUsersList {
-        background-color: lightgray;
-        border-radius: 20px;
-        margin-bottom: 20px;
-        android-elevation: 5;
-    }
+.addTaskTextField {
+  font-size: 16px;
+  margin-bottom: 50px;
+}
 
-    .userTextContainer {
-        width: 40%;
-        margin-right: 20px;
-    }
+.projectUsersList {
+  background-color: lightgray;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  android-elevation: 5;
+}
 
-    .addUserTaskName {
-        font-size: 16px;
-        font-weight: bold;
-    }
+.userTextContainer {
+  width: 40%;
+  margin-right: 20px;
+}
 
-    .addUserTaskRole {
-        font-size: 12px;
-        font-style: italic;
-    }
+.addUserTaskName {
+  font-size: 16px;
+  font-weight: bold;
+}
 
-    .addTaskConfirmButton {
-        background-color: lightgray;
-        color: black;
-        font-size: 18px;
-        font-weight: bold;
-    }
+.addUserTaskRole {
+  font-size: 12px;
+  font-style: italic;
+}
 
-    .addTaskSearchUsers {
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
+.addTaskConfirmButton {
+  background-color: lightgray;
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.addTaskSearchUsers {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
 </style>
