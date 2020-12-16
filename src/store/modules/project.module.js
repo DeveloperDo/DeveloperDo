@@ -176,30 +176,6 @@ const actions = {
       });
   },
 
-  // fetchChanges({ commit }, projectID) {
-  //   commit("fetchChangesStart");
-  //
-  //   const changesRef = firebase.firestore
-  //     .collection("projects/" + projectID + "/changes")
-  //     .orderBy("timestamp", "desc");
-  //
-  //   changesRef
-  //     .get()
-  //     .then((changesSnapshot) => {
-  //       const changes = [];
-  //
-  //       changesSnapshot.forEach((change) => {
-  //         changes.push(change.data());
-  //       });
-  //
-  //       commit("fetchChangesSuccess", changes);
-  //     })
-  //     .catch((err) => {
-  //       commit("fetchChangesError");
-  //       console.log(err);
-  //     });
-  // },
-
   fetchDetails({ commit }, { projectID, projectUsers }) {
     commit("fetchDetailsStart");
 
@@ -210,35 +186,31 @@ const actions = {
     const users = [];
     const changes = [];
 
-    setTimeout(() => {
-      changesRef
-        .get()
-        .then(async (changesSnapshot) => {
-          changesSnapshot.forEach((change) => {
-            changes.push(change.data());
-          });
-
-          for (const uid of projectUsers) {
-            await userRef
-              .doc(uid)
-              .get()
-              .then((userDoc) => {
-                console.log("fetched user");
-                users.push({
-                  ...userDoc.data(),
-                  uid: uid,
-                });
-              });
-          }
-          console.log("after fetch users");
-
-          commit("fetchDetailsSuccess", { users, changes });
-        })
-        .catch((err) => {
-          commit("fetchDetailsError");
-          console.log(err);
+    changesRef
+      .get()
+      .then(async (changesSnapshot) => {
+        changesSnapshot.forEach((change) => {
+          changes.push(change.data());
         });
-    }, 5000);
+
+        for (const uid of projectUsers) {
+          await userRef
+            .doc(uid)
+            .get()
+            .then((userDoc) => {
+              users.push({
+                ...userDoc.data(),
+                uid: uid,
+              });
+            });
+        }
+
+        commit("fetchDetailsSuccess", { users, changes });
+      })
+      .catch((err) => {
+        commit("fetchDetailsError");
+        console.log(err);
+      });
   },
 };
 
