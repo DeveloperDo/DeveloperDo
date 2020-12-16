@@ -11,8 +11,6 @@
         :key="i"
       />
 
-      <label :text="isLogged"></label>
-
       <Button class="drawer-close-button" @tap="closeDrawer()"
         >Close Drawer</Button
       >
