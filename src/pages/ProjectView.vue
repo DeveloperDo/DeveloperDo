@@ -582,7 +582,7 @@ export default {
 
 .deleteTaskButton {
 	width: 60%;
-	height: 70px;
+	height: 20%;
 	font-size: 12px;
 	font-weight: bold;
 	background-color: lightcoral;
