@@ -1,5 +1,4 @@
 import { firebase } from "@nativescript/firebase";
-import { time } from "@nativescript/core/profiling";
 
 const state = {
   projectList: [],
@@ -9,9 +8,18 @@ const state = {
   chatIsLoading: true,
   todoGroupList: [],
   todoGroupListIsLoading: true,
+  changesIsLoading: true,
 };
 
 const getters = {
+  changesIsLoading: (state) => {
+    return state.changesIsLoading;
+  },
+
+  changes: (state) => {
+    return state.changes;
+  },
+
   projectListIsLoading: (state) => {
     return state.projectListLoading;
   },
@@ -42,6 +50,19 @@ const getters = {
 };
 
 const mutations = {
+  fetchChangesSuccess(state, changes) {
+    state.project.changes = changes;
+    state.changesIsLoading = false;
+  },
+
+  fetchChangesStart(state) {
+    state.changesIsLoading = true;
+  },
+
+  fetchChangesError(state) {
+    state.changesIsLoading = false;
+  },
+
   fetchChatStart(state) {
     state.chatIsLoading = true;
   },
@@ -83,6 +104,47 @@ const mutations = {
 };
 
 const actions = {
+  async addProject({ dispatch, rootGetters }, { project }) {
+    console.log("addProject");
+
+    const projectRef = firebase.firestore.collection("projects");
+    const uid = rootGetters.getUser.uid;
+
+    project.deadline = null;
+    project.imageSrc = null;
+    project.status = null;
+    project.users = [uid];
+    project.changes = [];
+
+    projectRef
+      .add(project)
+      .then(async (res) => {
+        //TODO parallel function
+        const changesRef = firebase.firestore.collection(
+          "projects/" + res.id + "/changes"
+        );
+
+        await changesRef
+          .add({
+            name: "Utworzono projekt",
+          })
+          .then(async (change) => {
+            await changesRef.doc(change.id).update({
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          });
+
+        await projectRef.doc(res.id).update({
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+
+        await dispatch("fetchProjectList");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   fetchChat({ commit }, { projectID }) {
     console.log("fetchChat");
     commit("fetchChatStart");
@@ -137,6 +199,7 @@ const actions = {
   },
 
   fetchProjectList({ commit, rootGetters }) {
+    console.log("fetchProjectList");
     commit("fetchProjectListStart");
     const uid = rootGetters.getUser.uid;
 
@@ -146,15 +209,41 @@ const actions = {
 
     projectRef
       .get()
-      .then((collectionSnapshot) => {
+      .then(async (collectionSnapshot) => {
         let projectList = [];
+
         collectionSnapshot.forEach((projectDoc) => {
           projectList.push({ ...projectDoc.data(), id: projectDoc.id });
         });
+
         commit("fetchProjectListSuccess", projectList);
       })
       .catch((err) => {
         commit("fetchProjectListError");
+        console.log(err);
+      });
+  },
+
+  fetchChanges({ commit }, projectID) {
+    commit("fetchChangesStart");
+
+    const changesRef = firebase.firestore
+      .collection("projects/" + projectID + "/changes")
+      .orderBy("timestamp", "desc");
+
+    changesRef
+      .get()
+      .then((changesSnapshot) => {
+        const changes = [];
+
+        changesSnapshot.forEach((change) => {
+          changes.push(change.data());
+        });
+
+        commit("fetchChangesSuccess", changes);
+      })
+      .catch((err) => {
+        commit("fetchChangesError");
         console.log(err);
       });
   },
