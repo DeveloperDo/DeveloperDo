@@ -2,18 +2,17 @@ import { firebase } from "@nativescript/firebase";
 
 const state = {
   projectList: [],
-  projectListLoading: false,
-  project: {},
+  projectListLoading: true,
+  users: {},
   chat: [],
   chatIsLoading: true,
-  todoGroupList: [],
-  todoGroupListIsLoading: true,
-  changesIsLoading: true,
+  detailsIsLoading: true,
+  changes: [],
 };
 
 const getters = {
-  changesIsLoading: (state) => {
-    return state.changesIsLoading;
+  detailsIsLoading: (state) => {
+    return state.detailsIsLoading;
   },
 
   changes: (state) => {
@@ -28,8 +27,8 @@ const getters = {
     return state.projectList;
   },
 
-  project: (state) => {
-    return state.project;
+  users: (state) => {
+    return state.users;
   },
 
   chat: (state) => {
@@ -39,28 +38,21 @@ const getters = {
   chatIsLoading: (state) => {
     return state.chatIsLoading;
   },
-
-  todoGroupList: (state) => {
-    return state.todoGroupList;
-  },
-
-  todoGroupListIsLoading: (state) => {
-    return state.todoGroupListIsLoading;
-  },
 };
 
 const mutations = {
-  fetchChangesSuccess(state, changes) {
-    state.project.changes = changes;
-    state.changesIsLoading = false;
+  fetchDetailsSuccess(state, { users, changes }) {
+    state.changes = changes;
+    state.users = users;
+    state.detailsIsLoading = false;
   },
 
-  fetchChangesStart(state) {
-    state.changesIsLoading = true;
+  fetchDetailsStart(state) {
+    state.detailsIsLoading = true;
   },
 
-  fetchChangesError(state) {
-    state.changesIsLoading = false;
+  fetchDetailsError(state) {
+    state.detailsIsLoading = false;
   },
 
   fetchChatStart(state) {
@@ -74,19 +66,6 @@ const mutations = {
 
   fetchChatError(state) {
     state.chatIsLoading = false;
-  },
-
-  fetchTodoGroupListStart(state) {
-    state.todoGroupListIsLoading = true;
-  },
-
-  fetchTodoGroupListSuccess(state, todoGroupList) {
-    state.todoGroupList = todoGroupList;
-    state.todoGroupListIsLoading = false;
-  },
-
-  fetchTodoGroupListError(state) {
-    state.todoGroupListIsLoading = false;
   },
 
   fetchProjectListSuccess(state, projectList) {
@@ -171,33 +150,6 @@ const actions = {
       });
   },
 
-  fetchTodoGroupList({ commit }, { projectID }) {
-    console.log("fetchTodoGroupList");
-
-    commit("fetchTodoGroupListStart");
-
-    const projectTodoRef = firebase.firestore.collection(
-      "projects/" + projectID + "/todo"
-    );
-
-    projectTodoRef
-      .get()
-      .then((collectionSnapshot) => {
-        let todoGroupList = [];
-
-        collectionSnapshot.forEach((todoGroupDoc) => {
-          todoGroupList.push(todoGroupDoc.data());
-        });
-
-        console.log(todoGroupList);
-        commit("fetchTodoGroupListSuccess", todoGroupList);
-      })
-      .catch((err) => {
-        console.log(err);
-        commit("fetchTodoGroupListError");
-      });
-  },
-
   fetchProjectList({ commit, rootGetters }) {
     console.log("fetchProjectList");
     commit("fetchProjectListStart");
@@ -224,26 +176,39 @@ const actions = {
       });
   },
 
-  fetchChanges({ commit }, projectID) {
-    commit("fetchChangesStart");
+  fetchDetails({ commit }, { projectID, projectUsers }) {
+    commit("fetchDetailsStart");
 
     const changesRef = firebase.firestore
       .collection("projects/" + projectID + "/changes")
       .orderBy("timestamp", "desc");
+    const userRef = firebase.firestore.collection("users");
+    const users = [];
+    const changes = [];
 
     changesRef
       .get()
-      .then((changesSnapshot) => {
-        const changes = [];
-
+      .then(async (changesSnapshot) => {
         changesSnapshot.forEach((change) => {
           changes.push(change.data());
         });
 
-        commit("fetchChangesSuccess", changes);
+        for (const uid of projectUsers) {
+          await userRef
+            .doc(uid)
+            .get()
+            .then((userDoc) => {
+              users.push({
+                ...userDoc.data(),
+                uid: uid,
+              });
+            });
+        }
+
+        commit("fetchDetailsSuccess", { users, changes });
       })
       .catch((err) => {
-        commit("fetchChangesError");
+        commit("fetchDetailsError");
         console.log(err);
       });
   },

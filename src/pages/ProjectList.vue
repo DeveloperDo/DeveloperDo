@@ -10,7 +10,8 @@
     <AddProjectModal v-if="showAddProjectModal" />
 
     <FlexboxLayout flexDirection="column">
-      <ScrollView>
+      <Spinner v-if="projectListIsLoading" />
+      <ScrollView v-else>
         <StackLayout className="projectList">
           <StackLayout
             v-for="(project, index) in projectList"
@@ -51,9 +52,10 @@
 <script>
 import sideDrawer from "../mixins/sideDrawer";
 import AddProjectModal from "../components/Modals/AddProjectModal";
+import Spinner from "../components/Spinner";
 
 export default {
-  components: { AddProjectModal },
+  components: { Spinner, AddProjectModal },
 
   mixins: [sideDrawer],
 
@@ -78,7 +80,7 @@ export default {
   },
 
   computed: {
-    projectListLoading: function () {
+    projectListIsLoading: function () {
       return this.$store.getters.projectListIsLoading;
     },
     projectList: function () {

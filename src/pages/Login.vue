@@ -7,7 +7,12 @@
         <label text="Logowanie" style="horizontal-align: center"> </label>
         <Label text="" />
         <TextField v-model="email" hint="Login" class="inputTextSize" />
-        <TextField v-model="password" hint="Haslo" class="inputTextSize" />
+        <TextField
+          secure="true"
+          v-model="password"
+          hint="Haslo"
+          class="inputTextSize"
+        />
         <Label text="" />
         <Button
           :disabled="authIsLoading"
