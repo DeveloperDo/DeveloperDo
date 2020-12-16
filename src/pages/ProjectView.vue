@@ -266,7 +266,7 @@ export default {
     onAddTaskButtonTap(todoGroupID) {
       this.$showModal(AddTodoModal, {
         props: {
-          users: this.project.users,
+          users: this.users,
           todoGroupID: todoGroupID,
           projectID: this.project.id,
         },

@@ -130,11 +130,6 @@ export default {
 </script>
 
 <style scoped>
-.userPhoto {
-  max-width: 100%;
-  max-height: 100%;
-}
-
 .addTaskModal {
   margin: 20px;
   vertical-align: center;

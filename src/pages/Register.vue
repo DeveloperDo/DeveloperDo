@@ -10,12 +10,17 @@
           style="horizontal-align: center; font-size: 20px"
         >
         </label>
-        <TextField v-model="userName" hint="" class="inputTextSize" />
+        <TextField v-model="name" hint="" class="inputTextSize" />
 
         <Label text="" />
         <label text="Hasło" style="horizontal-align: center; font-size: 20px">
         </label>
-        <TextField v-model="password" hint="" class="inputTextSize" />
+        <TextField
+          secure="true"
+          v-model="password"
+          hint=""
+          class="inputTextSize"
+        />
 
         <Label text="" />
         <label
@@ -23,7 +28,12 @@
           style="horizontal-align: center; font-size: 20px"
         >
         </label>
-        <TextField v-model="passwordConfirm" hint="" class="inputTextSize" />
+        <TextField
+          secure="true"
+          v-model="passwordConfirm"
+          hint=""
+          class="inputTextSize"
+        />
 
         <Label text="" />
         <label
@@ -50,7 +60,7 @@
 export default {
   data() {
     return {
-      userName: "",
+      name: "",
       password: "",
       passwordConfirm: "",
       email: "",
