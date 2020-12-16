@@ -102,6 +102,13 @@
                 class="taskCard"
               >
                 <Label :text="task.name" class="taskText" textWrap="true" />
+				<Label
+					text="Oznacz jako ukończone/nieukończone"
+					class="taskLabel" textWrap="true"
+					horizontalAlignment="center"
+					textAlignment="center" />
+				<Switch checked="false"
+					horizontalAlignment="center" />
                 <WrapLayout
                   orientation="horizontal"
                   horizontalAlignment="right"
@@ -115,12 +122,18 @@
                     />
                   </StackLayout>
                 </WrapLayout>
+				<Button text="USUŃ ZADANIE" @tap="deleteTask"
+					class="deleteTaskButton"
+					horizontalAlignment="center" />
               </StackLayout>
               <Button
                 text="DODAJ ZADANIE"
                 @tap="onAddTaskButtonTap"
                 class="addTaskButton"
               />
+			  <Button text="USUŃ KATEGORIĘ"
+				@tap="deleteTaskGroup"
+				class="deleteTaskGroupButton" />
             </StackLayout>
 
             <Button
@@ -514,5 +527,30 @@ export default {
 	font-weight: bold;
 	width: 90%;
 	height: 150px;
+}
+
+.taskLabel {
+	margin-top: 20px;
+	width: 95%;
+	font-size: 14px;
+	vertical-align: center;
+	color: gray;
+}
+
+.deleteTaskButton {
+	width: 60%;
+	height: 70px;
+	font-size: 12px;
+	font-weight: bold;
+	background-color: lightcoral;
+	color: white;
+}
+
+.deleteTaskGroupButton {
+	font-size: 18px;
+	height: 20%;
+	font-weight: bold;
+	background-color: lightcoral;
+	color: white;
 }
 </style>
