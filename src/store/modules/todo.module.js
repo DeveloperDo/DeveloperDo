@@ -31,6 +31,20 @@ const mutations = {
 };
 
 const actions = {
+  addTodo({ dispatch }, { projectID, todoGroupID, todo }) {
+    const todoGroupRef = firebase.firestore
+      .collection("projects/" + projectID + "/todo")
+      .doc(todoGroupID);
+
+    todoGroupRef
+      .update({
+        todos: firebase.firestore.FieldValue.arrayUnion(todo),
+      })
+      .then(() => {
+        dispatch("fetchTodoGroupList", projectID);
+      });
+  },
+
   addTodoGroup({ dispatch }, { projectID, categoryName }) {
     console.log("addTodoGroup");
 
@@ -64,7 +78,7 @@ const actions = {
         let todoGroupList = [];
 
         collectionSnapshot.forEach((todoGroupDoc) => {
-          todoGroupList.push(todoGroupDoc.data());
+          todoGroupList.push({ ...todoGroupDoc.data(), id: todoGroupDoc.id });
         });
 
         console.log(todoGroupList);

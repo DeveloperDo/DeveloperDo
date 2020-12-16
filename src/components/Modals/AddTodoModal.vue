@@ -52,6 +52,7 @@
           color="black"
           backgroundColor="green"
           offBackgroundColor="gray"
+          @checkedChange="switchChanged($event, user.item)"
         />
       </StackLayout>
 
@@ -69,6 +70,21 @@ import Fuse from "fuse.js";
 
 export default {
   methods: {
+    switchChanged(event, user) {
+      if (event.value) {
+        this.selectedUsers.push(user);
+      } else {
+        this.selectedUsers.splice(this.selectedUsers.indexOf(user), 1);
+      }
+
+      this.selectedUsers.sort((a, b) => {
+        let textA = a.name.toUpperCase();
+        let textB = b.name.toUpperCase();
+
+        return textA.localeCompare(textB);
+      });
+    },
+
     onSearchSubmit(args) {
       let searchBar = args.object;
       console.log("You are searching for " + searchBar.text);
@@ -82,7 +98,7 @@ export default {
   data() {
     return {
       searchPhrase: "",
-
+      selectedUsers: [],
       project: {
         users: [
           {
@@ -136,9 +152,7 @@ export default {
 
       const fuse = new Fuse(this.project.users, options);
 
-      const search = fuse.search(this.searchPhrase);
-      console.log(search);
-      return search;
+      return fuse.search(this.searchPhrase);
     },
   },
 };
