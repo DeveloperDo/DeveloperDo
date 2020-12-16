@@ -63,6 +63,10 @@
               </WrapLayout>
             </StackLayout>
 
+			<StackLayout class="editButtonContainer">
+				<Button text="EDYTUJ PROJEKT" @tap="onEditButtonTap" class="editButton" />
+			</StackLayout>
+			
             <StackLayout class="projectChangesContainer">
               <Label text="HISTORIA ZMIAN" class="projectHeader" />
               <StackLayout
@@ -488,5 +492,20 @@ export default {
   background-color: lightgray;
   color: black;
   font-weight: bold;
+}
+
+.editButtonContainer {
+	vertical-align: center;
+	horizontal-align: center;
+	margin-top: 50px;
+}
+
+.editButton {
+	background-color: lightgray;
+	color: black;
+	font-size: 18px;
+	font-weight: bold;
+	width: 90%;
+	height: 150px;
 }
 </style>
