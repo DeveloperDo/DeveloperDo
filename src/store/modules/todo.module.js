@@ -82,10 +82,6 @@ const actions = {
           todoGroupList.push({ ...todoGroupDoc.data(), id: todoGroupDoc.id });
         });
 
-        for (let i = 0; i < 100000; i++) {
-          console.log(i);
-        }
-
         todoGroupList.forEach((todoGroup) => {
           todoGroup.todos.forEach((todo) => {
             todo.users.forEach((todoUser, index, array) => {
@@ -95,8 +91,6 @@ const actions = {
             });
           });
         });
-
-        console.log(todoGroupList);
 
         commit("fetchTodoGroupListSuccess", todoGroupList);
       })
