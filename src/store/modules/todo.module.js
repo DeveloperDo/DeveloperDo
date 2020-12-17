@@ -69,13 +69,11 @@ const actions = {
     //TODO on shapshot change
     console.log("fetchTodoGroupList");
 
-    commit("fetchTodoGroupListStart");
-
     const projectTodoRef = firebase.firestore.collection(
       "projects/" + projectID + "/todo"
     );
 
-    projectTodoRef
+    return projectTodoRef
       .get()
       .then((collectionSnapshot) => {
         let todoGroupList = [];

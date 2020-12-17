@@ -7,15 +7,12 @@
       </GridLayout>
     </ActionBar>
 
-    <TabView
-      @selectedIndexChange="selectedIndexChange"
-      :isUserInteractionEnabled="false"
-    >
+    <Spinner v-if="projectIsLoading" />
+
+    <TabView v-else>
       <TabViewItem title="Podsumowanie">
         <ScrollView>
-          <spinner v-if="detailsIsLoading" />
-
-          <StackLayout v-else>
+          <StackLayout>
             <StackLayout class="projectNameContainer">
               <Image
                 :src="project.imageSrc"
@@ -93,9 +90,7 @@
 
       <TabViewItem title="Zadania" visibility="collapse">
         <ScrollView>
-          <Spinner v-if="todoGroupListIsLoading || detailsIsLoading" />
-
-          <StackLayout v-else>
+          <StackLayout>
             <StackLayout
               v-for="(todoGroup, index) in todoGroupList"
               :key="index"
@@ -149,63 +144,57 @@
         </ScrollView>
       </TabViewItem>
 
-      <TabViewItem title="Czat">
-        <FlexboxLayout flexDirection="column">
-          <Spinner v-if="chatIsLoading || detailsIsLoading" />
+      <!--      <TabViewItem title="Czat">-->
+      <!--        <FlexboxLayout flexDirection="column">-->
+      <!--          <ScrollView height="90%">-->
+      <!--            <StackLayout class="chatWindow">-->
+      <!--              <StackLayout-->
+      <!--                v-for="(msg, index) in chat"-->
+      <!--                :key="index"-->
+      <!--                class="chatMessageInContainer"-->
+      <!--                :class="{-->
+      <!--                  chatMessageOutContainer: ownMsg(msg.userID),-->
+      <!--                }"-->
+      <!--              >-->
+      <!--                &lt;!&ndash;                TODO user name&ndash;&gt;-->
+      <!--                <Label :text="name" class="messageUsername" />-->
+      <!--                <StackLayout-->
+      <!--                  class="chatMessageIn"-->
+      <!--                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"-->
+      <!--                  orientation="horizontal"-->
+      <!--                >-->
+      <!--                  &lt;!&ndash;                  TODO getUserImage&ndash;&gt;-->
+      <!--                  <Image-->
+      <!--                    :src="msg.userImageSrc"-->
+      <!--                    class="userPhoto"-->
+      <!--                    stretch="aspectFill"-->
+      <!--                  />-->
+      <!--                  <Label-->
+      <!--                    :text="msg.text"-->
+      <!--                    textWrap="true"-->
+      <!--                    verticalAlignment="center"-->
+      <!--                  />-->
+      <!--                </StackLayout>-->
+      <!--              </StackLayout>-->
+      <!--            </StackLayout>-->
+      <!--          </ScrollView>-->
 
-          <ScrollView height="90%" v-if="!chatIsLoading">
-            <StackLayout class="chatWindow">
-              <StackLayout
-                v-for="(msg, index) in chat"
-                :key="index"
-                class="chatMessageInContainer"
-                :class="{
-                  chatMessageOutContainer: ownMsg(msg.userID),
-                }"
-              >
-                <!--                TODO user name-->
-                <Label :text="userName" class="messageUsername" />
-                <StackLayout
-                  class="chatMessageIn"
-                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"
-                  orientation="horizontal"
-                >
-                  <!--                  TODO getUserImage-->
-                  <Image
-                    :src="msg.userImageSrc"
-                    class="userPhoto"
-                    stretch="aspectFill"
-                  />
-                  <Label
-                    :text="msg.text"
-                    textWrap="true"
-                    verticalAlignment="center"
-                  />
-                </StackLayout>
-              </StackLayout>
-            </StackLayout>
-          </ScrollView>
-
-          <StackLayout
-            orientation="horizontal"
-            height="10%"
-            v-if="!chatIsLoading"
-          >
-            <TextField
-              v-model="msgTextField"
-              hint="Napisz wiadomość"
-              width="65%"
-              class="chatTextField"
-            />
-            <Button
-              text="Wyślij"
-              @tap="onButtonTap"
-              width="25%"
-              class="chatSendMessageButton"
-            />
-          </StackLayout>
-        </FlexboxLayout>
-      </TabViewItem>
+      <!--          <StackLayout orientation="horizontal" height="10%">-->
+      <!--            <TextField-->
+      <!--              v-model="msgTextField"-->
+      <!--              hint="Napisz wiadomość"-->
+      <!--              width="65%"-->
+      <!--              class="chatTextField"-->
+      <!--            />-->
+      <!--            <Button-->
+      <!--              text="Wyślij"-->
+      <!--              @tap="onButtonTap"-->
+      <!--              width="25%"-->
+      <!--              class="chatSendMessageButton"-->
+      <!--            />-->
+      <!--          </StackLayout>-->
+      <!--        </FlexboxLayout>-->
+      <!--      </TabViewItem>-->
     </TabView>
   </Page>
 </template>
@@ -233,7 +222,7 @@ export default {
   mixins: [sideDrawer],
 
   created() {
-    this.$store.dispatch("fetchDetails", {
+    this.$store.dispatch("fetchProject", {
       projectID: this.project.id,
       projectUsers: this.project.users,
     });
@@ -258,26 +247,6 @@ export default {
       );
     },
 
-    selectedIndexChange(event) {
-      this.currentIndex = event.value;
-
-      if (
-        this.currentIndex === 1 &&
-        !this.todoInitialised &&
-        !this.detailsIsLoading
-      ) {
-        this.$store.dispatch("fetchTodoGroupList", this.project.id);
-        this.todoInitialised = true;
-      } else if (
-        this.currentIndex === 2 &&
-        !this.chatInitialised &&
-        !this.detailsIsLoading
-      ) {
-        this.$store.dispatch("fetchChat", { projectID: this.project.id });
-        this.chatInitialised = true;
-      }
-    },
-
     onAddTaskButtonTap(todoGroupID) {
       this.$showModal(AddTodoModal, {
         props: {
@@ -292,6 +261,10 @@ export default {
       this.$showModal(AddTodoGroupModal, {
         props: { projectID: this.project.id },
       });
+    },
+
+    onButtonTap() {
+      console.log("button tapped");
     },
 
     onChangeTap: function (args) {
@@ -310,13 +283,11 @@ export default {
   computed: {
     ...mapGetters([
       "todoGroupList",
-      "todoGroupListIsLoading",
       "chat",
-      "chatIsLoading",
       "getUser",
       "changes",
-      "detailsIsLoading",
       "users",
+      "projectIsLoading",
     ]),
   },
 };
@@ -401,6 +372,7 @@ export default {
   margin-right: 40px;
   margin-bottom: 50px;
   font-size: 18px;
+  text-align: center;
 }
 
 .projectUsersContainer {
