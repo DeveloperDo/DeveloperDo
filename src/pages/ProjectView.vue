@@ -144,57 +144,57 @@
         </ScrollView>
       </TabViewItem>
 
-      <!--      <TabViewItem title="Czat">-->
-      <!--        <FlexboxLayout flexDirection="column">-->
-      <!--          <ScrollView height="90%">-->
-      <!--            <StackLayout class="chatWindow">-->
-      <!--              <StackLayout-->
-      <!--                v-for="(msg, index) in chat"-->
-      <!--                :key="index"-->
-      <!--                class="chatMessageInContainer"-->
-      <!--                :class="{-->
-      <!--                  chatMessageOutContainer: ownMsg(msg.userID),-->
-      <!--                }"-->
-      <!--              >-->
-      <!--                &lt;!&ndash;                TODO user name&ndash;&gt;-->
-      <!--                <Label :text="name" class="messageUsername" />-->
-      <!--                <StackLayout-->
-      <!--                  class="chatMessageIn"-->
-      <!--                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"-->
-      <!--                  orientation="horizontal"-->
-      <!--                >-->
-      <!--                  &lt;!&ndash;                  TODO getUserImage&ndash;&gt;-->
-      <!--                  <Image-->
-      <!--                    :src="msg.userImageSrc"-->
-      <!--                    class="userPhoto"-->
-      <!--                    stretch="aspectFill"-->
-      <!--                  />-->
-      <!--                  <Label-->
-      <!--                    :text="msg.text"-->
-      <!--                    textWrap="true"-->
-      <!--                    verticalAlignment="center"-->
-      <!--                  />-->
-      <!--                </StackLayout>-->
-      <!--              </StackLayout>-->
-      <!--            </StackLayout>-->
-      <!--          </ScrollView>-->
+      <TabViewItem title="Czat">
+        <FlexboxLayout flexDirection="column">
+          <ScrollView height="90%">
+            <StackLayout class="chatWindow">
+              <StackLayout
+                v-for="(msg, index) in chat"
+                :key="index"
+                class="chatMessageInContainer"
+                :class="{
+                  chatMessageOutContainer: ownMsg(msg.userID),
+                }"
+              >
+                <!--                TODO user name-->
+                <Label :text="name" class="messageUsername" />
+                <StackLayout
+                  class="chatMessageIn"
+                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"
+                  orientation="horizontal"
+                >
+                  <!--                  TODO getUserImage-->
+                  <Image
+                    :src="msg.userImageSrc"
+                    class="userPhoto"
+                    stretch="aspectFill"
+                  />
+                  <Label
+                    :text="msg.text"
+                    textWrap="true"
+                    verticalAlignment="center"
+                  />
+                </StackLayout>
+              </StackLayout>
+            </StackLayout>
+          </ScrollView>
 
-      <!--          <StackLayout orientation="horizontal" height="10%">-->
-      <!--            <TextField-->
-      <!--              v-model="msgTextField"-->
-      <!--              hint="Napisz wiadomość"-->
-      <!--              width="65%"-->
-      <!--              class="chatTextField"-->
-      <!--            />-->
-      <!--            <Button-->
-      <!--              text="Wyślij"-->
-      <!--              @tap="onButtonTap"-->
-      <!--              width="25%"-->
-      <!--              class="chatSendMessageButton"-->
-      <!--            />-->
-      <!--          </StackLayout>-->
-      <!--        </FlexboxLayout>-->
-      <!--      </TabViewItem>-->
+          <StackLayout orientation="horizontal" height="10%">
+            <TextField
+              v-model="msgTextField"
+              hint="Napisz wiadomość"
+              width="65%"
+              class="chatTextField"
+            />
+            <Button
+              text="Wyślij"
+              @tap="onButtonTap"
+              width="25%"
+              class="chatSendMessageButton"
+            />
+          </StackLayout>
+        </FlexboxLayout>
+      </TabViewItem>
     </TabView>
   </Page>
 </template>
