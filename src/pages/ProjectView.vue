@@ -108,13 +108,6 @@
                 class="taskCard"
               >
                 <Label :text="task.name" class="taskText" textWrap="true" />
-				<Label
-					text="Oznacz jako ukończone/nieukończone"
-					class="taskLabel" textWrap="true"
-					horizontalAlignment="center"
-					textAlignment="center" />
-				<Switch checked="false"
-					horizontalAlignment="center" />
                 <WrapLayout
                   orientation="horizontal"
                   horizontalAlignment="right"
@@ -128,9 +121,6 @@
                     />
                   </StackLayout>
                 </WrapLayout>
-				<Button text="USUŃ ZADANIE" @tap="deleteTask"
-					class="deleteTaskButton"
-					horizontalAlignment="center" />
               </StackLayout>
               <Button
                 text="DODAJ ZADANIE"
