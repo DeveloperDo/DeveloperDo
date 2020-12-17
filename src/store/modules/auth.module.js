@@ -20,6 +20,11 @@ const getters = {
 };
 
 const mutations = {
+  signOut(state) {
+    state.projectList = [];
+    state.user = false;
+    state.isLogged = false;
+  },
   authSuccess(state, user) {
     state.user = user;
     state.authIsLoading = false;
@@ -117,12 +122,12 @@ const actions = {
       });
   },
 
-  async createUserDoc({ dispatch }, { uid, email, name }) {
+  createUserDoc({ dispatch }, { uid, email, name }) {
     console.log("createUserDoc");
 
     const usersRef = firebase.firestore.collection("users").doc(uid);
 
-    usersRef
+    return usersRef
       .set({
         email: email,
         name: name,
@@ -160,6 +165,7 @@ const actions = {
     return firebase
       .logout()
       .then(() => {
+        commit("signOut");
         commit("setSideDrawer", false);
       })
       .catch((err) => {
