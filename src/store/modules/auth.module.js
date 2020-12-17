@@ -1,5 +1,28 @@
 import { firebase } from "@nativescript/firebase";
 
+function translateErrors(errCode) {
+  switch (errCode) {
+    case "Logging in the user failed. com.google.firebase.auth.FirebaseAuthInvalidUserException: There is no user record corresponding to this identifier. The user may have been deleted.": {
+      return "Nie znaleziono użytkownika";
+    }
+    case "Logging in the user failed. com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The password is invalid or the user does not have a password.": {
+      return "Błędne hasło";
+    }
+    case "Logging in the user failed. com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The email address is badly formatted.": {
+      return "Błędny format email";
+    }
+    case "Auth type PASSWORD requires an 'passwordOptions.email' and 'passwordOptions.password' argument": {
+      return "Wymagany adres e-mail i hasło";
+    }
+    case "Creating a user failed. com.google.firebase.auth.FirebaseAuthUserCollisionException: The email address is already in use by another account.": {
+      return "Email jest zajęty";
+    }
+    default: {
+      return "Autoryzacja nieudana";
+    }
+  }
+}
+
 const state = {
   authIsLoading: true,
   user: null,
@@ -16,6 +39,9 @@ const getters = {
   },
   isLogged: (state) => {
     return state.isLogged;
+  },
+  getAuthError: (state) => {
+    return state.authError;
   },
 };
 
@@ -39,8 +65,7 @@ const mutations = {
     state.authError = err;
   },
   resetAuthError(state) {
-    state.authIsLoading = false;
-    state.error = null;
+    state.authError = null;
   },
   authSignOut(state) {
     state.isLogged = false;
@@ -94,7 +119,7 @@ const actions = {
       .catch((err) => {
         console.log("signIn error");
         console.log(err);
-        commit("authError", err);
+        commit("authError", translateErrors(err));
       });
   },
 
