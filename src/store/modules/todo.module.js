@@ -69,13 +69,11 @@ const actions = {
     //TODO on shapshot change
     console.log("fetchTodoGroupList");
 
-    commit("fetchTodoGroupListStart");
-
     const projectTodoRef = firebase.firestore.collection(
       "projects/" + projectID + "/todo"
     );
 
-    projectTodoRef
+    return projectTodoRef
       .get()
       .then((collectionSnapshot) => {
         let todoGroupList = [];
@@ -83,6 +81,10 @@ const actions = {
         collectionSnapshot.forEach((todoGroupDoc) => {
           todoGroupList.push({ ...todoGroupDoc.data(), id: todoGroupDoc.id });
         });
+
+        for (let i = 0; i < 100000; i++) {
+          console.log(i);
+        }
 
         todoGroupList.forEach((todoGroup) => {
           todoGroup.todos.forEach((todo) => {
@@ -93,6 +95,8 @@ const actions = {
             });
           });
         });
+
+        console.log(todoGroupList);
 
         commit("fetchTodoGroupListSuccess", todoGroupList);
       })

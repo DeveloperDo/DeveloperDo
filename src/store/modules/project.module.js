@@ -2,17 +2,15 @@ import { firebase } from "@nativescript/firebase";
 
 const state = {
   projectList: [],
-  projectListLoading: true,
   users: {},
   chat: [],
-  chatIsLoading: true,
-  detailsIsLoading: true,
+  projectIsLoading: true,
   changes: [],
 };
 
 const getters = {
-  detailsIsLoading: (state) => {
-    return state.detailsIsLoading;
+  projectIsLoading: (state) => {
+    return state.projectIsLoading;
   },
 
   changes: (state) => {
@@ -34,37 +32,28 @@ const getters = {
   chat: (state) => {
     return state.chat;
   },
-
-  chatIsLoading: (state) => {
-    return state.chatIsLoading;
-  },
 };
 
 const mutations = {
-  fetchDetailsSuccess(state, { users, changes }) {
+  fetchProjectSuccess(state) {
+    state.projectIsLoading = false;
+  },
+
+  fetchProjectDetailsSuccess(state, { users, changes }) {
     state.changes = changes;
     state.users = users;
+  },
+
+  fetchProjectStart(state) {
+    state.projectIsLoading = true;
+  },
+
+  fetchProjectError(state) {
     state.detailsIsLoading = false;
-  },
-
-  fetchDetailsStart(state) {
-    state.detailsIsLoading = true;
-  },
-
-  fetchDetailsError(state) {
-    state.detailsIsLoading = false;
-  },
-
-  fetchChatStart(state) {
-    state.chatIsLoading = true;
   },
 
   fetchChatSuccess(state, chat) {
     state.chat = chat;
-    state.chatIsLoading = false;
-  },
-
-  fetchChatError(state) {
     state.chatIsLoading = false;
   },
 
@@ -124,15 +113,62 @@ const actions = {
       });
   },
 
-  fetchChat({ commit }, { projectID }) {
-    console.log("fetchChat");
-    commit("fetchChatStart");
+  async fetchProject({ commit, dispatch }, { projectID, projectUsers }) {
+    console.log("fetch project");
+    commit("fetchProjectStart");
 
+    const changesRef = firebase.firestore
+      .collection("projects/" + projectID + "/changes")
+      .orderBy("timestamp", "desc");
+    const userRef = firebase.firestore.collection("users");
+    const users = [];
+    const changes = [];
+
+    await changesRef
+      .get()
+      .then(async (changesSnapshot) => {
+        changesSnapshot.forEach((change) => {
+          changes.push(change.data());
+        });
+
+        for (const uid of projectUsers) {
+          await userRef
+            .doc(uid)
+            .get()
+            .then((userDoc) => {
+              users.push({
+                ...userDoc.data(),
+                uid: uid,
+              });
+            });
+        }
+
+        async function parallel() {
+          const fetchChat = dispatch("fetchChat", projectID);
+          const fetchTodo = dispatch("fetchTodoGroupList", projectID);
+          await fetchChat;
+          await fetchTodo;
+        }
+
+        commit("fetchProjectDetailsSuccess", { users, changes });
+
+        await parallel();
+
+        commit("fetchProjectSuccess");
+      })
+      .catch((err) => {
+        commit("fetchProjectError");
+        console.log(err);
+      });
+  },
+
+  fetchChat({ commit }, projectID) {
+    console.log("fetchChat");
     const projectChatRef = firebase.firestore.collection(
       "projects/" + projectID + "/chat"
     );
 
-    projectChatRef
+    return projectChatRef
       .get()
       .then((collectionSnapshot) => {
         let chat = [];
@@ -141,12 +177,12 @@ const actions = {
           chat.push(msgDoc.data());
         });
 
-        console.log(chat);
+        console.log("fetchChatSuccess");
         commit("fetchChatSuccess", chat);
       })
       .catch((err) => {
         console.log(err);
-        commit("fetchChatError");
+        commit("fetchProjectError");
       });
   },
 
@@ -172,43 +208,6 @@ const actions = {
       })
       .catch((err) => {
         commit("fetchProjectListError");
-        console.log(err);
-      });
-  },
-
-  fetchDetails({ commit }, { projectID, projectUsers }) {
-    commit("fetchDetailsStart");
-
-    const changesRef = firebase.firestore
-      .collection("projects/" + projectID + "/changes")
-      .orderBy("timestamp", "desc");
-    const userRef = firebase.firestore.collection("users");
-    const users = [];
-    const changes = [];
-
-    changesRef
-      .get()
-      .then(async (changesSnapshot) => {
-        changesSnapshot.forEach((change) => {
-          changes.push(change.data());
-        });
-
-        for (const uid of projectUsers) {
-          await userRef
-            .doc(uid)
-            .get()
-            .then((userDoc) => {
-              users.push({
-                ...userDoc.data(),
-                uid: uid,
-              });
-            });
-        }
-
-        commit("fetchDetailsSuccess", { users, changes });
-      })
-      .catch((err) => {
-        commit("fetchDetailsError");
         console.log(err);
       });
   },
