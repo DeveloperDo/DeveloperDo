@@ -102,26 +102,34 @@
               class="projectTasksContainer"
             >
               <Label :text="todoGroup.name" class="projectHeader" />
-              <StackLayout
+              <FlexboxLayout
                 v-for="(task, index) in todoGroup.todos"
                 :key="index"
                 class="taskCard"
+                flexDirection="row"
               >
-                <Label :text="task.name" class="taskText" textWrap="true" />
-                <WrapLayout
-                  orientation="horizontal"
-                  horizontalAlignment="right"
-                >
-                  <StackLayout v-for="(user, index) in task.users" :key="index">
-                    <!--                    TODO fetching user avatar-->
-                    <Image
-                      :src="user.imageSrc"
-                      class="userTaskPhoto"
-                      stretch="aspectFill"
-                    />
-                  </StackLayout>
-                </WrapLayout>
-              </StackLayout>
+                <FlexboxLayout padding="20px" flexDirection="column">
+                  <Label :text="task.name" class="taskText" textWrap="true" />
+                  <WrapLayout
+                    orientation="horizontal"
+                    alignSelf="flex-end"
+                  >
+                    <StackLayout v-for="(user, index) in task.users" :key="index">
+                      <!--                    TODO fetching user avatar-->
+                      <Image
+                        :src="user.imageSrc"
+                        class="userTaskPhoto"
+                        stretch="aspectFill"
+                      />
+                    </StackLayout>
+                  </WrapLayout>
+                </FlexboxLayout>
+                <StackLayout width="40%">
+                  <FlexboxLayout height="100%">
+                    <Button text="X" class="deleteTaskButton"></Button>
+                  </FlexboxLayout>
+                </StackLayout>
+              </FlexboxLayout>
               <Button
                 text="DODAJ ZADANIE"
                 @tap="onAddTaskButtonTap(todoGroup.id)"
@@ -458,7 +466,6 @@ export default {
 
 .taskCard {
   width: 95%;
-  padding: 15px;
   margin-bottom: 10px;
   background-color: white;
   border-radius: 10px;
@@ -466,7 +473,7 @@ export default {
 }
 
 .taskText {
-  width: 95%;
+  width: 100%;
   font-size: 18px;
   vertical-align: center;
 }
@@ -562,18 +569,8 @@ export default {
 	height: 150px;
 }
 
-.taskLabel {
-	margin-top: 20px;
-	width: 95%;
-	font-size: 14px;
-	vertical-align: center;
-	color: gray;
-}
-
 .deleteTaskButton {
-	width: 60%;
-	height: 20%;
-	font-size: 12px;
+	font-size: 18px;
 	font-weight: bold;
 	background-color: lightcoral;
 	color: white;
