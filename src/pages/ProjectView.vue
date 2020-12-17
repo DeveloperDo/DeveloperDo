@@ -45,7 +45,7 @@
             <StackLayout class="projectDescriptionContainer">
               <Label text="OPIS PROJEKTU" class="projectHeader" />
               <Label
-                :text="project.description"
+                :text="project.desc"
                 class="projectDescription"
                 textWrap="true"
               />
