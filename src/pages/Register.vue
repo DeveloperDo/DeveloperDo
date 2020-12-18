@@ -43,6 +43,8 @@
         </label>
         <TextField v-model="email" hint="" class="inputTextSize" />
 
+        <Label :text="authError" class="errorLabel" textWrap="true"/>
+
         <Label text="" />
         <Button
           :disabled="authIsLoading"
@@ -74,26 +76,45 @@ export default {
     authIsLoading: function () {
       return this.$store.getters.authIsLoading;
     },
+    authError: function () {
+      return this.$store.getters.getAuthError;
+    },
   },
 
   methods: {
     redirectToLogin() {
+      this.$store.commit("resetAuthError");
       this.$navigateTo(this.$routes.Login);
     },
 
     register() {
-      this.$store
-        .dispatch("signUp", {
-          name: this.name,
-          email: this.email.toLowerCase(),
-          password: this.password,
-        })
-        .then(() => {
-          if (this.isLogged) {
-            this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
-          }
-        });
-    },
+      if (this.validate()) {
+        return
+      }
+        this.$store
+            .dispatch("signUp", {
+              name: this.name,
+              email: this.email.toLowerCase(),
+              password: this.password,
+            })
+            .then(() => {
+              if (this.isLogged) {
+                this.$store.commit("resetAuthError");
+                this.$navigateTo(this.$routes.ProjectList, {clearHistory: true});
+              }
+            });
+      },
+
+    validate() {
+      if (this.password !== this.passwordConfirm) {
+        this.$store.commit("authError", "Hasło i jego potwierdzenie nie są równe");
+        return true;
+      }
+      if (!this.name) {
+        this.$store.commit("authError", "Wymagana nazwa użytkownika");
+        return true;
+      }
+    }
   },
 };
 </script>
@@ -111,5 +132,12 @@ export default {
 
 .description-label {
   margin-bottom: 15;
+}
+
+.errorLabel {
+  padding: 50px;
+  font-size: 18px;
+  color: red;
+  font-style: italic;
 }
 </style>
