@@ -162,6 +162,12 @@ const actions = {
       });
   },
 
+  async editProject({ commit, dispatch, rootGetters }, project) {
+    console.log("editProject");
+
+    const uid = rootGetters.getUser.uid;
+  },
+
   fetchChat({ commit }, projectID) {
     console.log("fetchChat");
     const projectChatRef = firebase.firestore.collection(

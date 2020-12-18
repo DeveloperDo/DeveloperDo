@@ -51,9 +51,20 @@
                 status: 0,
                 listPickerPriority: ["brak", "niski", "średni", "wysoki"],
                 priority: 0,
-                name: "SUPER COOL PROJECT!!!!!!",
-                desc: "Lorem ipsum dolor sit cośtam"
+                name: "",
+                desc: ""
             };
+        },
+
+        created() {
+          this.name = this.project.name;
+          this.desc = this.project.desc;
+          this.status = this.project.status;
+          this.priority = this.project.priority;
+        },
+
+        props: {
+          project: Object
         },
 
         methods: {

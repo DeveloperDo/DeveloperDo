@@ -205,6 +205,7 @@ import { mapGetters } from "vuex";
 import Spinner from "../components/Spinner";
 import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
 import AddTodoModal from "../components/Modals/AddTodoModal";
+import EditProjectModal from "../components/Modals/EditProjectModal";
 
 export default {
   components: { Spinner },
@@ -245,6 +246,15 @@ export default {
         "/" +
         timestamp.getFullYear()
       );
+    },
+
+    onEditButtonTap() {
+      this.$showModal(EditProjectModal, {
+        fullscreen: true,
+        props: {
+          project: this.project,
+        },
+      });
     },
 
     onAddTaskButtonTap(todoGroupID) {
