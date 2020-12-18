@@ -65,6 +65,10 @@
               </WrapLayout>
             </StackLayout>
 
+			<StackLayout class="editButtonContainer">
+				<Button text="EDYTUJ PROJEKT" @tap="onEditButtonTap" class="editButton" />
+			</StackLayout>
+			
             <StackLayout class="projectChangesContainer">
               <Label text="HISTORIA ZMIAN" class="projectHeader" />
               <StackLayout
@@ -93,31 +97,42 @@
               class="projectTasksContainer"
             >
               <Label :text="todoGroup.name" class="projectHeader" />
-              <StackLayout
+              <FlexboxLayout
                 v-for="(task, index) in todoGroup.todos"
                 :key="index"
                 class="taskCard"
+                flexDirection="row"
               >
-                <Label :text="task.name" class="taskText" textWrap="true" />
-                <WrapLayout
-                  orientation="horizontal"
-                  horizontalAlignment="right"
-                >
-                  <StackLayout v-for="(user, index) in task.users" :key="index">
-                    <!--                    TODO fetching user avatar-->
-                    <Image
-                      :src="user.imageSrc"
-                      class="userTaskPhoto"
-                      stretch="aspectFill"
-                    />
-                  </StackLayout>
-                </WrapLayout>
-              </StackLayout>
+                <FlexboxLayout padding="20px" flexDirection="column">
+                  <Label :text="task.name" class="taskText" textWrap="true" />
+                  <WrapLayout
+                    orientation="horizontal"
+                    alignSelf="flex-end"
+                  >
+                    <StackLayout v-for="(user, index) in task.users" :key="index">
+                      <!--                    TODO fetching user avatar-->
+                      <Image
+                        :src="user.imageSrc"
+                        class="userTaskPhoto"
+                        stretch="aspectFill"
+                      />
+                    </StackLayout>
+                  </WrapLayout>
+                </FlexboxLayout>
+                <StackLayout width="40%">
+                  <FlexboxLayout height="100%">
+                    <Button text="X" class="deleteTaskButton"></Button>
+                  </FlexboxLayout>
+                </StackLayout>
+              </FlexboxLayout>
               <Button
                 text="DODAJ ZADANIE"
                 @tap="onAddTaskButtonTap(todoGroup.id)"
                 class="addTaskButton"
               />
+			  <Button text="USUŃ KATEGORIĘ"
+				@tap="deleteTaskGroup"
+				class="deleteTaskGroupButton" />
             </StackLayout>
 
             <Button
@@ -423,7 +438,6 @@ export default {
 
 .taskCard {
   width: 95%;
-  padding: 15px;
   margin-bottom: 10px;
   background-color: white;
   border-radius: 10px;
@@ -431,7 +445,7 @@ export default {
 }
 
 .taskText {
-  width: 95%;
+  width: 100%;
   font-size: 18px;
   vertical-align: center;
 }
@@ -510,5 +524,35 @@ export default {
   background-color: lightgray;
   color: black;
   font-weight: bold;
+}
+
+.editButtonContainer {
+	vertical-align: center;
+	horizontal-align: center;
+	margin-top: 50px;
+}
+
+.editButton {
+	background-color: lightgray;
+	color: black;
+	font-size: 18px;
+	font-weight: bold;
+	width: 90%;
+	height: 150px;
+}
+
+.deleteTaskButton {
+	font-size: 18px;
+	font-weight: bold;
+	background-color: lightcoral;
+	color: white;
+}
+
+.deleteTaskGroupButton {
+	font-size: 18px;
+	height: 20%;
+	font-weight: bold;
+	background-color: lightcoral;
+	color: white;
 }
 </style>
