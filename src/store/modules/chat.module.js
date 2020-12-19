@@ -22,10 +22,14 @@ const actions = {
         .limit(15);
 
       const serialize = (doc) => {
-        const data = doc.data();
+        let data = doc.data();
+        const user = rootGetters.users.find((user) => user.uid === data.uid);
+
+        data.user = user ? user : { name: "", imageSrc: "" };
 
         Object.defineProperty(data, "id", { value: doc.id });
         Object.defineProperty(data, "_doc", { value: doc });
+
         return data;
       };
 
@@ -33,10 +37,7 @@ const actions = {
         serialize,
       })
         .then((messages) => {
-          messages.forEach((msg) => {
-            const user = rootGetters.users.find((user) => user.uid === msg.uid);
-            msg.user = user ? user : { name: "", imageSrc: "" };
-          });
+          console.log(messages);
         })
         .catch((err) => {
           console.log(err);
