@@ -3,7 +3,6 @@ import { firebase } from "@nativescript/firebase";
 const state = {
   projectList: [],
   users: {},
-  chat: [],
   projectIsLoading: true,
   changes: [],
 };
@@ -28,10 +27,6 @@ const getters = {
   users: (state) => {
     return state.users;
   },
-
-  chat: (state) => {
-    return state.chat;
-  },
 };
 
 const mutations = {
@@ -50,11 +45,6 @@ const mutations = {
 
   fetchProjectError(state) {
     state.detailsIsLoading = false;
-  },
-
-  fetchChatSuccess(state, chat) {
-    state.chat = chat;
-    state.chatIsLoading = false;
   },
 
   fetchProjectListSuccess(state, projectList) {
@@ -144,7 +134,7 @@ const actions = {
         }
 
         async function parallel() {
-          const fetchChat = dispatch("fetchChat", projectID);
+          const fetchChat = dispatch("bindChat", projectID);
           const fetchTodo = dispatch("fetchTodoGroupList", projectID);
           await fetchChat;
           await fetchTodo;
@@ -159,30 +149,6 @@ const actions = {
       .catch((err) => {
         commit("fetchProjectError");
         console.log(err);
-      });
-  },
-
-  fetchChat({ commit }, projectID) {
-    console.log("fetchChat");
-    const projectChatRef = firebase.firestore.collection(
-      "projects/" + projectID + "/chat"
-    );
-
-    return projectChatRef
-      .get()
-      .then((collectionSnapshot) => {
-        let chat = [];
-
-        collectionSnapshot.forEach((msgDoc) => {
-          chat.push(msgDoc.data());
-        });
-
-        console.log("fetchChatSuccess");
-        commit("fetchChatSuccess", chat);
-      })
-      .catch((err) => {
-        console.log(err);
-        commit("fetchProjectError");
       });
   },
 

@@ -149,11 +149,11 @@
                   orientation="horizontal"
                 >
                   <!--                  TODO getUserImage-->
-                  <Image
-                    :src="msg.userImageSrc"
-                    class="userPhoto"
-                    stretch="aspectFill"
-                  />
+<!--                  <Image-->
+<!--                    :src="msg.userImageSrc"-->
+<!--                    class="userPhoto"-->
+<!--                    stretch="aspectFill"-->
+<!--                  />-->
                   <Label
                     :text="msg.text"
                     textWrap="true"
