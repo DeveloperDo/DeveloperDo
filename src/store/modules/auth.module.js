@@ -2,7 +2,7 @@ import { firebase } from "@nativescript/firebase";
 
 function translateErrors(errCode) {
   switch (errCode) {
-        //login
+    //login
     case "Logging in the user failed. com.google.firebase.auth.FirebaseAuthInvalidUserException: There is no user record corresponding to this identifier. The user may have been deleted.": {
       return "Nie znaleziono użytkownika";
     }
@@ -15,7 +15,7 @@ function translateErrors(errCode) {
     case "Auth type PASSWORD requires an 'passwordOptions.email' and 'passwordOptions.password' argument": {
       return "Wymagany adres e-mail i hasło";
     }
-        //register
+    //register
     case "Creating a user failed. com.google.firebase.auth.FirebaseAuthUserCollisionException: The email address is already in use by another account.": {
       return "Email jest zajęty";
     }
@@ -28,7 +28,7 @@ function translateErrors(errCode) {
     case "Creating a user failed. com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The email address is badly formatted.": {
       return "Błędny format email";
     }
-        //default
+    //default
     default: {
       return "Autoryzacja nieudana";
     }

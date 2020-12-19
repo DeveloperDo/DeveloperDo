@@ -280,10 +280,6 @@ export default {
       });
     },
 
-    onEditButtonTap() {
-      console.log("Edit button tap");
-    },
-
     onButtonTap() {
       console.log("button tapped");
     },
