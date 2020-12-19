@@ -65,10 +65,14 @@
               </WrapLayout>
             </StackLayout>
 
-			<StackLayout class="editButtonContainer">
-				<Button text="EDYTUJ PROJEKT" @tap="onEditButtonTap" class="editButton" />
-			</StackLayout>
-			
+            <StackLayout class="editButtonContainer">
+              <Button
+                text="EDYTUJ PROJEKT"
+                @tap="onEditButtonTap"
+                class="editButton"
+              />
+            </StackLayout>
+
             <StackLayout class="projectChangesContainer">
               <Label text="HISTORIA ZMIAN" class="projectHeader" />
               <StackLayout
@@ -105,11 +109,11 @@
               >
                 <FlexboxLayout padding="20px" flexDirection="column">
                   <Label :text="task.name" class="taskText" textWrap="true" />
-                  <WrapLayout
-                    orientation="horizontal"
-                    alignSelf="flex-end"
-                  >
-                    <StackLayout v-for="(user, index) in task.users" :key="index">
+                  <WrapLayout orientation="horizontal" alignSelf="flex-end">
+                    <StackLayout
+                      v-for="(user, index) in task.users"
+                      :key="index"
+                    >
                       <!--                    TODO fetching user avatar-->
                       <Image
                         :src="user.imageSrc"
@@ -130,9 +134,11 @@
                 @tap="onAddTaskButtonTap(todoGroup.id)"
                 class="addTaskButton"
               />
-			  <Button text="USUŃ KATEGORIĘ"
-				@tap="deleteTaskGroup"
-				class="deleteTaskGroupButton" />
+              <Button
+                text="USUŃ KATEGORIĘ"
+                @tap="deleteTodoGroup"
+                class="deleteTaskGroupButton"
+              />
             </StackLayout>
 
             <Button
@@ -153,19 +159,18 @@
                 :key="index"
                 class="chatMessageInContainer"
                 :class="{
-                  chatMessageOutContainer: ownMsg(msg.userID),
+                  chatMessageOutContainer: ownMsg(msg.uid),
                 }"
               >
-                <!--                TODO user name-->
-                <Label :text="name" class="messageUsername" />
+                <Label :text="msg.user.name" class="messageUsername" />
                 <StackLayout
                   class="chatMessageIn"
-                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"
+                  v-bind:class="{ chatMessageOut: ownMsg(msg.uid) }"
                   orientation="horizontal"
                 >
                   <!--                  TODO getUserImage-->
                   <Image
-                    :src="msg.userImageSrc"
+                    :src="getImg(msg.user.imageSrc)"
                     class="userPhoto"
                     stretch="aspectFill"
                   />
@@ -233,6 +238,8 @@ export default {
   },
 
   methods: {
+    deleteTodoGroup() {},
+
     readTimestamp(timestamp) {
       return (
         timestamp.getHours() +
@@ -263,6 +270,10 @@ export default {
       });
     },
 
+    onEditButtonTap() {
+      console.log("Edit button tap");
+    },
+
     onButtonTap() {
       console.log("button tapped");
     },
@@ -277,6 +288,14 @@ export default {
 
     ownMsg(userID) {
       return userID === this.getUser.uid;
+    },
+
+    getImg(imageSrc) {
+      if (imageSrc) {
+        return imageSrc;
+      } else {
+        return "https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg";
+      }
     },
   },
 
@@ -527,32 +546,32 @@ export default {
 }
 
 .editButtonContainer {
-	vertical-align: center;
-	horizontal-align: center;
-	margin-top: 50px;
+  vertical-align: center;
+  horizontal-align: center;
+  margin-top: 50px;
 }
 
 .editButton {
-	background-color: lightgray;
-	color: black;
-	font-size: 18px;
-	font-weight: bold;
-	width: 90%;
-	height: 150px;
+  background-color: lightgray;
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
+  width: 90%;
+  height: 150px;
 }
 
 .deleteTaskButton {
-	font-size: 18px;
-	font-weight: bold;
-	background-color: lightcoral;
-	color: white;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: lightcoral;
+  color: white;
 }
 
 .deleteTaskGroupButton {
-	font-size: 18px;
-	height: 20%;
-	font-weight: bold;
-	background-color: lightcoral;
-	color: white;
+  font-size: 18px;
+  height: 20%;
+  font-weight: bold;
+  background-color: lightcoral;
+  color: white;
 }
 </style>
