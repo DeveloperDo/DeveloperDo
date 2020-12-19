@@ -138,22 +138,22 @@
                 :key="index"
                 class="chatMessageInContainer"
                 :class="{
-                  chatMessageOutContainer: ownMsg(msg.userID),
+                  chatMessageOutContainer: ownMsg(msg.uid),
                 }"
               >
                 <!--                TODO user name-->
                 <Label :text="name" class="messageUsername" />
                 <StackLayout
                   class="chatMessageIn"
-                  v-bind:class="{ chatMessageOut: ownMsg(msg.userID) }"
+                  v-bind:class="{ chatMessageOut: ownMsg(msg.uid) }"
                   orientation="horizontal"
                 >
                   <!--                  TODO getUserImage-->
-<!--                  <Image-->
-<!--                    :src="msg.userImageSrc"-->
-<!--                    class="userPhoto"-->
-<!--                    stretch="aspectFill"-->
-<!--                  />-->
+                  <Image
+                    :src="getImg(msg.user.imageSrc)"
+                    class="userPhoto"
+                    stretch="aspectFill"
+                  />
                   <Label
                     :text="msg.text"
                     textWrap="true"
@@ -262,6 +262,14 @@ export default {
 
     ownMsg(userID) {
       return userID === this.getUser.uid;
+    },
+
+    getImg(imageSrc) {
+      if (imageSrc) {
+        return imageSrc;
+      } else {
+        return "https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg";
+      }
     },
   },
 
