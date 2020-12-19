@@ -1,4 +1,5 @@
 import { firebase } from "@nativescript/firebase";
+import { firestoreAction } from "vuexfire";
 
 const state = {
   todoGroupList: [],
@@ -15,90 +16,69 @@ const getters = {
   },
 };
 
-const mutations = {
-  fetchTodoGroupListStart(state) {
-    state.todoGroupListIsLoading = true;
-  },
-
-  fetchTodoGroupListSuccess(state, todoGroupList) {
-    state.todoGroupList = todoGroupList;
-    state.todoGroupListIsLoading = false;
-  },
-
-  fetchTodoGroupListError(state) {
-    state.todoGroupListIsLoading = false;
-  },
-};
+const mutations = {};
 
 const actions = {
-  addTodo({ dispatch }, { projectID, todoGroupID, todo }) {
-    console.log("fasdfasdfasdfasdfasdf");
+  addTodo({}, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
       .doc(todoGroupID);
 
-    console.log("fasdfasdfasdfasdfasdf");
-
-    return todoGroupRef
+    todoGroupRef
       .update({
         todos: firebase.firestore.FieldValue.arrayUnion(todo),
       })
-      .then(async () => {
-        await dispatch("fetchTodoGroupList", projectID);
+      .catch((err) => {
+        console.log(err);
       });
   },
 
-  addTodoGroup({ dispatch }, { projectID, categoryName }) {
-    console.log("addTodoGroup");
-
+  addTodoGroup({}, { projectID, categoryName }) {
     const projectTodoRef = firebase.firestore.collection(
       "projects/" + projectID + "/todo"
     );
 
-    return projectTodoRef
+    projectTodoRef
       .add({
         name: categoryName,
         todos: [],
       })
-      .then(async () => {
-        await dispatch("fetchTodoGroupList", projectID);
+      .catch((err) => {
+        console.log(err);
       });
   },
 
-  fetchTodoGroupList({ commit, rootGetters }, projectID) {
-    //TODO on shapshot change
-    console.log("fetchTodoGroupList");
+  bindTodoGroupList: firestoreAction(
+    ({ bindFirestoreRef, rootGetters }, projectID) => {
+      const projectTodoRef = firebase.firestore.collection(
+        "projects/" + projectID + "/todo"
+      );
 
-    const projectTodoRef = firebase.firestore.collection(
-      "projects/" + projectID + "/todo"
-    );
+      const serialize = (doc) => {
+        let data = doc.data();
 
-    return projectTodoRef
-      .get()
-      .then((collectionSnapshot) => {
-        let todoGroupList = [];
-
-        collectionSnapshot.forEach((todoGroupDoc) => {
-          todoGroupList.push({ ...todoGroupDoc.data(), id: todoGroupDoc.id });
-        });
-
-        todoGroupList.forEach((todoGroup) => {
-          todoGroup.todos.forEach((todo) => {
-            todo.users.forEach((todoUser, index, array) => {
-              array[index] = rootGetters.users.find(
-                (user) => user.uid === todoUser
-              );
-            });
+        data.todos.forEach((todo) => {
+          todo.users.forEach((todoUser) => {
+            const user = rootGetters.users.find(
+              (user) => user.uid === todoUser
+            );
+            todoUser = user ? user : { name: "", imageSrc: "" };
           });
         });
 
-        commit("fetchTodoGroupListSuccess", todoGroupList);
-      })
-      .catch((err) => {
+        Object.defineProperty(data, "id", { value: doc.id });
+        Object.defineProperty(data, "_doc", { value: doc });
+
+        return data;
+      };
+
+      bindFirestoreRef("todoGroupList", projectTodoRef, {
+        serialize,
+      }).catch((err) => {
         console.log(err);
-        commit("fetchTodoGroupListError");
       });
-  },
+    }
+  ),
 };
 
 export default {

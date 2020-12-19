@@ -135,7 +135,7 @@ const actions = {
 
         async function parallel() {
           const fetchChat = dispatch("bindChat", projectID);
-          const fetchTodo = dispatch("fetchTodoGroupList", projectID);
+          const fetchTodo = dispatch("bindTodoGroupList", projectID);
           await fetchChat;
           await fetchTodo;
         }
