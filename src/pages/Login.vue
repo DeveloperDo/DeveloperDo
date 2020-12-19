@@ -13,6 +13,7 @@
           hint="Haslo"
           class="inputTextSize"
         />
+        <Label :text="authError" class="errorLabel" textWrap="true"/>
         <Label text="" />
         <Button
           :disabled="authIsLoading"
@@ -44,10 +45,14 @@ export default {
     authIsLoading: function () {
       return this.$store.getters.authIsLoading;
     },
+    authError: function () {
+      return this.$store.getters.getAuthError;
+    },
   },
 
   methods: {
     redirectToRegister() {
+      this.$store.commit("resetAuthError");
       this.$navigateTo(this.$routes.Register);
     },
 
@@ -56,6 +61,7 @@ export default {
         .dispatch("signIn", { email: this.email, password: this.password })
         .then(() => {
           if (this.isLogged) {
+            this.$store.commit("resetAuthError");
             this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
           }
         });
@@ -77,5 +83,12 @@ export default {
 
 .description-label {
   margin-bottom: 15;
+}
+
+.errorLabel {
+  padding: 50px;
+  font-size: 18px;
+  color: red;
+  font-style: italic;
 }
 </style>
