@@ -43,7 +43,7 @@
         </label>
         <TextField v-model="email" hint="" class="inputTextSize" />
 
-        <Label :text="authError" class="errorLabel" textWrap="true"/>
+        <Label :text="authError" class="errorLabel" textWrap="true" />
 
         <Label text="" />
         <Button
@@ -89,32 +89,35 @@ export default {
 
     register() {
       if (this.validate()) {
-        return
+        return;
       }
-        this.$store
-            .dispatch("signUp", {
-              name: this.name,
-              email: this.email.toLowerCase(),
-              password: this.password,
-            })
-            .then(() => {
-              if (this.isLogged) {
-                this.$store.commit("resetAuthError");
-                this.$navigateTo(this.$routes.ProjectList, {clearHistory: true});
-              }
-            });
-      },
+      this.$store
+        .dispatch("signUp", {
+          name: this.name,
+          email: this.email.toLowerCase(),
+          password: this.password,
+        })
+        .then(() => {
+          if (this.isLogged) {
+            this.$store.commit("resetAuthError");
+            this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+          }
+        });
+    },
 
     validate() {
       if (this.password !== this.passwordConfirm) {
-        this.$store.commit("authError", "Hasło i jego potwierdzenie nie są równe");
+        this.$store.commit(
+          "authError",
+          "Hasło i jego potwierdzenie nie są równe"
+        );
         return true;
       }
       if (!this.name) {
         this.$store.commit("authError", "Wymagana nazwa użytkownika");
         return true;
       }
-    }
+    },
   },
 };
 </script>

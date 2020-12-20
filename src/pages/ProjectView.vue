@@ -224,6 +224,7 @@ import { mapGetters } from "vuex";
 import Spinner from "../components/Spinner";
 import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
 import AddTodoModal from "../components/Modals/AddTodoModal";
+import EditProjectModal from "../components/Modals/EditProjectModal";
 
 export default {
   components: { Spinner },
@@ -282,6 +283,15 @@ export default {
       );
     },
 
+    onEditButtonTap() {
+      this.$showModal(EditProjectModal, {
+        fullscreen: true,
+        props: {
+          project: this.project,
+        },
+      });
+    },
+
     onAddTaskButtonTap(todoGroupID) {
       this.$showModal(AddTodoModal, {
         props: {
@@ -296,10 +306,6 @@ export default {
       this.$showModal(AddTodoGroupModal, {
         props: { projectID: this.project.id },
       });
-    },
-
-    onEditButtonTap() {
-      console.log("Edit button tap");
     },
 
     onButtonTap() {

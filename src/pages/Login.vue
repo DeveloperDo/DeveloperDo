@@ -13,7 +13,7 @@
           hint="Haslo"
           class="inputTextSize"
         />
-        <Label :text="authError" class="errorLabel" textWrap="true"/>
+        <Label :text="authError" class="errorLabel" textWrap="true" />
         <Label text="" />
         <Button
           :disabled="authIsLoading"
