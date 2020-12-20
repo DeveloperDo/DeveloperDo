@@ -27,7 +27,10 @@ export default {
   data() {
     return {
       // define our pages, making sure the component matches that defined in /app/router/index.js
-      pages: [{ name: "Lista Projektów", component: this.$routes.ProjectList }],
+      pages: [
+        {name: "Lista Projektów", component: this.$routes.ProjectList},
+        {name: "Profil", component: this.$routes.Profile},
+      ],
     };
   },
   methods: {

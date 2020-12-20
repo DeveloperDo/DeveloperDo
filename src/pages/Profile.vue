@@ -1,6 +1,12 @@
 <template>
   <Page>
-    <ActionBar title="Profil użytkownika" />
+    <ActionBar>
+      <GridLayout width="100%" columns="auto, *">
+        <Label text="MENU" @tap="openDrawer()" col="0" />
+        <Label class="title" text="Welcome to NativeScript-Vue!" col="1" />
+      </GridLayout>
+    </ActionBar>
+
     <ScrollView>
       <StackLayout class="userPanel">
         <Image :src="user.imageSrc" class="userImage" stretch="aspectFill" />
@@ -71,7 +77,11 @@
 </template>
 
 <script>
+import sideDrawer from "../mixins/sideDrawer";
+
 export default {
+  mixins: [sideDrawer],
+
   methods: {
     onConfirmChangesButtonTap() {
       if (this.changeNameTextField) {
@@ -86,7 +96,7 @@ export default {
         }
       }
       if (this.changePasswordTextField) {
-        if (this.changePasswordTextField == this.confirmPasswordTextField) {
+        if (this.changePasswordTextField === this.confirmPasswordTextField) {
           if (this.changePasswordTextField.length > 7) {
             //
           } else {
