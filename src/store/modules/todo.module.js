@@ -19,6 +19,35 @@ const getters = {
 const mutations = {};
 
 const actions = {
+  deleteTodo({}, { projectID, todoGroupID, todo }) {
+    const todoGroupRef = firebase.firestore
+      .collection("projects/" + projectID + "/todo")
+      .doc(todoGroupID);
+
+    todoGroupRef
+      .update({
+        todos: firebase.firestore.FieldValue.arrayRemove(todo),
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
+  deleteTodoGroup({}, { projectID, todoGroupID }) {
+    const todoGroupRef = firebase.firestore
+      .collection("projects/" + projectID + "/todo")
+      .doc(todoGroupID);
+
+    todoGroupRef
+      .delete()
+      .then(() => {
+        console.log("deleted");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   addTodo({}, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
