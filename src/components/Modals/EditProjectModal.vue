@@ -57,7 +57,6 @@
 
       <Button
         text="USUŃ PROJEKT"
-        @tap="editProject"
         class="deleteProjectButton"
       />
 
@@ -97,6 +96,19 @@ export default {
   },
 
   methods: {
+    editProject() {
+      const project = {
+        name: this.name,
+        desc: this.desc,
+        status: this.status,
+        priority: this.priority,
+      };
+
+      this.$store.dispatch("editProject", { project: project, projectID: this.project.id, projectUsers: this.project.users }).then(() => {
+        this.$modal.close();
+      });
+    },
+
     onEditProjectImageButtonTap() {
       console.log("edit image button was pressed");
     },

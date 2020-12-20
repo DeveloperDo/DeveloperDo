@@ -152,6 +152,22 @@ const actions = {
       });
   },
 
+    editProject({ dispatch, rootGetters }, { project, projectID, projectUsers }) {
+        console.log("editProject");
+
+        const uid = rootGetters.getUser.uid;
+
+        const projectRef = firebase.firestore.collection("projects").doc(projectID);
+
+        projectRef
+            .update(project)
+            .then(() => {
+                dispatch("fetchProject", {projectID, projectUsers});
+                dispatch("fetchProjectList");
+            })
+            .catch(err => {console.log(err)})
+    },
+
   fetchProjectList({ commit, rootGetters }) {
     console.log("fetchProjectList");
     commit("fetchProjectListStart");
