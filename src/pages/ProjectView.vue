@@ -95,6 +95,16 @@
       <TabViewItem title="Zadania" visibility="collapse">
         <ScrollView>
           <StackLayout>
+            <FlexboxLayout
+              alignItems="center"
+              justifyContent="flex-end"
+              flexDirection="row"
+              style="margin-bottom: 0; margin-top: 0; padding: 0"
+            >
+              <Label text="Edytuj: " class="" />
+              <Switch v-model="editEnabled" style="margin-left: 0" />
+            </FlexboxLayout>
+
             <StackLayout
               v-for="(todoGroup, index) in todoGroupList"
               :key="index"
@@ -114,7 +124,6 @@
                       v-for="(user, index) in task.users"
                       :key="index"
                     >
-                      <!--                    TODO fetching user avatar-->
                       <Image
                         :src="user.imageSrc"
                         class="userTaskPhoto"
@@ -125,7 +134,11 @@
                 </FlexboxLayout>
                 <StackLayout width="40%">
                   <FlexboxLayout height="100%">
-                    <Button text="X" class="deleteTaskButton"></Button>
+                    <Button
+                      text="X"
+                      class="deleteTaskButton"
+                      @tap="deleteTodo(todoGroup.id, task)"
+                    ></Button>
                   </FlexboxLayout>
                 </StackLayout>
               </FlexboxLayout>
@@ -135,8 +148,9 @@
                 class="addTaskButton"
               />
               <Button
+                v-if="editEnabled"
                 text="USUŃ KATEGORIĘ"
-                @tap="deleteTodoGroup"
+                @tap="deleteTodoGroup(todoGroup.id)"
                 class="deleteTaskGroupButton"
               />
             </StackLayout>
@@ -215,6 +229,7 @@ export default {
   components: { Spinner },
   data() {
     return {
+      editEnabled: false,
       currentIndex: 0,
       chatInitialised: false,
       todoInitialised: false,
@@ -238,7 +253,20 @@ export default {
   },
 
   methods: {
-    deleteTodoGroup() {},
+    deleteTodo(todoGroupID, task) {
+      this.$store.dispatch("deleteTodo", {
+        projectID: this.project.id,
+        todoGroupID: todoGroupID,
+        todo: task,
+      });
+    },
+
+    deleteTodoGroup(todoGroupID) {
+      this.$store.dispatch("deleteTodoGroup", {
+        projectID: this.project.id,
+        todoGroupID: todoGroupID,
+      });
+    },
 
     readTimestamp(timestamp) {
       return (
