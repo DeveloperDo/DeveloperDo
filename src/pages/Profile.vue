@@ -9,9 +9,10 @@
 
     <ScrollView>
       <StackLayout class="userPanel">
-        <Image :src="user.imageSrc" class="userImage" stretch="aspectFill" />
-        <Label :text="user.name" class="userName" textWrap="true" />
-        <Label :text="user.email" class="userEmail" />
+        <Image v-if="userData.imageSrc" :src="userData.imageSrc" class="userImage" stretch="aspectFill" />
+        <Image v-if="!userData.imageSrc" src="https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg" class="userImage" stretch="aspectFill" />
+        <Label :text="userData.name" class="userName" textWrap="true" />
+        <Label :text="userData.email" class="userEmail" />
 
         <Label text="USTAWIENIA" class="header" />
         <TextField
@@ -85,8 +86,12 @@ export default {
   methods: {
     onConfirmChangesButtonTap() {
       if (this.changeNameTextField) {
-        //
+        const userName = {
+          name: this.changeNameTextField
+        };
+        this.$store.dispatch("updateUserName", { userName: userName } );
       }
+
       if (this.changeEmailTextField) {
         if (this.currentPasswordTextField) {
           //
@@ -95,6 +100,7 @@ export default {
           return;
         }
       }
+
       if (this.changePasswordTextField) {
         if (this.changePasswordTextField === this.confirmPasswordTextField) {
           if (this.changePasswordTextField.length > 7) {
@@ -108,6 +114,8 @@ export default {
           return;
         }
       }
+
+      this.$store.dispatch("fetchUserData", {uid: this.userData.uid});
     },
 
     onDeleteAccountButtonTap() {
@@ -122,15 +130,14 @@ export default {
       changePasswordTextField: "",
       confirmPasswordTextField: "",
       currentPasswordTextField: "",
-
-      user: {
-        imageSrc:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRh5IcwScWD40XsYHPp-Z44XxQb8Puvxcz9ow&usqp=CAU",
-        name: "John Smith",
-        email: "jsmith@notemail.com",
-      },
     };
   },
+
+  computed: {
+    userData: function () {
+      return this.$store.getters.getUser;
+    }
+  }
 };
 </script>
 

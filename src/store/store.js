@@ -9,6 +9,7 @@ import sideDrawer from "./modules/sideDrawer.module";
 import project from "./modules/project.module";
 import todo from "./modules/todo.module";
 import chat from "./modules/chat.module";
+import user from "./modules/user.module";
 
 export default new Vuex.Store({
   modules: {
@@ -17,6 +18,7 @@ export default new Vuex.Store({
     project,
     todo,
     chat,
+    user,
   },
   mutations: {
     ...vuexfireMutations,
