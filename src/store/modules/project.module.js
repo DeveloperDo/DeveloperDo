@@ -1,10 +1,12 @@
 import { firebase } from "@nativescript/firebase";
+import { firestoreAction } from "vuexfire";
 
 const state = {
   projectList: [],
-  users: {},
+  users: null,
   projectIsLoading: true,
   changes: [],
+  project: {},
 };
 
 const getters = {
@@ -26,6 +28,10 @@ const getters = {
 
   users: (state) => {
     return state.users;
+  },
+
+  project: (state) => {
+    return state.project;
   },
 };
 
@@ -58,6 +64,10 @@ const mutations = {
 
   fetchProjectListError(state) {
     state.projectListLoading = false;
+  },
+
+  fetchUsersSuccess(state, users) {
+    state.users = users;
   },
 };
 
@@ -103,70 +113,128 @@ const actions = {
       });
   },
 
-  async fetchProject({ commit, dispatch }, { projectID, projectUsers }) {
-    console.log("fetch project");
-    commit("fetchProjectStart");
+  bindChanges: firestoreAction(
+    ({ bindFirestoreRef, rootGetters }, projectID) => {
+      const changesRef = firebase.firestore
+        .collection("projects/" + projectID + "/changes")
+        .orderBy("timestamp", "desc");
 
-    const changesRef = firebase.firestore
-      .collection("projects/" + projectID + "/changes")
-      .orderBy("timestamp", "desc");
-    const userRef = firebase.firestore.collection("users");
+      const serialize = (doc) => {
+        let data = doc.data();
+
+        Object.defineProperty(data, "id", { value: doc.id });
+        Object.defineProperty(data, "_doc", { value: doc });
+
+        return data;
+      };
+
+      return bindFirestoreRef("changes", changesRef, {
+        serialize,
+      }).catch((err) => {
+        console.log(err);
+      });
+    }
+  ),
+
+  async fetchProjectUsers({ commit }, projectUsers) {
+    console.log("gfhhgfhjgfgfjfghjhgfjhgfgfhjgfhjhjgfgfhjgfhjgfhj");
+    const usersRef = firebase.firestore.collection("users");
+
     const users = [];
-    const changes = [];
 
-    await changesRef
-      .get()
-      .then(async (changesSnapshot) => {
-        changesSnapshot.forEach((change) => {
-          changes.push(change.data());
+    for (let i = 0; i < projectUsers.length; i++) {
+      const uid = projectUsers[i];
+
+      await usersRef
+        .doc(uid)
+        .get()
+        .then((userDoc) => {
+          users.push({
+            ...userDoc.data(),
+            uid: uid,
+          });
         });
+    }
 
-        for (const uid of projectUsers) {
-          await userRef
-            .doc(uid)
-            .get()
-            .then((userDoc) => {
-              users.push({
-                ...userDoc.data(),
-                uid: uid,
-              });
-            });
+    console.log("typeof users: " + typeof users);
+    commit("fetchUsersSuccess", users);
+  },
+
+  bindProject: firestoreAction(
+    async ({ bindFirestoreRef, commit, dispatch, rootGetters }, projectID) => {
+      commit("fetchProjectStart");
+
+      const projectRef = firebase.firestore
+        .collection("projects")
+        .doc(projectID);
+
+      const serialize = (doc) => {
+        const data = doc.data();
+
+        const users = rootGetters.project.users;
+
+        console.log(rootGetters.project);
+
+        function arrayEquals(a, b) {
+          return (
+            Array.isArray(a) &&
+            Array.isArray(b) &&
+            a.length === b.length &&
+            a.every((val, index) => val === b[index])
+          );
         }
 
-        async function parallel() {
-          const fetchChat = dispatch("bindChat", projectID);
-          const fetchTodo = dispatch("bindTodoGroupList", projectID);
-          await fetchChat;
-          await fetchTodo;
+        //On init users is empty thus the user fetch should not occur
+        //On next updates fetch users if user array is different than current
+        if (users === null && arrayEquals(users, data.users)) {
+          dispatch("fetchProjectUsers", data.users);
         }
 
-        commit("fetchProjectDetailsSuccess", { users, changes });
+        Object.defineProperty(data, "id", { value: doc.id });
+        Object.defineProperty(data, "_doc", { value: doc });
 
-        await parallel();
+        return data;
+      };
 
-        commit("fetchProjectSuccess");
+      await bindFirestoreRef("project", projectRef, { serialize }).then(
+        async (project) => {
+          await dispatch("fetchProjectUsers", project.users);
+
+          async function parallel() {
+            const bindChat = dispatch("bindChat", projectID);
+            const bindTodo = dispatch("bindTodoGroupList", projectID);
+            const bindChanges = dispatch("bindChanges", projectID);
+
+            await bindChat;
+            await bindTodo;
+            await bindChanges;
+          }
+
+          await parallel();
+
+          commit("fetchProjectSuccess");
+        }
+      );
+    }
+  ),
+
+  editProject({ dispatch, rootGetters }, { project, projectID, projectUsers }) {
+    console.log("editProject");
+
+    const uid = rootGetters.getUser.uid;
+
+    const projectRef = firebase.firestore.collection("projects").doc(projectID);
+
+    projectRef
+      .update(project)
+      .then(() => {
+        dispatch("fetchProject", { projectID, projectUsers });
+        dispatch("fetchProjectList");
       })
       .catch((err) => {
-        commit("fetchProjectError");
         console.log(err);
       });
   },
-
-    editProject({ dispatch, rootGetters }, { project, projectID, projectUsers }) {
-        console.log("editProject");
-
-        const uid = rootGetters.getUser.uid;
-
-        const projectRef = firebase.firestore.collection("projects").doc(projectID);
-
-        projectRef
-            .update(project)
-            .then(() => {
-                dispatch("fetchProject", {projectID, projectUsers});
-                dispatch("fetchProjectList");
-            })
-            .catch(err => {console.log(err)})
-    },
 
   fetchProjectList({ commit, rootGetters }) {
     console.log("fetchProjectList");

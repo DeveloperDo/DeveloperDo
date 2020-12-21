@@ -14,36 +14,34 @@ const getters = {
 const mutations = {};
 
 const actions = {
-  bindChat: firestoreAction(
-    ({ bindFirestoreRef, commit, rootGetters }, projectID) => {
-      const projectChatRef = firebase.firestore
-        .collection("projects/" + projectID + "/chat")
-        .orderBy("timestamp", "asc")
-        .limit(15);
+  bindChat: firestoreAction(({ bindFirestoreRef, rootGetters }, projectID) => {
+    const projectChatRef = firebase.firestore
+      .collection("projects/" + projectID + "/chat")
+      .orderBy("timestamp", "asc")
+      .limit(15);
 
-      const serialize = (doc) => {
-        let data = doc.data();
-        const user = rootGetters.users.find((user) => user.uid === data.uid);
+    const serialize = (doc) => {
+      let data = doc.data();
+      const user = rootGetters.users.find((user) => user.uid === data.uid);
 
-        data.user = user ? user : { name: "", imageSrc: "" };
+      data.user = user ? user : { name: "", imageSrc: "" };
 
-        Object.defineProperty(data, "id", { value: doc.id });
-        Object.defineProperty(data, "_doc", { value: doc });
+      Object.defineProperty(data, "id", { value: doc.id });
+      Object.defineProperty(data, "_doc", { value: doc });
 
-        return data;
-      };
+      return data;
+    };
 
-      bindFirestoreRef("chat", projectChatRef, {
-        serialize,
+    bindFirestoreRef("chat", projectChatRef, {
+      serialize,
+    })
+      .then((messages) => {
+        console.log(messages);
       })
-        .then((messages) => {
-          console.log(messages);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  ),
+      .catch((err) => {
+        console.log(err);
+      });
+  }),
 };
 
 export default {
