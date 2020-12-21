@@ -40,11 +40,6 @@ const mutations = {
     state.projectIsLoading = false;
   },
 
-  fetchProjectDetailsSuccess(state, { users, changes }) {
-    state.changes = changes;
-    state.users = users;
-  },
-
   fetchProjectStart(state) {
     state.projectIsLoading = true;
   },
@@ -68,6 +63,14 @@ const mutations = {
 
   fetchUsersSuccess(state, users) {
     state.users = users;
+  },
+
+  resetProject(state) {
+    console.log("asdfasdfasdfasdf++++++++++++++++++++++++++++++++++++++");
+    state.users = [];
+    state.project = {};
+    state.changes = [];
+    state.todoGroupList = [];
   },
 };
 
@@ -137,7 +140,6 @@ const actions = {
   ),
 
   async fetchProjectUsers({ commit }, projectUsers) {
-    console.log("gfhhgfhjgfgfjfghjhgfjhgfgfhjgfhjhjgfgfhjgfhjgfhj");
     const usersRef = firebase.firestore.collection("users");
 
     const users = [];
@@ -156,13 +158,13 @@ const actions = {
         });
     }
 
-    console.log("typeof users: " + typeof users);
     commit("fetchUsersSuccess", users);
   },
 
   bindProject: firestoreAction(
     async ({ bindFirestoreRef, commit, dispatch, rootGetters }, projectID) => {
       commit("fetchProjectStart");
+      commit("resetProject");
 
       const projectRef = firebase.firestore
         .collection("projects")
@@ -172,8 +174,6 @@ const actions = {
         const data = doc.data();
 
         const users = rootGetters.project.users;
-
-        console.log(rootGetters.project);
 
         function arrayEquals(a, b) {
           return (
@@ -196,25 +196,26 @@ const actions = {
         return data;
       };
 
-      await bindFirestoreRef("project", projectRef, { serialize }).then(
-        async (project) => {
-          await dispatch("fetchProjectUsers", project.users);
+      await bindFirestoreRef("project", projectRef, {
+        serialize,
+        reset: false,
+      }).then(async (project) => {
+        await dispatch("fetchProjectUsers", project.users);
 
-          async function parallel() {
-            const bindChat = dispatch("bindChat", projectID);
-            const bindTodo = dispatch("bindTodoGroupList", projectID);
-            const bindChanges = dispatch("bindChanges", projectID);
+        async function parallel() {
+          const bindChat = dispatch("bindChat", projectID);
+          const bindTodo = dispatch("bindTodoGroupList", projectID);
+          const bindChanges = dispatch("bindChanges", projectID);
 
-            await bindChat;
-            await bindTodo;
-            await bindChanges;
-          }
-
-          await parallel();
-
-          commit("fetchProjectSuccess");
+          await bindChat;
+          await bindTodo;
+          await bindChanges;
         }
-      );
+
+        await parallel();
+
+        commit("fetchProjectSuccess");
+      });
     }
   ),
 
