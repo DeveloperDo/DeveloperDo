@@ -243,14 +243,11 @@ export default {
   mixins: [sideDrawer],
 
   created() {
-    this.$store.dispatch("fetchProject", {
-      projectID: this.project.id,
-      projectUsers: this.project.users,
-    });
+    this.$store.dispatch("bindProject", this.projectID);
   },
 
   props: {
-    project: Object,
+    projectID: String,
   },
 
   methods: {
@@ -341,6 +338,7 @@ export default {
       "changes",
       "users",
       "projectIsLoading",
+      "project",
     ]),
   },
 };

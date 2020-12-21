@@ -88,6 +88,7 @@ const actions = {
 
         data.todos.forEach((todo) => {
           todo.users.forEach((todoUser) => {
+            console.log(rootGetters.users);
             const user = rootGetters.users.find(
               (user) => user.uid === todoUser
             );

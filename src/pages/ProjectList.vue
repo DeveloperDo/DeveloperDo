@@ -71,7 +71,9 @@ export default {
     },
 
     openProjectView(project) {
-      this.$navigateTo(this.$routes.ProjectView, { props: { project } });
+      this.$navigateTo(this.$routes.ProjectView, {
+        props: { projectID: project.id },
+      });
     },
   },
 
