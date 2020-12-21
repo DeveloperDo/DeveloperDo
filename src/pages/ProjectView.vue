@@ -15,7 +15,7 @@
           <StackLayout>
             <StackLayout class="projectNameContainer">
               <Image
-                :src="project.imageSrc"
+                :src="getImg(project.imageSrc)"
                 class="projectImg"
                 stretch="aspectFill"
               />
@@ -48,16 +48,12 @@
               />
             </StackLayout>
 
-            <StackLayout class="projectUsersContainer">
+            <StackLayout class="projectUsersContainer" @tap="onUsersTap">
               <Label text="ZESPÓŁ" class="projectHeader" />
               <WrapLayout orientation="horizontal" class="usersList">
-                <StackLayout
-                  v-for="(user, index) in users"
-                  :key="index"
-                  @tap="onUsersTap"
-                >
+                <StackLayout v-for="(user, index) in users" :key="index">
                   <Image
-                    :src="user.imageSrc"
+                    :src="getImg(user.imageSrc)"
                     stretch="aspectFill"
                     class="userPhoto"
                   />
@@ -242,7 +238,8 @@ export default {
 
   mixins: [sideDrawer],
 
-  created() {
+  mounted() {
+    console.log("bind project +++++++++++++++++++++");
     this.$store.dispatch("bindProject", this.projectID);
   },
 
@@ -313,8 +310,8 @@ export default {
       console.log("Item with index: " + args.index + " tapped");
     },
 
-    onUsersTap: function (args) {
-      console.log("Item with index: " + args.index + " tapped");
+    onUsersTap() {
+      this.$navigateTo(this.$routes.ProjectUsers);
     },
 
     ownMsg(userID) {

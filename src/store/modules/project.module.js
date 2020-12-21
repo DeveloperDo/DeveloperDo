@@ -75,6 +75,22 @@ const mutations = {
 };
 
 const actions = {
+  removeUserFromProject({ rootGetters }, uid) {
+    const projectID = rootGetters.project.id;
+    const currentUid = rootGetters.getUser.uid;
+    const projectRef = firebase.firestore.collection("projects").doc(projectID);
+
+    if (currentUid === uid) return;
+
+    return projectRef
+      .update({
+        users: firebase.firestore.FieldValue.arrayRemove(uid),
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   async addProject({ dispatch, rootGetters }, { project }) {
     console.log("addProject");
 
