@@ -34,7 +34,7 @@
             <Button
               v-if="editEnabled && currentUser.uid !== user.uid"
               text="USUŃ Z ZESPOŁU"
-              @tap="deleteUser"
+              @tap="deleteUser(user.uid)"
               class="deleteUserButton"
               horizontalAlignment="center"
             />
@@ -53,6 +53,8 @@
 
 <script>
 import AddUsersModal from "../components/Modals/AddUsersModal";
+import sideDrawer from "../mixins/sideDrawer";
+import getImg from "../mixins/getImg";
 
 export default {
   data() {
@@ -60,6 +62,8 @@ export default {
       editEnabled: false,
     };
   },
+
+  mixins: [sideDrawer, getImg],
 
   methods: {
     deleteUser(uid) {

@@ -5,7 +5,7 @@
 
       <Label
         v-for="(page, i) in pages"
-        @tap="goToPage(page.component)"
+        @tap="goToPage(page.component, page.option)"
         class="drawer-item"
         :text="page.name"
         :key="i"
@@ -27,20 +27,25 @@ export default {
   data() {
     return {
       // define our pages, making sure the component matches that defined in /app/router/index.js
-      pages: [{ name: "Lista Projektów", component: this.$routes.ProjectList }],
+      pages: [
+        {
+          name: "Lista Projektów",
+          component: this.$routes.ProjectList,
+          option: { clearHistory: true },
+        },
+      ],
     };
   },
   methods: {
     logout() {
-      console.log("ahkjasdfhjkasjdfjhkadshjflalshdflkajsdhflkjahdlfkhaksjdf");
       this.$store.dispatch("signOut").then(() => {
         this.$navigateTo(this.$routes.Login, { clearHistory: true });
       });
     },
 
-    goToPage(pageComponent) {
+    goToPage(pageComponent, options) {
       // use the manual navigation method
-      this.$navigateTo(pageComponent);
+      this.$navigateTo(pageComponent, options);
       // and we probably want to close the drawer when changing pages
       this.closeDrawer();
     },

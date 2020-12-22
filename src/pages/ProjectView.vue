@@ -221,9 +221,11 @@ import Spinner from "../components/Spinner";
 import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
 import AddTodoModal from "../components/Modals/AddTodoModal";
 import EditProjectModal from "../components/Modals/EditProjectModal";
+import getImg from "../mixins/getImg";
 
 export default {
   components: { Spinner },
+
   data() {
     return {
       editEnabled: false,
@@ -236,10 +238,9 @@ export default {
     };
   },
 
-  mixins: [sideDrawer],
+  mixins: [sideDrawer, getImg],
 
   mounted() {
-    console.log("bind project +++++++++++++++++++++");
     this.$store.dispatch("bindProject", this.projectID);
   },
 
@@ -316,14 +317,6 @@ export default {
 
     ownMsg(userID) {
       return userID === this.getUser.uid;
-    },
-
-    getImg(imageSrc) {
-      if (imageSrc) {
-        return imageSrc;
-      } else {
-        return "https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg";
-      }
     },
   },
 

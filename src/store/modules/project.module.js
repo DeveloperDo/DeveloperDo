@@ -7,6 +7,8 @@ const state = {
   projectIsLoading: true,
   changes: [],
   project: {},
+  foundUsers: [],
+  searchUsersIsLoading: false,
 };
 
 const getters = {
@@ -32,6 +34,14 @@ const getters = {
 
   project: (state) => {
     return state.project;
+  },
+
+  foundUsers: (state) => {
+    return state.foundUsers;
+  },
+
+  searchUsersIsLoading: (state) => {
+    return state.searchUsersIsLoading;
   },
 };
 
@@ -66,15 +76,75 @@ const mutations = {
   },
 
   resetProject(state) {
-    console.log("asdfasdfasdfasdf++++++++++++++++++++++++++++++++++++++");
     state.users = [];
     state.project = {};
     state.changes = [];
     state.todoGroupList = [];
   },
+
+  searchUsersSuccess(state, users) {
+    state.foundUsers = users;
+    state.searchUsersIsLoading = false;
+  },
+
+  searchUsersStart(state) {
+    state.searchUsersIsLoading = true;
+  },
+
+  resetSearchUsers(state) {
+    state.foundUsers = [];
+  },
 };
 
 const actions = {
+  addUsersToProject({ rootGetters }, users) {
+    let projectID;
+
+    if (rootGetters.project) {
+      projectID = rootGetters.project.id;
+    } else {
+      return;
+    }
+    if (!projectID) {
+      return;
+    }
+
+    const projectRef = firebase.firestore.collection("projects").doc(projectID);
+
+    return projectRef
+      .update({
+        users: firebase.firestore.FieldValue.arrayUnion(users),
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
+  searchUser({ commit, rootGetters }, searchString) {
+    commit("searchUsersStart");
+
+    const usersRef = firebase.firestore.collection("users");
+    const uid = rootGetters.getUser.uid;
+
+    usersRef
+      .where("email", "==", searchString.toLocaleLowerCase())
+      .get()
+      .then((usersSnapshot) => {
+        const users = [];
+
+        usersSnapshot.forEach((userDoc) => {
+          if (userDoc.id === uid) return;
+
+          users.push({ ...userDoc.data(), uid: userDoc.id });
+        });
+
+        commit("searchUsersSuccess", users);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   removeUserFromProject({ rootGetters }, uid) {
     const projectID = rootGetters.project.id;
     const currentUid = rootGetters.getUser.uid;
@@ -133,7 +203,7 @@ const actions = {
   },
 
   bindChanges: firestoreAction(
-    ({ bindFirestoreRef, rootGetters }, projectID) => {
+    ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
       const changesRef = firebase.firestore
         .collection("projects/" + projectID + "/changes")
         .orderBy("timestamp", "desc");
@@ -202,7 +272,8 @@ const actions = {
 
         //On init users is empty thus the user fetch should not occur
         //On next updates fetch users if user array is different than current
-        if (users === null && arrayEquals(users, data.users)) {
+        if (users !== null && !arrayEquals(users, data.users)) {
+          console.log("------");
           dispatch("fetchProjectUsers", data.users);
         }
 
@@ -215,23 +286,28 @@ const actions = {
       await bindFirestoreRef("project", projectRef, {
         serialize,
         reset: false,
-      }).then(async (project) => {
-        await dispatch("fetchProjectUsers", project.users);
+      })
+        .then(async (project) => {
+          await dispatch("fetchProjectUsers", project.users);
 
-        async function parallel() {
-          const bindChat = dispatch("bindChat", projectID);
-          const bindTodo = dispatch("bindTodoGroupList", projectID);
-          const bindChanges = dispatch("bindChanges", projectID);
+          async function parallel() {
+            const bindChat = dispatch("bindChat", projectID);
+            const bindTodo = dispatch("bindTodoGroupList", projectID);
+            const bindChanges = dispatch("bindChanges", projectID);
 
-          await bindChat;
-          await bindTodo;
-          await bindChanges;
-        }
+            await bindChat;
+            await bindTodo;
+            await bindChanges;
+          }
 
-        await parallel();
+          await parallel();
 
-        commit("fetchProjectSuccess");
-      });
+          commit("fetchProjectSuccess");
+        })
+        .catch((err) => {
+          commit("fetchProjectError");
+          console.log(err);
+        });
     }
   ),
 
