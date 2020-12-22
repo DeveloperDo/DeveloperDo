@@ -7,11 +7,10 @@
       </GridLayout>
     </ActionBar>
 
-    <AddProjectModal v-if="showAddProjectModal" />
+    <Spinner v-if="projectListIsLoading" />
 
-    <FlexboxLayout flexDirection="column">
-      <Spinner v-if="projectListIsLoading" />
-      <ScrollView v-else>
+    <FlexboxLayout v-else flexDirection="column">
+      <ScrollView>
         <StackLayout className="projectList">
           <StackLayout
             v-for="(project, index) in projectList"
@@ -55,15 +54,9 @@ import AddProjectModal from "../components/Modals/AddProjectModal";
 import Spinner from "../components/Spinner";
 
 export default {
-  components: { Spinner, AddProjectModal },
+  components: { Spinner },
 
   mixins: [sideDrawer],
-
-  data() {
-    return {
-      showAddProjectModal: false,
-    };
-  },
 
   methods: {
     openAddProjectModal() {

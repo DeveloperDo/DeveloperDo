@@ -9,6 +9,7 @@ const state = {
   project: {},
   foundUsers: [],
   searchUsersIsLoading: false,
+  projectListIsLoading: true,
 };
 
 const getters = {
@@ -21,7 +22,7 @@ const getters = {
   },
 
   projectListIsLoading: (state) => {
-    return state.projectListLoading;
+    return state.projectListIsLoading;
   },
 
   projectList: (state) => {
@@ -60,15 +61,15 @@ const mutations = {
 
   fetchProjectListSuccess(state, projectList) {
     state.projectList = projectList;
-    state.projectListLoading = false;
+    state.projectListIsLoading = false;
   },
 
   fetchProjectListStart(state) {
-    state.projectListLoading = true;
+    state.projectListIsLoading = true;
   },
 
   fetchProjectListError(state) {
-    state.projectListLoading = false;
+    state.projectListIsLoading = false;
   },
 
   fetchUsersSuccess(state, users) {
