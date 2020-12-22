@@ -8,30 +8,42 @@
         textWrap="true"
       />
       <SearchBar
-        hint="Szukaj użytkowników"
-        :text="searchUsers"
-        @submit="onSearchSubmit"
+        v-model.trim="searchString"
+        hint="Wpisz email"
+        @submit="searchUser"
         class="addUsersSearch"
       />
+      <StackLayout v-if="searchUsersIsLoading">
+        <Spinner />
+      </StackLayout>
+
       <StackLayout
-        v-for="user in users"
+        v-else
+        v-for="(user, index) in foundUsers"
+        :key="index"
         class="usersSearchList"
         orientation="horizontal"
       >
-        <Image :src="user.imageSrc" stretch="aspectFill" class="userPhoto" />
+        <Image
+          :src="getImg(user.imageSrc)"
+          stretch="aspectFill"
+          class="userPhoto"
+        />
         <StackLayout verticalAlignment="center" class="userTextContainer">
           <Label :text="user.name" class="addUserName" textWrap="true" />
         </StackLayout>
         <Switch
-          checked="false"
+          :checked="userSelected(user)"
           color="black"
           backgroundColor="green"
           offBackgroundColor="gray"
+          @checkedChange="onSwitchChange($event, user)"
         />
       </StackLayout>
 
       <Button
         text="DODAJ UŻYTKOWNIKÓW"
+        :disabled="selectedUsers.length === 0"
         @tap="onAddUsersButtonTap"
         class="addUsersButton"
       />
@@ -40,32 +52,55 @@
 </template>
 
 <script>
+import Spinner from "../Spinner";
+import getImg from "../../mixins/getImg";
+
 export default {
-  methods: {
-    onSearchSubmit(args) {
-      let searchBar = args.object;
-      console.log("You are searching for " + searchBar.text);
-    },
-    onAddUsersButtonTap() {
-      console.log("Users added!");
-    },
-  },
+  components: { Spinner },
+
+  mixins: [getImg],
 
   data() {
     return {
-      users: [
-        {
-          imageSrc:
-            "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-          name: "biggus dickus ",
-        },
-        {
-          imageSrc:
-            "https://www.pngitem.com/pimgs/m/622-6225086_dank-meme-laser-laughing-emoji-crying-emoji-riendo.png",
-          name: "biggus dickus ",
-        },
-      ],
+      searchString: "",
+      selectedUsers: [],
     };
+  },
+
+  methods: {
+    onSwitchChange(e, selectedUser) {
+      if (e.value) {
+        this.selectedUsers.push(selectedUser.uid);
+      } else {
+        this.selectedUsers.forEach((user, index) => {
+          if (user === selectedUser.uid) {
+            this.selectedUsers.splice(index, 1);
+          }
+        });
+      }
+    },
+    searchUser() {
+      this.$store.dispatch("searchUser", this.searchString);
+    },
+    onAddUsersButtonTap() {
+      if (this.selectedUsers.length === 0) return;
+      this.$store.dispatch("addUsersToProject", this.selectedUsers).then(() => {
+        this.$store.commit("resetSearchUsers");
+        this.$modal.close();
+      });
+    },
+    userSelected(selectedUser) {
+      return this.selectedUsers.some((user) => user === selectedUser.uid);
+    },
+  },
+
+  computed: {
+    foundUsers: function () {
+      return this.$store.getters.foundUsers;
+    },
+    searchUsersIsLoading: function () {
+      return this.$store.getters.searchUsersIsLoading;
+    },
   },
 };
 </script>

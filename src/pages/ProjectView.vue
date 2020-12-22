@@ -15,7 +15,7 @@
           <StackLayout>
             <StackLayout class="projectNameContainer">
               <Image
-                :src="project.imageSrc"
+                :src="getImg(project.imageSrc)"
                 class="projectImg"
                 stretch="aspectFill"
               />
@@ -48,16 +48,12 @@
               />
             </StackLayout>
 
-            <StackLayout class="projectUsersContainer">
+            <StackLayout class="projectUsersContainer" @tap="onUsersTap">
               <Label text="ZESPÓŁ" class="projectHeader" />
               <WrapLayout orientation="horizontal" class="usersList">
-                <StackLayout
-                  v-for="(user, index) in users"
-                  :key="index"
-                  @tap="onUsersTap"
-                >
+                <StackLayout v-for="(user, index) in users" :key="index">
                   <Image
-                    :src="user.imageSrc"
+                    :src="getImg(user.imageSrc)"
                     stretch="aspectFill"
                     class="userPhoto"
                   />
@@ -225,9 +221,11 @@ import Spinner from "../components/Spinner";
 import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
 import AddTodoModal from "../components/Modals/AddTodoModal";
 import EditProjectModal from "../components/Modals/EditProjectModal";
+import getImg from "../mixins/getImg";
 
 export default {
   components: { Spinner },
+
   data() {
     return {
       editEnabled: false,
@@ -240,9 +238,9 @@ export default {
     };
   },
 
-  mixins: [sideDrawer],
+  mixins: [sideDrawer, getImg],
 
-  created() {
+  mounted() {
     this.$store.dispatch("bindProject", this.projectID);
   },
 
@@ -313,20 +311,12 @@ export default {
       console.log("Item with index: " + args.index + " tapped");
     },
 
-    onUsersTap: function (args) {
-      console.log("Item with index: " + args.index + " tapped");
+    onUsersTap() {
+      this.$navigateTo(this.$routes.ProjectUsers);
     },
 
     ownMsg(userID) {
       return userID === this.getUser.uid;
-    },
-
-    getImg(imageSrc) {
-      if (imageSrc) {
-        return imageSrc;
-      } else {
-        return "https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg";
-      }
     },
   },
 

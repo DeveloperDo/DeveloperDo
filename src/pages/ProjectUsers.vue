@@ -1,11 +1,25 @@
 <template>
   <Page>
-    <ActionBar title="Widok zespołu" />
+    <ActionBar>
+      <GridLayout width="100%" columns="auto, *">
+        <Label text="MENU" @tap="openDrawer()" col="0" />
+        <Label class="title" text="Welcome to NativeScript-Vue!" col="1" />
+      </GridLayout>
+    </ActionBar>
 
     <FlexboxLayout flexDirection="column">
       <ScrollView>
         <StackLayout>
-          <StackLayout class="userCard" v-for="user in project.users">
+          <FlexboxLayout
+            alignItems="center"
+            justifyContent="flex-end"
+            flexDirection="row"
+            style="margin-bottom: 0; margin-top: 0; padding: 0"
+          >
+            <Label text="Edytuj: " class="" />
+            <Switch v-model="editEnabled" style="margin-left: 0" />
+          </FlexboxLayout>
+          <StackLayout class="userCard" v-for="user in users">
             <StackLayout orientation="horizontal">
               <Image
                 :src="user.imageSrc"
@@ -18,8 +32,9 @@
               </StackLayout>
             </StackLayout>
             <Button
+              v-if="editEnabled && currentUser.uid !== user.uid"
               text="USUŃ Z ZESPOŁU"
-              @tap="deleteUser"
+              @tap="deleteUser(user.uid)"
               class="deleteUserButton"
               horizontalAlignment="center"
             />
@@ -37,48 +52,39 @@
 </template>
 
 <script>
+import AddUsersModal from "../components/Modals/AddUsersModal";
+import sideDrawer from "../mixins/sideDrawer";
+import getImg from "../mixins/getImg";
+
 export default {
+  data() {
+    return {
+      editEnabled: false,
+    };
+  },
+
+  mixins: [sideDrawer, getImg],
+
   methods: {
-    deleteUser() {
-      console.log("User has been deleted!");
+    deleteUser(uid) {
+      this.$store.dispatch("removeUserFromProject", uid);
     },
 
     onAddUserButtonTap() {
-      console.log("Add user button was pressed");
+      this.$showModal(AddUsersModal, {
+        fullscreen: true,
+      });
     },
   },
 
-  data() {
-    return {
-      project: {
-        users: [
-          {
-            imageSrc:
-              "https://www.wykop.pl/cdn/c3201142/comment_Z7p1VEFHWffsDomKfUAVQ6KbZNO9tJK5.jpg",
-            name: "Lenny",
-            role: "Project Manager",
-          },
-          {
-            imageSrc:
-              "https://www.wykop.pl/cdn/c3397993/link_1602581214Hwhy5rHd3dvxGK8t6m5Yb0,w300h223.jpg",
-            name: "Ojciec Vateusz",
-            role: "Scrum Master",
-          },
-          {
-            imageSrc:
-              "https://www.wykop.pl/cdn/c3397993/link_1602581214Hwhy5rHd3dvxGK8t6m5Yb0,w300h223.jpg",
-            name: "Lorem Ipsum Ręce Z Gipsu",
-            role: "Tester test test test test test test test",
-          },
-          {
-            imageSrc:
-              "https://paczaizm.pl/content/wp-content/uploads/kaczynski-dostaliscie-po-500-to-morda-w-kubel.jpg",
-            name: "sgdfk dfshgjkl d dfhsgd gjkd sihg sdf jsjk ",
-            role: "dg sd4350 r0hjf fgk fdkld dkgf ioj hertpj km ldf",
-          },
-        ],
-      },
-    };
+  computed: {
+    users: function () {
+      return this.$store.getters.users;
+    },
+
+    currentUser: function () {
+      return this.$store.getters.getUser;
+    },
   },
 };
 </script>
