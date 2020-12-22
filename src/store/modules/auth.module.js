@@ -123,8 +123,6 @@ const actions = {
         },
       })
       .then(async (user) => {
-        console.log("user");
-        console.log(user);
         console.log("signIn succeeded");
         await dispatch("fetchUserData", { uid: user.uid });
       })

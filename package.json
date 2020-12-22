@@ -12,6 +12,8 @@
     "@vue/devtools": "^5.3.3",
     "firebase": "^8.2.1",
     "fuse.js": "^6.4.3",
+    "nativescript-imagepicker": "^7.1.0",
+    "nativescript-mediafilepicker": "^4.0.2",
     "nativescript-socketio": "^3.3.1",
     "nativescript-toasty": "^3.0.0-alpha.2",
     "nativescript-ui-sidedrawer": "^9.0.0",

@@ -3,7 +3,7 @@ import { firestoreAction } from "vuexfire";
 
 const state = {
   projectList: [],
-  users: null,
+  users: [],
   projectIsLoading: true,
   changes: [],
   project: {},
@@ -273,7 +273,9 @@ const actions = {
 
         //On init users is empty thus the user fetch should not occur
         //On next updates fetch users if user array is different than current
-        if (users !== null && !arrayEquals(users, data.users)) {
+        console.log(users);
+        console.log(data.users);
+        if (users !== [] && !arrayEquals(users, data.users)) {
           console.log("------");
           dispatch("fetchProjectUsers", data.users);
         }
@@ -312,7 +314,7 @@ const actions = {
     }
   ),
 
-  editProject({ dispatch, rootGetters }, { project, projectID, projectUsers }) {
+  editProject({ dispatch, rootGetters }, { project, projectID, image = null }) {
     console.log("editProject");
 
     const uid = rootGetters.getUser.uid;
@@ -322,12 +324,53 @@ const actions = {
     projectRef
       .update(project)
       .then(() => {
-        dispatch("fetchProject", { projectID, projectUsers });
-        dispatch("fetchProjectList");
+        console.log("project updated");
       })
       .catch((err) => {
         console.log(err);
       });
+
+    const metadata = {};
+
+    if (image) {
+      firebase.storage
+        .uploadFile({
+          // the full path of the file in your Firebase storage (folders will be created)
+          remoteFullPath: "projects/" + projectID,
+          // option 2: a full file path (ignored if 'localFile' is set)
+          localFullPath: image.android.toString(),
+          // get notified of file upload progress
+          onProgress: function (status) {
+            console.log("Uploaded fraction: " + status.fractionCompleted);
+            console.log("Percentage complete: " + status.percentageCompleted);
+          },
+          metadata,
+        })
+        .then(() => {
+          firebase.storage
+            .getDownloadUrl({
+              remoteFullPath: "projects/" + projectID,
+            })
+            .then((url) => {
+              projectRef
+                .update({
+                  imageSrc: url,
+                })
+                .then(() => {
+                  console.log("url updated");
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   },
 
   fetchProjectList({ commit, rootGetters }) {

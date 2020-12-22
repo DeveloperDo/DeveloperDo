@@ -7,10 +7,10 @@
         class="editProjectHeader"
       />
       <Image
-        src="https://altimadental.pl/wp-content/uploads/2015/01/default-placeholder.png"
+        :src="getImgSrc"
         stretch="aspectFill"
         class="editProjectPhoto"
-        @tap="onEditProjectImageButtonTap"
+        @tap="onSelectSingleTap"
       />
 
       <Label
@@ -55,10 +55,7 @@
         class="editProjectConfirmButton"
       />
 
-      <Button
-        text="USUŃ PROJEKT"
-        class="deleteProjectButton"
-      />
+      <Button text="USUŃ PROJEKT" class="deleteProjectButton" />
 
       <Button text="ANULUJ" class="editProjectConfirmButton" />
     </StackLayout>
@@ -66,6 +63,8 @@
 </template>
 
 <script>
+import * as imagepicker from "nativescript-imagepicker";
+
 export default {
   data() {
     return {
@@ -81,6 +80,11 @@ export default {
       priority: 0,
       name: "",
       desc: "",
+      isSingleMode: true,
+      imageAssets: [],
+      imageSrc: null,
+      previewSize: 300,
+      thumbSize: 80,
     };
   },
 
@@ -96,6 +100,39 @@ export default {
   },
 
   methods: {
+    onSelectSingleTap: function (e) {
+      this.isSingleMode = true;
+      let context = imagepicker.create({ mode: "single" });
+      this.startSelection(context);
+    },
+    startSelection(context) {
+      context
+        .authorize()
+        .then(() => {
+          this.imageAssets = [];
+          this.imageSrc = null;
+          return context.present();
+        })
+        .then((selection) => {
+          console.log("Selection done: " + JSON.stringify(selection));
+          this.imageSrc =
+            this.isSingleMode && selection.length > 0 ? selection[0] : null;
+          // set the images to be loaded from the assets with optimal sizes (optimize memory usage)
+          selection.forEach((element) => {
+            element.options.width = this.isSingleMode
+              ? this.previewSize
+              : this.thumbSize;
+            element.options.height = this.isSingleMode
+              ? this.previewSize
+              : this.thumbSize;
+          });
+          this.imageAssets = selection;
+        })
+        .catch(function (e) {
+          console.log(e);
+        });
+    },
+
     editProject() {
       const project = {
         name: this.name,
@@ -104,13 +141,25 @@ export default {
         priority: this.priority,
       };
 
-      this.$store.dispatch("editProject", { project: project, projectID: this.project.id, projectUsers: this.project.users }).then(() => {
-        this.$modal.close();
-      });
+      this.$store
+        .dispatch("editProject", {
+          project: project,
+          projectID: this.project.id,
+          projectUsers: this.project.users,
+          image: this.imageAssets[0] ? this.imageAssets[0] : null,
+        })
+        .then(() => {
+          this.$modal.close();
+        });
     },
 
     onEditProjectImageButtonTap() {
       console.log("edit image button was pressed");
+    },
+  },
+  computed: {
+    getImgSrc: function () {
+      return this.imageSrc ? this.imageSrc : this.project.imageSrc;
     },
   },
 };

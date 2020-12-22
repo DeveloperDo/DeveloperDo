@@ -34,13 +34,9 @@ const actions = {
 
     bindFirestoreRef("chat", projectChatRef, {
       serialize,
-    })
-      .then((messages) => {
-        console.log(messages);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    }).catch((err) => {
+      console.log(err);
+    });
   }),
 };
 
