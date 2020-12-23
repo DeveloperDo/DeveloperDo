@@ -16,7 +16,7 @@
 
         <Label text="USTAWIENIA" class="header" />
         <TextField
-          v-model="changeNameTextField"
+          v-model="changeName"
           hint="Zmień nazwę"
           class="userSettingsTextField"
           maxLength="40"
@@ -24,7 +24,7 @@
           autocapitalizationType="none"
         />
         <TextField
-          v-model="changeEmailTextField"
+          v-model="changeEmail"
           hint="Zmień e-mail"
           class="userSettingsTextField"
           maxLength="40"
@@ -32,7 +32,7 @@
           autocapitalizationType="none"
         />
         <TextField
-          v-model="changePasswordTextField"
+          v-model="changePassword"
           hint="Zmień hasło"
           class="userSettingsTextField"
           maxLength="40"
@@ -41,7 +41,7 @@
           autocapitalizationType="none"
         />
         <TextField
-          v-model="confirmPasswordTextField"
+          v-model="confirmPassword"
           hint="Potwierdź nowe hasło"
           class="userSettingsTextField"
           maxLength="40"
@@ -51,7 +51,7 @@
         />
 
         <TextField
-          v-model="currentPasswordTextField"
+          v-model="currentPassword"
           hint="Aktualne hasło"
           class="userSettingsTextField"
           marginTop="100px"
@@ -85,28 +85,28 @@ export default {
 
   methods: {
     onConfirmChangesButtonTap() {
-      if (this.changeNameTextField) {
+      if (this.changeName) {
         const userName = {
-          name: this.changeNameTextField
+          name: this.changeName
         };
         this.$store.dispatch("updateUserName", { userName: userName } );
       }
 
-      if (this.changeEmailTextField) {
-        if (this.currentPasswordTextField) {
-          //
+      if (this.changeEmail) {
+        if (this.currentPassword) {
+          this.$store.dispatch("updateUserEmail", { userEmailNew: this.changeEmail, userEmailOld: this.userData.email, userPassword: this.currentPassword} );
         } else {
           alert("Zmiana adresu e-mail wymaga hasła!");
           return;
         }
       }
 
-      if (this.changePasswordTextField) {
-        if (this.changePasswordTextField === this.confirmPasswordTextField) {
-          if (this.changePasswordTextField.length > 7) {
+      if (this.changePassword) {
+        if (this.changePassword === this.confirmPassword) {
+          if (this.changePassword.length > 5) {
             //
           } else {
-            alert("Hasło musi składać się z co najmniej 8 znaków!");
+            alert("Hasło musi składać się z co najmniej 6 znaków!");
             return;
           }
         } else {
@@ -125,11 +125,11 @@ export default {
 
   data() {
     return {
-      changeNameTextField: "",
-      changeEmailTextField: "",
-      changePasswordTextField: "",
-      confirmPasswordTextField: "",
-      currentPasswordTextField: "",
+      changeName: "",
+      changeEmail: "",
+      changePassword: "",
+      confirmPassword: "",
+      currentPassword: "",
     };
   },
 

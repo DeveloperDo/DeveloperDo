@@ -41,6 +41,38 @@ const actions = {
             .catch(err => {console.log(err)})
     },
 
+    updateUserEmail({ dispatch, rootGetters }, { userEmailNew, userEmailOld, userPassword }) {
+        console.log("updateUserEmail");
+
+        const userID = rootGetters.getUser.uid;
+        const userRef = firebase.firestore.collection("users").doc(userID);
+
+        firebase.reauthenticate({
+            type: firebase.LoginType.PASSWORD,
+
+            passwordOptions: {
+                email: userEmailOld,
+                password: userPassword
+            }
+        }).then(
+            function (result) {
+                userRef
+                    .update({email: userEmailNew})
+                    .catch(err => {console.log(err)})
+
+                firebase.updateEmail(userEmailNew)
+                    .then(() => {
+                            dispatch("fetchUserData",{uid: userID});
+                        }
+                    )
+                    .catch(err => {console.log(err)})
+            },
+            function (error) {
+                console.log(error)
+            }
+        );
+    }
+
 };
 
 export default {
