@@ -129,11 +129,20 @@ export default {
         }
       }
 
+      this.resetFields();
       await this.$store.dispatch("fetchUserData", { uid: this.userData.uid });
     },
 
     onDeleteAccountButtonTap() {
       console.log("Delete account button was pressed");
+    },
+
+    resetFields() {
+      this.changeName = "";
+      this.changeEmail = "";
+      this.changePassword = "";
+      this.confirmPassword = "";
+      this.currentPassword = "";
     },
   },
 
