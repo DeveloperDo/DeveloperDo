@@ -171,7 +171,7 @@ const actions = {
     const metadata = {};
 
     project.deadline = null;
-    project.status = null;
+    project.status = 0;
     project.users = [uid];
     project.changes = [];
     project.imageSrc = null;
@@ -427,7 +427,10 @@ const actions = {
 
     const projectRef = firebase.firestore
       .collection("projects")
-      .where("users", "array-contains", uid);
+      .where("users", "array-contains", uid)
+      .orderBy("priority", "desc")
+      .orderBy("status", "asc")
+      .orderBy("createdAt", "asc");
 
     projectRef
       .get()
