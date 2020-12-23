@@ -9,8 +9,18 @@
 
     <ScrollView>
       <StackLayout class="userPanel">
-        <Image v-if="userData.imageSrc" :src="userData.imageSrc" class="userImage" stretch="aspectFill" />
-        <Image v-if="!userData.imageSrc" src="https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg" class="userImage" stretch="aspectFill" />
+        <Image
+          v-if="userData.imageSrc"
+          :src="userData.imageSrc"
+          class="userImage"
+          stretch="aspectFill"
+        />
+        <Image
+          v-if="!userData.imageSrc"
+          src="https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg"
+          class="userImage"
+          stretch="aspectFill"
+        />
         <Label :text="userData.name" class="userName" textWrap="true" />
         <Label :text="userData.email" class="userEmail" />
 
@@ -84,17 +94,21 @@ export default {
   mixins: [sideDrawer],
 
   methods: {
-    onConfirmChangesButtonTap() {
+    async onConfirmChangesButtonTap() {
       if (this.changeName) {
         const userName = {
-          name: this.changeName
+          name: this.changeName,
         };
-        this.$store.dispatch("updateUserName", { userName: userName } );
+        await this.$store.dispatch("updateUserName", { userName: userName });
       }
 
       if (this.changeEmail) {
         if (this.currentPassword) {
-          this.$store.dispatch("updateUserEmail", { userEmailNew: this.changeEmail, userEmailOld: this.userData.email, userPassword: this.currentPassword} );
+          await this.$store.dispatch("updateUserEmail", {
+            userEmailNew: this.changeEmail,
+            userEmailOld: this.userData.email,
+            userPassword: this.currentPassword,
+          });
         } else {
           alert("Zmiana adresu e-mail wymaga hasła!");
           return;
@@ -115,7 +129,7 @@ export default {
         }
       }
 
-      this.$store.dispatch("fetchUserData", {uid: this.userData.uid});
+      await this.$store.dispatch("fetchUserData", { uid: this.userData.uid });
     },
 
     onDeleteAccountButtonTap() {
@@ -136,8 +150,8 @@ export default {
   computed: {
     userData: function () {
       return this.$store.getters.getUser;
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -1,83 +1,87 @@
 import { firebase } from "@nativescript/firebase";
 
 const state = {
-    user: {},
-    userIsLoading: true,
+  user: {},
+  userIsLoading: true,
 };
 
 const getters = {
-    user: (state) => {
-        return state.user;
-    },
+  user: (state) => {
+    return state.user;
+  },
 
-    userIsLoading: (state) => {
-        return state.userIsLoading;
-    },
+  userIsLoading: (state) => {
+    return state.userIsLoading;
+  },
 };
 
 const mutations = {
-    fetchUserSuccess(state) {
-        state.userIsLoading = false;
-    },
+  fetchUserSuccess(state) {
+    state.userIsLoading = false;
+  },
 
-    fetchUserStart(state) {
-        state.userIsLoading = true;
-    },
+  fetchUserStart(state) {
+    state.userIsLoading = true;
+  },
 
-    fetchUserError(state) {
-        state.userIsLoading = false;
-    },
+  fetchUserError(state) {
+    state.userIsLoading = false;
+  },
 };
 
 const actions = {
-    updateUserName({ rootGetters }, { userName }) {
-        console.log("updateUserName");
+  updateUserName({ rootGetters }, { userName }) {
+    console.log("updateUserName");
 
-        const userID = rootGetters.getUser.uid;
-        const userRef = firebase.firestore.collection("users").doc(userID);
+    const userID = rootGetters.getUser.uid;
+    const userRef = firebase.firestore.collection("users").doc(userID);
 
-        userRef
-            .update(userName)
-            .catch(err => {console.log(err)})
-    },
+    return userRef.update(userName).catch((err) => {
+      console.log(err);
+    });
+  },
 
-    updateUserEmail({ dispatch, rootGetters }, { userEmailNew, userEmailOld, userPassword }) {
-        console.log("updateUserEmail");
+  updateUserEmail(
+    { rootGetters },
+    { userEmailNew, userEmailOld, userPassword }
+  ) {
+    console.log("updateUserEmail");
 
-        const userID = rootGetters.getUser.uid;
-        const userRef = firebase.firestore.collection("users").doc(userID);
+    const userID = rootGetters.getUser.uid;
+    const userRef = firebase.firestore.collection("users").doc(userID);
 
-        firebase.reauthenticate({
-            type: firebase.LoginType.PASSWORD,
+    return firebase
+      .reauthenticate({
+        type: firebase.LoginType.PASSWORD,
 
-            passwordOptions: {
-                email: userEmailOld,
-                password: userPassword
-            }
-        }).then(
-            function (result) {
-                userRef
-                    .update({email: userEmailNew})
-                    .catch(err => {console.log(err)})
-
-                firebase.updateEmail(userEmailNew)
-                    .then(() => {
-                            dispatch("fetchUserData",{uid: userID});
-                        }
-                    )
-                    .catch(err => {console.log(err)})
-            },
-            function (error) {
-                console.log(error)
-            }
-        );
-    }
-
+        passwordOptions: {
+          email: userEmailOld,
+          password: userPassword,
+        },
+      })
+      .then(async () => {
+        await firebase
+          .updateEmail(userEmailNew)
+          .then(async () => {
+            await userRef
+              .update({ email: userEmailNew.toLocaleLowerCase() })
+              .catch((err) => {
+                console.log(err);
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
 };
 
 export default {
-    actions,
-    state,
-    getters,
-    mutations,
+  actions,
+  state,
+  getters,
+  mutations,
 };
