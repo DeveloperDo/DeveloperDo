@@ -136,11 +136,4 @@ export default {
 .description-label {
   margin-bottom: 15;
 }
-
-.errorLabel {
-  padding: 50px;
-  font-size: 18px;
-  color: red;
-  font-style: italic;
-}
 </style>

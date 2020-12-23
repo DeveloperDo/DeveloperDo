@@ -57,7 +57,11 @@
 
       <Button text="USUŃ PROJEKT" class="deleteProjectButton" />
 
-      <Button text="ANULUJ" class="editProjectConfirmButton" />
+      <Button
+        text="ANULUJ"
+        class="editProjectConfirmButton"
+        @tap="this.$modal.close"
+      />
     </StackLayout>
   </ScrollView>
 </template>
@@ -105,6 +109,7 @@ export default {
       let context = imagepicker.create({ mode: "single" });
       this.startSelection(context);
     },
+
     startSelection(context) {
       context
         .authorize()
