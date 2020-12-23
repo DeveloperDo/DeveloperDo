@@ -7,10 +7,10 @@
         class="addProjectHeader"
       />
       <Image
-        src="https://altimadental.pl/wp-content/uploads/2015/01/default-placeholder.png"
+        :src="getImgSrc"
         stretch="aspectFill"
         class="addProjectPhoto"
-        @tap="onAddProjectImageButtonTap"
+        @tap="onSelectSingleTap"
       />
 
       <Label
@@ -42,10 +42,14 @@
       />
       <ListPicker :items="listPickerPriority" v-model="priority" />
 
+      <Label v-if="error" :text="error" class="errorLabel" textWrap="true" />
+
       <Button
+        :disabled="validate"
         text="UTWÓRZ PROJEKT"
         @tap="addProject"
         class="addProjectConfirmButton"
+        :class="{ 'btn--disabled': validate }"
       />
 
       <Button
@@ -58,6 +62,8 @@
 </template>
 
 <script>
+import * as imagepicker from "nativescript-imagepicker";
+
 export default {
   data() {
     return {
@@ -65,20 +71,84 @@ export default {
       priority: 0,
       name: "",
       desc: "",
+      isSingleMode: true,
+      imageAssets: [],
+      imageSrc: null,
+      previewSize: 300,
+      thumbSize: 80,
+      error: null,
     };
   },
 
+  computed: {
+    validate() {
+      return this.name === "";
+    },
+
+    getImgSrc: function () {
+      return this.imageSrc
+        ? this.imageSrc
+        : "https://altimadental.pl/wp-content/uploads/2015/01/default-placeholder.png";
+    },
+  },
+
   methods: {
+    onSelectSingleTap: function (e) {
+      this.isSingleMode = true;
+      let context = imagepicker.create({ mode: "single" });
+      this.startSelection(context);
+    },
+
+    startSelection(context) {
+      context
+        .authorize()
+        .then(() => {
+          this.imageAssets = [];
+          this.imageSrc = null;
+          return context.present();
+        })
+        .then((selection) => {
+          console.log("Selection done: " + JSON.stringify(selection));
+          this.imageSrc =
+            this.isSingleMode && selection.length > 0 ? selection[0] : null;
+          // set the images to be loaded from the assets with optimal sizes (optimize memory usage)
+          selection.forEach((element) => {
+            element.options.width = this.isSingleMode
+              ? this.previewSize
+              : this.thumbSize;
+            element.options.height = this.isSingleMode
+              ? this.previewSize
+              : this.thumbSize;
+          });
+          this.imageAssets = selection;
+        })
+        .catch(function (e) {
+          console.log(e);
+        });
+    },
+
     addProject() {
+      if (this.name === "") {
+        this.error = "Project needs a name!";
+        return;
+      } else {
+        this.error = null;
+      }
+
       const project = {
         name: this.name,
         desc: this.desc,
         priority: this.priority,
       };
 
-      this.$store.dispatch("addProject", { project: project }).then(() => {
-        this.$modal.close();
-      });
+      this.$store
+        .dispatch("addProject", {
+          project: project,
+          image: this.imageAssets[0] ? this.imageAssets[0] : null,
+        })
+        .then(() => {
+          this.$modal.close();
+        });
     },
     onAddProjectImageButtonTap() {
       console.log("Add image button was pressed");

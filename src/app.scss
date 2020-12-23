@@ -46,8 +46,8 @@ ActionBar {
 .btn {
 
   &--disabled {
+    opacity: 0.6;
   }
-  opacity: 0.6;
 }
 
 .userPhoto {
@@ -56,4 +56,11 @@ ActionBar {
   margin: 20px;
   border-radius: 100px;
   android-elevation: 10;
+}
+
+.errorLabel {
+  padding: 50px;
+  font-size: 18px;
+  color: red;
+  font-style: italic;
 }

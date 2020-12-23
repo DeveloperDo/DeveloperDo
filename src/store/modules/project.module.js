@@ -1,5 +1,6 @@
 import { firebase } from "@nativescript/firebase";
 import { firestoreAction } from "vuexfire";
+import { set } from "@nativescript/core/ui/core/bindable/bindable-resources";
 
 const state = {
   projectList: [],
@@ -162,39 +163,88 @@ const actions = {
       });
   },
 
-  async addProject({ dispatch, rootGetters }, { project }) {
+  async addProject({ dispatch, rootGetters }, { project, image = null }) {
     console.log("addProject");
 
-    const projectRef = firebase.firestore.collection("projects");
+    const projectsRef = firebase.firestore.collection("projects");
     const uid = rootGetters.getUser.uid;
+    const metadata = {};
 
     project.deadline = null;
-    project.imageSrc = null;
     project.status = null;
     project.users = [uid];
     project.changes = [];
+    project.imageSrc = null;
 
-    projectRef
+    projectsRef
       .add(project)
       .then(async (res) => {
-        //TODO parallel function
+        const projectID = res.id;
         const changesRef = firebase.firestore.collection(
           "projects/" + res.id + "/changes"
         );
 
-        await changesRef
-          .add({
-            name: "Utworzono projekt",
-          })
-          .then(async (change) => {
-            await changesRef.doc(change.id).update({
-              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        async function parallel() {
+          const setChanges = changesRef
+            .add({
+              name: "Utworzono projekt",
+            })
+            .then(async (change) => {
+              await changesRef.doc(change.id).update({
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              });
             });
+          const setProjectCreatedAt = projectsRef.doc(res.id).update({
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
+          const setImage = image
+            ? firebase.storage
+                .uploadFile({
+                  remoteFullPath: "projects/" + projectID,
+                  localFullPath: image.android.toString(),
+                  onProgress: function (status) {
+                    console.log(
+                      "Uploaded fraction: " + status.fractionCompleted
+                    );
+                    console.log(
+                      "Percentage complete: " + status.percentageCompleted
+                    );
+                  },
+                  metadata,
+                })
+                .then(async () => {
+                  await firebase.storage
+                    .getDownloadUrl({
+                      remoteFullPath: "projects/" + projectID,
+                    })
+                    .then(async (url) => {
+                      await projectsRef
+                        .doc(projectID)
+                        .update({
+                          imageSrc: url,
+                        })
+                        .then(() => {
+                          console.log("url updated");
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                })
+                .catch((err) => {
+                  console.log(err);
+                })
+            : null;
 
-        await projectRef.doc(res.id).update({
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
+          await setChanges;
+          await setProjectCreatedAt;
+          await setImage;
+        }
+
+        await parallel();
 
         await dispatch("fetchProjectList");
       })
@@ -314,7 +364,7 @@ const actions = {
     }
   ),
 
-  editProject({ dispatch, rootGetters }, { project, projectID, image = null }) {
+  editProject({ rootGetters }, { project, projectID, image = null }) {
     console.log("editProject");
 
     const uid = rootGetters.getUser.uid;
@@ -335,11 +385,8 @@ const actions = {
     if (image) {
       firebase.storage
         .uploadFile({
-          // the full path of the file in your Firebase storage (folders will be created)
           remoteFullPath: "projects/" + projectID,
-          // option 2: a full file path (ignored if 'localFile' is set)
           localFullPath: image.android.toString(),
-          // get notified of file upload progress
           onProgress: function (status) {
             console.log("Uploaded fraction: " + status.fractionCompleted);
             console.log("Percentage complete: " + status.percentageCompleted);
