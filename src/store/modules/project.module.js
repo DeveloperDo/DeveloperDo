@@ -168,6 +168,7 @@ const actions = {
 
     const projectsRef = firebase.firestore.collection("projects");
     const uid = rootGetters.getUser.uid;
+    const metadata = {};
 
     project.deadline = null;
     project.status = null;
@@ -182,7 +183,6 @@ const actions = {
         const changesRef = firebase.firestore.collection(
           "projects/" + res.id + "/changes"
         );
-        const metadata = {};
 
         async function parallel() {
           const setChanges = changesRef
@@ -197,31 +197,38 @@ const actions = {
           const setProjectCreatedAt = projectsRef.doc(res.id).update({
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
-          const setImage = firebase.storage
-            .uploadFile({
-              remoteFullPath: "projects/" + projectID,
-              localFullPath: image.android.toString(),
-              onProgress: function (status) {
-                console.log("Uploaded fraction: " + status.fractionCompleted);
-                console.log(
-                  "Percentage complete: " + status.percentageCompleted
-                );
-              },
-              metadata,
-            })
-            .then(async () => {
-              await firebase.storage
-                .getDownloadUrl({
+          const setImage = image
+            ? firebase.storage
+                .uploadFile({
                   remoteFullPath: "projects/" + projectID,
+                  localFullPath: image.android.toString(),
+                  onProgress: function (status) {
+                    console.log(
+                      "Uploaded fraction: " + status.fractionCompleted
+                    );
+                    console.log(
+                      "Percentage complete: " + status.percentageCompleted
+                    );
+                  },
+                  metadata,
                 })
-                .then(async (url) => {
-                  await projectsRef
-                    .doc(projectID)
-                    .update({
-                      imageSrc: url,
+                .then(async () => {
+                  await firebase.storage
+                    .getDownloadUrl({
+                      remoteFullPath: "projects/" + projectID,
                     })
-                    .then(() => {
-                      console.log("url updated");
+                    .then(async (url) => {
+                      await projectsRef
+                        .doc(projectID)
+                        .update({
+                          imageSrc: url,
+                        })
+                        .then(() => {
+                          console.log("url updated");
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
                     })
                     .catch((err) => {
                       console.log(err);
@@ -229,18 +236,12 @@ const actions = {
                 })
                 .catch((err) => {
                   console.log(err);
-                });
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+                })
+            : null;
 
           await setChanges;
           await setProjectCreatedAt;
-
-          if (image) {
-            await setImage;
-          }
+          await setImage;
         }
 
         await parallel();
