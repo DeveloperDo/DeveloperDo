@@ -230,6 +230,7 @@ import EditProjectModal from "../components/Modals/EditProjectModal";
 import getImg from "../mixins/getImg";
 import translateStatus from "../mixins/translateStatus";
 import translatePriority from "../mixins/translatePriority";
+import readTimestamp from "../mixins/readTimestamp";
 
 export default {
   components: { Spinner },
@@ -246,7 +247,13 @@ export default {
     };
   },
 
-  mixins: [sideDrawer, getImg, translateStatus, translatePriority],
+  mixins: [
+    sideDrawer,
+    getImg,
+    translateStatus,
+    translatePriority,
+    readTimestamp,
+  ],
 
   mounted() {
     this.$store.dispatch("bindProject", this.projectID);
@@ -270,20 +277,6 @@ export default {
         projectID: this.project.id,
         todoGroupID: todoGroupID,
       });
-    },
-
-    readTimestamp(timestamp) {
-      return (
-        timestamp.getHours() +
-        ":" +
-        timestamp.getMinutes() +
-        " " +
-        timestamp.getDate() +
-        "/" +
-        timestamp.getMonth() +
-        "/" +
-        timestamp.getFullYear()
-      );
     },
 
     onEditButtonTap() {

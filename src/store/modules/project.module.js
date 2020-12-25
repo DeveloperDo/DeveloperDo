@@ -330,7 +330,7 @@ const actions = {
         //On next updates fetch users if user array is different than current
         console.log(users);
         console.log(data.users);
-        if (users !== [] && !arrayEquals(users, data.users)) {
+        if (users && !arrayEquals(users, data.users)) {
           console.log("------");
           dispatch("fetchProjectUsers", data.users);
         }
