@@ -1,7 +1,7 @@
 export default {
   methods: {
     readTimestamp(timestamp) {
-      function roundTime(time) {
+      function prependTime(time) {
         if (time < 10) {
           time = "0" + time.toString();
         }
@@ -10,13 +10,13 @@ export default {
       }
 
       return (
-        roundTime(timestamp.getHours()) +
+        prependTime(timestamp.getHours()) +
         ":" +
-        roundTime(timestamp.getMinutes()) +
+        prependTime(timestamp.getMinutes()) +
         " " +
-        roundTime(timestamp.getDate()) +
+        prependTime(timestamp.getDate()) +
         "/" +
-        roundTime(timestamp.getMonth()) +
+        prependTime(timestamp.getMonth()) +
         "/" +
         timestamp.getFullYear()
       );
