@@ -60,11 +60,11 @@ const mutations = {
     state.detailsIsLoading = false;
   },
 
-  fetchProjectListSuccess(state) {
+  bindProjectListSuccess(state) {
     state.projectListIsLoading = false;
   },
 
-  fetchProjectListStart(state) {
+  bindProjectListStart(state) {
     state.projectListIsLoading = true;
   },
 
@@ -427,7 +427,7 @@ const actions = {
 
   bindProjectList: firestoreAction(
     ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
-      commit("fetchProjectListStart");
+      commit("bindProjectListStart");
       const uid = rootGetters.getUser.uid;
       const projectRef = firebase.firestore
         .collection("projects")
@@ -449,7 +449,7 @@ const actions = {
         serialize,
       })
         .then(() => {
-          commit("fetchProjectListSuccess");
+          commit("bindProjectListSuccess");
         })
         .catch((err) => {
           console.log(err);
