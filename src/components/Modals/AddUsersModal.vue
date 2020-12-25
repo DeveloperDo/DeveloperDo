@@ -17,29 +17,39 @@
         <Spinner />
       </StackLayout>
 
-      <StackLayout
+      <GridLayout
         v-else
         v-for="(user, index) in foundUsers"
         :key="index"
         class="usersSearchList"
-        orientation="horizontal"
+        rows="auto"
+        columns="auto, *, auto"
       >
         <Image
           :src="getImg(user.imageSrc)"
           stretch="aspectFill"
           class="userPhoto"
+          row="0"
+          col="0"
         />
-        <StackLayout verticalAlignment="center" class="userTextContainer">
+        <StackLayout
+          row="0"
+          col="1"
+          verticalAlignment="center"
+          class="userTextContainer"
+        >
           <Label :text="user.name" class="addUserName" textWrap="true" />
         </StackLayout>
         <Switch
+          row="0"
+          col="3"
           :checked="userSelected(user)"
           color="black"
           backgroundColor="green"
           offBackgroundColor="gray"
           @checkedChange="onSwitchChange($event, user)"
         />
-      </StackLayout>
+      </GridLayout>
 
       <Button
         text="DODAJ UŻYTKOWNIKÓW"
