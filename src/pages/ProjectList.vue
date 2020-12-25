@@ -24,7 +24,7 @@
             @tap="openProjectView(project)"
           >
             <Label
-              :text="project.status"
+              :text="translateStatus(project.status)"
               class="projectStatus"
               textTransform="uppercase"
             />
@@ -52,11 +52,12 @@
 import sideDrawer from "../mixins/sideDrawer";
 import AddProjectModal from "../components/Modals/AddProjectModal";
 import Spinner from "../components/Spinner";
+import translateStatus from "../mixins/translateStatus";
 
 export default {
   components: { Spinner },
 
-  mixins: [sideDrawer],
+  mixins: [sideDrawer, translateStatus],
 
   methods: {
     openAddProjectModal() {

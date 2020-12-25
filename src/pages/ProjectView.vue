@@ -24,7 +24,10 @@
 
             <StackLayout class="projectStatusContainer">
               <Label text="STATUS" class="projectHeader" />
-              <Label :text="project.status" class="projectStatus" />
+              <Label
+                :text="translateStatus(project.status)"
+                class="projectStatus"
+              />
             </StackLayout>
 
             <StackLayout
@@ -36,7 +39,10 @@
               }"
             >
               <Label text="PRIORYTET" class="projectHeader" />
-              <Label :text="project.priority" class="projectPriority" />
+              <Label
+                :text="translateStatus(project.priority)"
+                class="projectPriority"
+              />
             </StackLayout>
 
             <StackLayout class="projectDescriptionContainer">
@@ -222,6 +228,8 @@ import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
 import AddTodoModal from "../components/Modals/AddTodoModal";
 import EditProjectModal from "../components/Modals/EditProjectModal";
 import getImg from "../mixins/getImg";
+import translateStatus from "../mixins/translateStatus";
+import translatePriority from "../mixins/translatePriority";
 
 export default {
   components: { Spinner },
@@ -238,7 +246,7 @@ export default {
     };
   },
 
-  mixins: [sideDrawer, getImg],
+  mixins: [sideDrawer, getImg, translateStatus, translatePriority],
 
   mounted() {
     this.$store.dispatch("bindProject", this.projectID);
