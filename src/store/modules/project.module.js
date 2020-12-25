@@ -60,17 +60,12 @@ const mutations = {
     state.detailsIsLoading = false;
   },
 
-  fetchProjectListSuccess(state, projectList) {
-    state.projectList = projectList;
+  fetchProjectListSuccess(state) {
     state.projectListIsLoading = false;
   },
 
   fetchProjectListStart(state) {
     state.projectListIsLoading = true;
-  },
-
-  fetchProjectListError(state) {
-    state.projectListIsLoading = false;
   },
 
   fetchUsersSuccess(state, users) {
@@ -99,6 +94,14 @@ const mutations = {
 };
 
 const actions = {
+  async deleteProject({ dispatch }, projectID) {
+    const projectRef = firebase.firestore.collection("projects").doc(projectID);
+
+    await dispatch("unbindProject");
+
+    return projectRef.delete();
+  },
+
   addUsersToProject({ rootGetters }, users) {
     let projectID;
 
@@ -245,8 +248,6 @@ const actions = {
         }
 
         await parallel();
-
-        await dispatch("fetchProjectList");
       })
       .catch((err) => {
         console.log(err);
@@ -297,6 +298,10 @@ const actions = {
 
     commit("fetchUsersSuccess", users);
   },
+
+  unbindProject: firestoreAction(({ unbindFirestoreRef }) => {
+    return unbindFirestoreRef("project", false);
+  }),
 
   bindProject: firestoreAction(
     async ({ bindFirestoreRef, commit, dispatch, rootGetters }, projectID) => {
@@ -420,34 +425,37 @@ const actions = {
     }
   },
 
-  fetchProjectList({ commit, rootGetters }) {
-    console.log("fetchProjectList");
-    commit("fetchProjectListStart");
-    const uid = rootGetters.getUser.uid;
+  bindProjectList: firestoreAction(
+    ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
+      commit("fetchProjectListStart");
+      const uid = rootGetters.getUser.uid;
+      const projectRef = firebase.firestore
+        .collection("projects")
+        .where("users", "array-contains", uid)
+        .orderBy("priority", "desc")
+        .orderBy("status", "asc")
+        .orderBy("createdAt", "asc");
 
-    const projectRef = firebase.firestore
-      .collection("projects")
-      .where("users", "array-contains", uid)
-      .orderBy("priority", "desc")
-      .orderBy("status", "asc")
-      .orderBy("createdAt", "asc");
+      const serialize = (doc) => {
+        let data = doc.data();
 
-    projectRef
-      .get()
-      .then(async (collectionSnapshot) => {
-        let projectList = [];
+        Object.defineProperty(data, "id", { value: doc.id });
+        Object.defineProperty(data, "_doc", { value: doc });
 
-        collectionSnapshot.forEach((projectDoc) => {
-          projectList.push({ ...projectDoc.data(), id: projectDoc.id });
-        });
+        return data;
+      };
 
-        commit("fetchProjectListSuccess", projectList);
+      return bindFirestoreRef("projectList", projectRef, {
+        serialize,
       })
-      .catch((err) => {
-        commit("fetchProjectListError");
-        console.log(err);
-      });
-  },
+        .then(() => {
+          commit("fetchProjectListSuccess");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  ),
 };
 
 export default {

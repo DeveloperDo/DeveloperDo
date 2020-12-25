@@ -55,7 +55,11 @@
         class="editProjectConfirmButton"
       />
 
-      <Button text="USUŃ PROJEKT" class="deleteProjectButton" />
+      <Button
+        text="USUŃ PROJEKT"
+        @tap="deleteProject"
+        class="deleteProjectButton"
+      />
 
       <Button
         text="ANULUJ"
@@ -104,6 +108,23 @@ export default {
   },
 
   methods: {
+    deleteProject() {
+      confirm({
+        title: "Potwierdź",
+        message: "Czy chcesz usunąć projekt?",
+        okButtonText: "OK",
+        cancelButtonText: "Anuluj",
+      }).then((confirmed) => {
+        if (confirmed) {
+          this.$navigateTo(this.$routes.ProjectList, {
+            clearHistory: true,
+          });
+          this.$modal.close();
+          this.$store.dispatch("deleteProject", this.project.id);
+        }
+      });
+    },
+
     onSelectSingleTap: function (e) {
       this.isSingleMode = true;
       let context = imagepicker.create({ mode: "single" });
@@ -156,10 +177,6 @@ export default {
         .then(() => {
           this.$modal.close();
         });
-    },
-
-    onEditProjectImageButtonTap() {
-      console.log("edit image button was pressed");
     },
   },
   computed: {

@@ -71,7 +71,7 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch("fetchProjectList");
+    this.$store.dispatch("bindProjectList");
   },
 
   computed: {
