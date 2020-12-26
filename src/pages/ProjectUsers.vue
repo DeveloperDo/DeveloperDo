@@ -7,8 +7,8 @@
       </GridLayout>
     </ActionBar>
 
-    <FlexboxLayout flexDirection="column">
-      <ScrollView>
+    <GridLayout rows="auto, *">
+      <ScrollView row="1">
         <StackLayout>
           <FlexboxLayout
             alignItems="center"
@@ -42,12 +42,14 @@
         </StackLayout>
       </ScrollView>
 
-      <Button
-        text="DODAJ UŻYTKOWNIKA"
+      <fab
+        row="1"
         @tap="onAddUserButtonTap"
-        class="addUserButton"
-      />
-    </FlexboxLayout>
+        icon="res://baseline_add_white_24"
+        rippleColor="#f1f1f1"
+        class="fab-button"
+      ></fab>
+    </GridLayout>
   </Page>
 </template>
 

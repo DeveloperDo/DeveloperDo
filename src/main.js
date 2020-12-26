@@ -28,6 +28,11 @@ Vue.registerElement(
   () => require("nativescript-ui-sidedrawer").RadSideDrawer
 );
 
+Vue.registerElement(
+  "Fab",
+  () => require("@nstudio/nativescript-floatingactionbutton").Fab
+);
+
 Vue.prototype.$routes = routes;
 
 // Vue.config.silent = true;

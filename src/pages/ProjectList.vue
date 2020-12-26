@@ -9,8 +9,8 @@
 
     <Spinner v-if="projectListIsLoading" />
 
-    <FlexboxLayout v-else flexDirection="column">
-      <ScrollView>
+    <GridLayout v-else rows="auto, *">
+      <ScrollView row="1">
         <StackLayout className="projectList">
           <StackLayout
             v-for="(project, index) in projectList"
@@ -38,13 +38,14 @@
           </StackLayout>
         </StackLayout>
       </ScrollView>
-
-      <Button
-        text="DODAJ PROJEKT"
+      <fab
+        row="1"
         @tap="openAddProjectModal"
-        class="addProjectButton"
-      />
-    </FlexboxLayout>
+        icon="res://baseline_add_white_24"
+        rippleColor="#f1f1f1"
+        class="fab-button"
+      ></fab>
+    </GridLayout>
   </Page>
 </template>
 
@@ -143,13 +144,5 @@ export default {
   margin-bottom: 20px;
   font-size: 18px;
   text-align: center;
-}
-
-.addProjectButton {
-  background-color: lightgray;
-  color: black;
-  font-size: 18px;
-  font-weight: bold;
-  height: 20%;
 }
 </style>
