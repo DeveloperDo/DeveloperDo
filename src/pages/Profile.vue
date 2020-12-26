@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <ActionBar title="Profil użytkownika" />
+    <ActionBar :title="this.$title" />
     <ScrollView>
       <StackLayout class="userPanel">
         <Image :src="user.imageSrc" class="userImage" stretch="aspectFill" />

@@ -3,7 +3,7 @@
     <ActionBar>
       <GridLayout width="100%" columns="auto, *">
         <Label text="MENU" @tap="openDrawer()" col="0" />
-        <Label class="title" text="Welcome to NativeScript-Vue!" col="1" />
+        <Label class="title" :text="this.$title" col="1" />
       </GridLayout>
     </ActionBar>
 
@@ -19,7 +19,7 @@
             <Label text="Edytuj: " class="" />
             <Switch v-model="editEnabled" style="margin-left: 0" />
           </FlexboxLayout>
-          <StackLayout class="userCard" v-for="user in users">
+          <StackLayout class="userCard" v-for="(user, index) in users" :key="index">
             <StackLayout orientation="horizontal">
               <Image
                 :src="user.imageSrc"

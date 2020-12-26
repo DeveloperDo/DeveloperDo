@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <ActionBar title="DeveloperDo" />
+    <ActionBar :text="this.$title"/>
     <ScrollView>
       <StackLayout class="register-panel">
         <!--Add your page content here-->

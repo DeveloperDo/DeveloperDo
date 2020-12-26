@@ -3,7 +3,7 @@
     <ActionBar>
       <GridLayout width="100%" columns="auto, *">
         <Label text="MENU" @tap="openDrawer()" col="0" />
-        <Label class="title" text="Welcome to NativeScript-Vue!" col="1" />
+        <Label class="title" :text="this.$title" col="1" />
       </GridLayout>
     </ActionBar>
 
