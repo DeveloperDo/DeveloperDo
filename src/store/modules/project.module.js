@@ -130,6 +130,7 @@ const actions = {
 
     const usersRef = firebase.firestore.collection("users");
     const uid = rootGetters.getUser.uid;
+    const projectUsers = rootGetters.users;
 
     usersRef
       .where("email", "==", searchString.toLocaleLowerCase())
@@ -138,7 +139,12 @@ const actions = {
         const users = [];
 
         usersSnapshot.forEach((userDoc) => {
-          if (userDoc.id === uid) return;
+          if (
+            userDoc.id === uid ||
+            projectUsers.some((user) => user.uid === userDoc.id)
+          ) {
+            return;
+          }
 
           users.push({ ...userDoc.data(), uid: userDoc.id });
         });
