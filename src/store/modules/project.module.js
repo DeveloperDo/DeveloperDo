@@ -146,7 +146,13 @@ const actions = {
             return;
           }
 
-          users.push({ ...userDoc.data(), uid: userDoc.id });
+          const data = userDoc.data();
+
+          if (!data.imageSrc) {
+            data.imageSrc = rootGetters.userImgPlaceholder;
+          }
+
+          users.push({ ...data, uid: userDoc.id });
         });
 
         commit("searchUsersSuccess", users);
@@ -172,7 +178,7 @@ const actions = {
       });
   },
 
-  async addProject({ dispatch, rootGetters }, { project, image = null }) {
+  async addProject({ rootGetters }, { project, image = null }) {
     console.log("addProject");
 
     const projectsRef = firebase.firestore.collection("projects");
@@ -283,7 +289,7 @@ const actions = {
     }
   ),
 
-  async fetchProjectUsers({ commit }, projectUsers) {
+  async fetchProjectUsers({ commit, rootGetters }, projectUsers) {
     const usersRef = firebase.firestore.collection("users");
 
     const users = [];
@@ -295,8 +301,15 @@ const actions = {
         .doc(uid)
         .get()
         .then((userDoc) => {
+          let data = userDoc.data();
+
+          if (!data.imageSrc) {
+            console.log(rootGetters.userImgPlaceholder);
+            data.imageSrc = rootGetters.userImgPlaceholder;
+          }
+
           users.push({
-            ...userDoc.data(),
+            ...data,
             uid: uid,
           });
         });
@@ -320,8 +333,11 @@ const actions = {
 
       const serialize = (doc) => {
         const data = doc.data();
-
         const users = rootGetters.project.users;
+
+        if (!data.imageSrc) {
+          data.imageSrc = rootGetters.projectImgPlaceholder;
+        }
 
         function arrayEquals(a, b) {
           return (
@@ -334,8 +350,6 @@ const actions = {
 
         //On init users is empty thus the user fetch should not occur
         //On next updates fetch users if user array is different than current
-        console.log(users);
-        console.log(data.users);
         if (users && !arrayEquals(users, data.users)) {
           console.log("------");
           dispatch("fetchProjectUsers", data.users);
@@ -432,8 +446,9 @@ const actions = {
   },
 
   bindProjectList: firestoreAction(
-    ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
+    ({ bindFirestoreRef, rootGetters, commit }) => {
       commit("bindProjectListStart");
+
       const uid = rootGetters.getUser.uid;
       const projectRef = firebase.firestore
         .collection("projects")
@@ -444,6 +459,10 @@ const actions = {
 
       const serialize = (doc) => {
         let data = doc.data();
+
+        if (!data.imageSrc) {
+          data.imageSrc = rootGetters.projectImgPlaceholder;
+        }
 
         Object.defineProperty(data, "id", { value: doc.id });
         Object.defineProperty(data, "_doc", { value: doc });

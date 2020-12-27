@@ -1,9 +1,8 @@
 <template>
   <Page>
-    <ActionBar :text="this.$title"/>
-    <ScrollView>
+    <ActionBar :text="this.$title" />
+    <ScrollView height="100%">
       <StackLayout class="register-panel">
-        <!--Add your page content here-->
         <Label text="" />
         <label
           text="Nazwa użytkownika"

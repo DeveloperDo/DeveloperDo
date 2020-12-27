@@ -11,11 +11,11 @@
 
     <TabView v-else>
       <TabViewItem title="Podsumowanie">
-        <ScrollView>
+        <ScrollView class="h-100">
           <StackLayout>
             <StackLayout class="projectNameContainer">
               <Image
-                :src="getImg(project.imageSrc)"
+                :src="project.imageSrc"
                 class="projectImg"
                 stretch="aspectFill"
               />
@@ -40,7 +40,7 @@
             >
               <Label text="PRIORYTET" class="projectHeader" />
               <Label
-                :text="translateStatus(project.priority)"
+                :text="translatePriority(project.priority)"
                 class="projectPriority"
               />
             </StackLayout>
@@ -59,7 +59,7 @@
               <WrapLayout orientation="horizontal" class="usersList">
                 <StackLayout v-for="(user, index) in users" :key="index">
                   <Image
-                    :src="getImg(user.imageSrc)"
+                    :src="user.imageSrc"
                     stretch="aspectFill"
                     class="userPhoto"
                   />
@@ -95,7 +95,7 @@
       </TabViewItem>
 
       <TabViewItem title="Zadania" visibility="collapse">
-        <ScrollView>
+        <ScrollView class="h-100">
           <StackLayout>
             <FlexboxLayout
               alignItems="center"
@@ -186,7 +186,7 @@
                 >
                   <!--                  TODO getUserImage-->
                   <Image
-                    :src="getImg(msg.user.imageSrc)"
+                    :src="msg.user.imageSrc"
                     class="userPhoto"
                     stretch="aspectFill"
                   />
@@ -227,7 +227,6 @@ import Spinner from "../components/Spinner";
 import AddTodoGroupModal from "../components/Modals/AddTodoGroupModal";
 import AddTodoModal from "../components/Modals/AddTodoModal";
 import EditProjectModal from "../components/Modals/EditProjectModal";
-import getImg from "../mixins/getImg";
 import translateStatus from "../mixins/translateStatus";
 import translatePriority from "../mixins/translatePriority";
 import readTimestamp from "../mixins/readTimestamp";
@@ -247,13 +246,7 @@ export default {
     };
   },
 
-  mixins: [
-    sideDrawer,
-    getImg,
-    translateStatus,
-    translatePriority,
-    readTimestamp,
-  ],
+  mixins: [sideDrawer, translateStatus, translatePriority, readTimestamp],
 
   mounted() {
     this.$store.dispatch("bindProject", this.projectID);
@@ -265,6 +258,7 @@ export default {
 
   methods: {
     deleteTodo(todoGroupID, task) {
+      console.log("deleteTodo");
       this.$store.dispatch("deleteTodo", {
         projectID: this.project.id,
         todoGroupID: todoGroupID,
@@ -336,6 +330,10 @@ export default {
 </script>
 
 <style scoped>
+.h-100 {
+  height: 100%;
+}
+
 .projectNameContainer {
   horizontal-align: center;
 }

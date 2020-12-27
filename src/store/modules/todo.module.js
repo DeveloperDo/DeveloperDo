@@ -86,6 +86,7 @@ const actions = {
       const serialize = (doc) => {
         let data = doc.data();
 
+        //todo refactor this!
         data.todos.forEach((todo) => {
           todo.users.forEach((todoUser) => {
             const user = rootGetters.users.find(

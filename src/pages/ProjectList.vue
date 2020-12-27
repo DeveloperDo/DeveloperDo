@@ -10,7 +10,7 @@
     <Spinner v-if="projectListIsLoading" />
 
     <GridLayout v-else rows="auto, *">
-      <ScrollView row="1">
+      <ScrollView row="1" height="100%">
         <StackLayout className="projectList">
           <StackLayout
             v-for="(project, index) in projectList"

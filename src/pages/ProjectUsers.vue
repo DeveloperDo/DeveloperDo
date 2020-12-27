@@ -19,7 +19,11 @@
             <Label text="Edytuj: " class="" />
             <Switch v-model="editEnabled" style="margin-left: 0" />
           </FlexboxLayout>
-          <StackLayout class="userCard" v-for="(user, index) in users" :key="index">
+          <StackLayout
+            class="userCard"
+            v-for="(user, index) in users"
+            :key="index"
+          >
             <StackLayout orientation="horizontal">
               <Image
                 :src="user.imageSrc"
@@ -56,7 +60,6 @@
 <script>
 import AddUsersModal from "../components/Modals/AddUsersModal";
 import sideDrawer from "../mixins/sideDrawer";
-import getImg from "../mixins/getImg";
 
 export default {
   data() {
@@ -65,7 +68,7 @@ export default {
     };
   },
 
-  mixins: [sideDrawer, getImg],
+  mixins: [sideDrawer],
 
   methods: {
     deleteUser(uid) {

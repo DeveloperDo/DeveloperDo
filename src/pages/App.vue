@@ -13,8 +13,11 @@ export default {
     return {};
   },
 
-  mounted() {
-    this.$store.dispatch("authInit").then(() => {
+  async mounted() {
+    await Promise.all([
+      this.$store.dispatch("fetchPlaceholders"),
+      this.$store.dispatch("authInit"),
+    ]).then(() => {
       if (this.isLogged) {
         this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
       } else {

@@ -1,7 +1,7 @@
 <template>
   <Page>
     <ActionBar :title="this.$title" />
-    <ScrollView>
+    <ScrollView height="100%">
       <StackLayout class="home-panel">
         <!--Add your page content here-->
         <label text="Logowanie" style="horizontal-align: center"> </label>

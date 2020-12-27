@@ -1,5 +1,5 @@
 <template lang="html">
-  <ScrollView>
+  <ScrollView height="100%">
     <StackLayout width="100%">
       <Label class="drawer-header" text="Drawer" />
 

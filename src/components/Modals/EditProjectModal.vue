@@ -1,5 +1,5 @@
 <template>
-  <ScrollView>
+  <ScrollView height="100%">
     <StackLayout class="editProjectModal">
       <Label
         text="Logo projektu"
@@ -180,8 +180,16 @@ export default {
     },
   },
   computed: {
+    projectImgPlaceholder: function () {
+      return this.$store.getters.projectImgPlaceholder;
+    },
+
     getImgSrc: function () {
-      return this.imageSrc ? this.imageSrc : this.project.imageSrc;
+      return this.imageSrc
+        ? this.imageSrc
+        : this.project.imageSrc
+        ? this.project.imageSrc
+        : this.projectImgPlaceholder;
     },
   },
 };

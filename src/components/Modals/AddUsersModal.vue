@@ -1,5 +1,5 @@
 <template>
-  <ScrollView>
+  <ScrollView height="100%">
     <StackLayout class="addUsersModal">
       <Label
         text="Przydziel użytkowników do projektu"
@@ -26,7 +26,7 @@
         columns="auto, *, auto"
       >
         <Image
-          :src="getImg(user.imageSrc)"
+          :src="user.imageSrc"
           stretch="aspectFill"
           class="userPhoto"
           row="0"
@@ -63,12 +63,9 @@
 
 <script>
 import Spinner from "../Spinner";
-import getImg from "../../mixins/getImg";
 
 export default {
   components: { Spinner },
-
-  mixins: [getImg],
 
   data() {
     return {

@@ -1,5 +1,5 @@
 <template>
-  <ScrollView>
+  <ScrollView height="100%">
     <StackLayout class="addTaskCategoryModal">
       <Label
         text="Nazwa kategorii zadań"

@@ -1,5 +1,5 @@
 <template>
-  <ScrollView>
+  <ScrollView height="100%">
     <StackLayout class="addProjectModal">
       <Label
         text="Logo projektu"
@@ -85,10 +85,18 @@ export default {
       return this.name === "";
     },
 
+    projectImgPlaceholder: function () {
+      return this.$store.getters.projectImgPlaceholder;
+    },
+
     getImgSrc: function () {
-      return this.imageSrc
+      console.log(
+        this.imageSrc !== null ? this.imageSrc : this.projectImgPlaceholder
+      );
+
+      return this.imageSrc !== null
         ? this.imageSrc
-        : "https://altimadental.pl/wp-content/uploads/2015/01/default-placeholder.png";
+        : this.projectImgPlaceholder;
     },
   },
 
@@ -149,9 +157,6 @@ export default {
         .then(() => {
           this.$modal.close();
         });
-    },
-    onAddProjectImageButtonTap() {
-      console.log("Add image button was pressed");
     },
   },
 };

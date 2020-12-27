@@ -35,7 +35,7 @@ Vue.registerElement(
 
 Vue.prototype.$routes = routes;
 Vue.prototype.$title = "DeveloperDo";
-Vue.config.silent = true;
+// Vue.config.silent = true;
 
 new Vue({
   store,
