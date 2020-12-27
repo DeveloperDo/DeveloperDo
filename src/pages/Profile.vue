@@ -118,7 +118,11 @@ export default {
       if (this.changePassword) {
         if (this.changePassword === this.confirmPassword) {
           if (this.changePassword.length > 5) {
-            //
+            await this.$store.dispatch("updateUserPassword", {
+              userPasswordNew: this.changePassword,
+              userPasswordOld: this.currentPassword,
+              userEmail: this.userData.email,
+            })
           } else {
             alert("Hasło musi składać się z co najmniej 6 znaków!");
             return;

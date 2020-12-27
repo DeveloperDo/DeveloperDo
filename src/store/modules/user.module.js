@@ -1,5 +1,26 @@
 import { firebase } from "@nativescript/firebase";
 
+function translateErrors(errCode) {
+  switch (errCode) {
+    case "Updating email failed. com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The email address is badly formatted.": {
+      return "Niepoprawny format nowego adresu e-mail!";
+    }
+    case "Updating email failed. com.google.firebase.auth.FirebaseAuthUserCollisionException: The email address is already in use by another account.": {
+      return "Podany adres e-mail jest już zajęty!";
+    }
+    case "Auth type PASSWORD requires an 'passwordOptions.email' and 'passwordOptions.password' argument": {
+      return "Zmiana adresu e-mail lub hasła wymaga podania aktualnego hasła!";
+    }
+    case "com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The password is invalid or the user does not have a password.": {
+      return "Podano niepoprawne aktualne hasło!";
+    }
+
+    default: {
+      return "Błąd aktualizacji danych!";
+    }
+  }
+}
+
 const state = {
   user: {},
   userIsLoading: true,
@@ -15,20 +36,6 @@ const getters = {
   },
 };
 
-const mutations = {
-  fetchUserSuccess(state) {
-    state.userIsLoading = false;
-  },
-
-  fetchUserStart(state) {
-    state.userIsLoading = true;
-  },
-
-  fetchUserError(state) {
-    state.userIsLoading = false;
-  },
-};
-
 const actions = {
   updateUserName({ rootGetters }, { userName }) {
     console.log("updateUserName");
@@ -38,6 +45,7 @@ const actions = {
 
     return userRef.update(userName).catch((err) => {
       console.log(err);
+      alert(translateErrors(err));
     });
   },
 
@@ -67,21 +75,49 @@ const actions = {
               .update({ email: userEmailNew.toLocaleLowerCase() })
               .catch((err) => {
                 console.log(err);
+                alert(translateErrors(err));
               });
           })
           .catch((err) => {
             console.log(err);
+            alert(translateErrors(err));
           });
       })
       .catch((err) => {
         console.log(err);
+        alert(translateErrors(err));
       });
   },
+
+  updateUserPassword ({ rootGetters, commit }, { userPasswordNew, userPasswordOld, userEmail }) {
+    console.log("updateUserPassword");
+
+    return firebase
+        .reauthenticate({
+          type: firebase.LoginType.PASSWORD,
+
+          passwordOptions: {
+            email: userEmail,
+            password: userPasswordOld,
+          },
+        })
+        .then(async () => {
+          await firebase
+              .updatePassword(userPasswordNew)
+              .catch((err) => {
+                console.log(err);
+                alert(translateErrors(err));
+              })
+        })
+        .catch((err) => {
+          console.log(err);
+          alert(translateErrors(err));
+        })
+  }
 };
 
 export default {
   actions,
   state,
   getters,
-  mutations,
 };
