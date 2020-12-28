@@ -1,7 +1,7 @@
 import { firebase } from "@nativescript/firebase";
 
 function translateErrors(errCode) {
-  switch (errCode) {
+  switch (errCode.toString()) {
     case "Updating email failed. com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The email address is badly formatted.": {
       return "Niepoprawny format nowego adresu e-mail!";
     }
@@ -14,6 +14,10 @@ function translateErrors(errCode) {
     case "com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The password is invalid or the user does not have a password.": {
       return "Podano niepoprawne aktualne hasło!";
     }
+    case "com.google.firebase.FirebaseTooManyRequestsException: We have blocked all requests from this device due to unusual activity. Try again later. [ Access to this account has been temporarily disabled due to many failed login attempts." +
+      " You can immediately restore it by resetting your password or you can try again later. ]": {
+      return "Zbyt dużo nieudanych prób logowania! Spróbuj później!";
+    }
 
     default: {
       return "Błąd aktualizacji danych!";
@@ -24,6 +28,8 @@ function translateErrors(errCode) {
 const state = {
   user: {},
   userIsLoading: true,
+  changeEmailError: null,
+  currentPasswordError: null,
 };
 
 const getters = {
@@ -33,6 +39,31 @@ const getters = {
 
   userIsLoading: (state) => {
     return state.userIsLoading;
+  },
+
+  currentPasswordError: (state) => {
+    return state.currentPasswordError;
+  },
+
+  changeEmailError: (state) => {
+    return state.changeEmailError;
+  },
+};
+
+const mutations = {
+  resetUserUpdateErrors(state) {
+    state.currentPasswordError = "";
+    state.changeEmailError = "";
+  },
+
+  setPasswordError(state, err) {
+    console.log(err);
+    state.currentPasswordError = translateErrors(err);
+  },
+
+  setEmailError(state, err) {
+    console.log(err);
+    state.changeEmailError = translateErrors(err);
   },
 };
 
@@ -50,7 +81,7 @@ const actions = {
   },
 
   updateUserEmail(
-    { rootGetters },
+    { rootGetters, commit, dispatch },
     { userEmailNew, userEmailOld, userPassword }
   ) {
     console.log("updateUserEmail");
@@ -73,6 +104,9 @@ const actions = {
           .then(async () => {
             await userRef
               .update({ email: userEmailNew.toLocaleLowerCase() })
+              .then(async () => {
+                await dispatch("fetchUserData", { uid: userID });
+              })
               .catch((err) => {
                 console.log(err);
                 alert(translateErrors(err));
@@ -80,44 +114,46 @@ const actions = {
           })
           .catch((err) => {
             console.log(err);
-            alert(translateErrors(err));
+            commit("setEmailError", err);
           });
       })
       .catch((err) => {
         console.log(err);
-        alert(translateErrors(err));
+        commit("setPasswordError", err);
       });
   },
 
-  updateUserPassword ({ rootGetters, commit }, { userPasswordNew, userPasswordOld, userEmail }) {
+  updateUserPassword(
+    { commit },
+    { userPasswordNew, userPasswordOld, userEmail }
+  ) {
     console.log("updateUserPassword");
 
     return firebase
-        .reauthenticate({
-          type: firebase.LoginType.PASSWORD,
+      .reauthenticate({
+        type: firebase.LoginType.PASSWORD,
 
-          passwordOptions: {
-            email: userEmail,
-            password: userPasswordOld,
-          },
-        })
-        .then(async () => {
-          await firebase
-              .updatePassword(userPasswordNew)
-              .catch((err) => {
-                console.log(err);
-                alert(translateErrors(err));
-              })
-        })
-        .catch((err) => {
+        passwordOptions: {
+          email: userEmail,
+          password: userPasswordOld,
+        },
+      })
+      .then(async () => {
+        await firebase.updatePassword(userPasswordNew).catch((err) => {
           console.log(err);
           alert(translateErrors(err));
-        })
-  }
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        commit("setPasswordError", err);
+      });
+  },
 };
 
 export default {
   actions,
   state,
   getters,
+  mutations,
 };

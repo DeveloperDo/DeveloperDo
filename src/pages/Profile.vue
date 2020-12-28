@@ -10,14 +10,7 @@
     <ScrollView>
       <StackLayout class="userPanel">
         <Image
-          v-if="userData.imageSrc"
           :src="userData.imageSrc"
-          class="userImage"
-          stretch="aspectFill"
-        />
-        <Image
-          v-if="!userData.imageSrc"
-          src="https://thumbs.dreamstime.com/b/default-avatar-photo-placeholder-profile-icon-eps-file-easy-to-edit-default-avatar-photo-placeholder-profile-icon-124557887.jpg"
           class="userImage"
           stretch="aspectFill"
         />
@@ -26,42 +19,75 @@
 
         <Label text="USTAWIENIA" class="header" />
         <TextField
-          v-model="changeName"
+          v-model.lazy.trim="$v.changeName.$model"
           hint="Zmień nazwę"
           class="userSettingsTextField"
           maxLength="40"
           autocorrect="false"
           autocapitalizationType="none"
+          @textChange="changeShowErrors"
         />
+
         <TextField
-          v-model="changeEmail"
+          v-model.lazy.trim="$v.changeEmail.$model"
           hint="Zmień e-mail"
           class="userSettingsTextField"
           maxLength="40"
           autocorrect="false"
           autocapitalizationType="none"
+          @textChange="changeShowErrors"
         />
+        <Label
+          v-if="showErrors && changeEmail !== '' && !$v.changeEmail.email"
+          text="Błędny format email!"
+          class="text--danger text--small"
+        />
+        <Label
+          v-else-if="showErrors && updateEmailError"
+          :text="updateEmailError"
+          class="text--danger text--small"
+        />
+
         <TextField
-          v-model="changePassword"
+          v-model.lazy.trim="$v.changePassword.$model"
           hint="Zmień hasło"
           class="userSettingsTextField"
           maxLength="40"
           secure="true"
           autocorrect="false"
           autocapitalizationType="none"
+          @textChange="changeShowErrors"
         />
+        <Label
+          v-if="
+            showErrors && changePassword !== '' && !$v.changePassword.minLength
+          "
+          text="Hasło musi być dłuższe niż 6 znaków!"
+          class="text--danger text--small"
+        />
+
         <TextField
-          v-model="confirmPassword"
+          v-model.lazy.trim="$v.changePasswordConfirm.$model"
           hint="Potwierdź nowe hasło"
           class="userSettingsTextField"
           maxLength="40"
           secure="true"
           autocorrect="false"
           autocapitalizationType="none"
+          @textChange="changeShowErrors"
+        />
+        <Label
+          v-if="
+            showErrors &&
+            changePassword !== '' &&
+            !$v.changePasswordConfirm.sameAsPassword
+          "
+          text="Hasła muszą się zgadzać!"
+          class="text--danger text--small"
         />
 
         <TextField
-          v-model="currentPassword"
+          v-model.lazy.trim="currentPassword"
           hint="Aktualne hasło"
           class="userSettingsTextField"
           marginTop="100px"
@@ -70,7 +96,23 @@
           required
           autocorrect="false"
           autocapitalizationType="none"
+          @textChange="changeShowErrors"
         />
+        <Label
+          v-if="
+            showErrors &&
+            currentPassword === '' &&
+            (changePassword !== '' || changeEmail !== '')
+          "
+          text="Ta operacja wymaga potwierdzenia hasła!"
+          class="text--danger text--small"
+        />
+        <Label
+          v-else-if="showErrors && currentPasswordError"
+          :text="currentPasswordError"
+          class="text--danger text--small"
+        />
+
         <Button
           text="POTWIERDŹ ZMIANY"
           @tap="onConfirmChangesButtonTap"
@@ -89,78 +131,164 @@
 
 <script>
 import sideDrawer from "../mixins/sideDrawer";
+import { minLength, maxLength, sameAs, email } from "vuelidate/lib/validators";
 
 export default {
   mixins: [sideDrawer],
-
-  methods: {
-    async onConfirmChangesButtonTap() {
-      if (this.changeName) {
-        const userName = {
-          name: this.changeName,
-        };
-        await this.$store.dispatch("updateUserName", { userName: userName });
-      }
-
-      if (this.changeEmail) {
-        if (this.currentPassword) {
-          await this.$store.dispatch("updateUserEmail", {
-            userEmailNew: this.changeEmail,
-            userEmailOld: this.userData.email,
-            userPassword: this.currentPassword,
-          });
-        } else {
-          alert("Zmiana adresu e-mail wymaga hasła!");
-          return;
-        }
-      }
-
-      if (this.changePassword) {
-        if (this.changePassword === this.confirmPassword) {
-          if (this.changePassword.length > 5) {
-            await this.$store.dispatch("updateUserPassword", {
-              userPasswordNew: this.changePassword,
-              userPasswordOld: this.currentPassword,
-              userEmail: this.userData.email,
-            })
-          } else {
-            alert("Hasło musi składać się z co najmniej 6 znaków!");
-            return;
-          }
-        } else {
-          alert("Nowe hasło i potwierdzenie hasła nie są takie same!");
-          return;
-        }
-      }
-
-      this.resetFields();
-      await this.$store.dispatch("fetchUserData", { uid: this.userData.uid });
-    },
-
-    onDeleteAccountButtonTap() {
-      console.log("Delete account button was pressed");
-    },
-
-    resetFields() {
-      this.changeName = "";
-      this.changeEmail = "";
-      this.changePassword = "";
-      this.confirmPassword = "";
-      this.currentPassword = "";
-    },
-  },
 
   data() {
     return {
       changeName: "",
       changeEmail: "",
       changePassword: "",
-      confirmPassword: "",
+      changePasswordConfirm: "",
       currentPassword: "",
+      showErrors: false,
     };
   },
 
+  validations: {
+    changeName: {
+      maxLength: maxLength(255),
+    },
+
+    changeEmail: {
+      email,
+      maxLength: maxLength(255),
+    },
+
+    changePassword: {
+      minLength: minLength(6),
+      maxLength: maxLength(255),
+    },
+
+    changePasswordConfirm: {
+      sameAsPassword: sameAs("changePassword"),
+    },
+  },
+
+  methods: {
+    changeShowErrors() {
+      if (this.showErrors) {
+        this.$store.commit("resetUserUpdateErrors");
+        this.showErrors = false;
+      }
+    },
+
+    anyErrors() {
+      console.log(
+        this.changePassword !== "" && !this.$v.changePassword.$invalid
+      );
+      console.log("ssssas");
+
+      console.log(
+        this.changePasswordConfirm !== "" &&
+          !this.$v.changePasswordConfirm.$invalid
+      );
+      console.log("ssssas");
+
+      console.log(this.changeEmail !== "" && !this.$v.changeEmail.$invalid);
+      console.log("ssssas");
+
+      console.log(
+        (this.changePassword !== "" || this.changeEmail !== "") &&
+          this.currentPassword === ""
+      );
+
+      console.log("ssssas");
+
+      return (
+        //return true if error
+        (this.changePassword !== "" && this.$v.changePassword.$invalid) ||
+        (this.changePasswordConfirm !== "" &&
+          this.$v.changePasswordConfirm.$invalid) ||
+        (this.changeEmail !== "" && this.$v.changeEmail.$invalid) ||
+        ((this.changePassword !== "" || this.changeEmail !== "") &&
+          this.currentPassword === "")
+      );
+    },
+
+    async onConfirmChangesButtonTap() {
+      this.showErrors = true;
+      this.$store.commit("resetUserUpdateErrors");
+
+      if (this.anyErrors()) {
+        return;
+      }
+
+      if (this.changeName !== "" && !this.$v.changeName.$invalid) {
+        console.log("change name");
+        const userName = {
+          name: this.changeName,
+        };
+        await this.$store.dispatch("updateUserName", { userName: userName });
+      }
+
+      if (this.changeEmail !== "" && !this.$v.changeEmail.$invalid) {
+        if (this.currentPassword) {
+          console.log("change email");
+
+          await this.$store.dispatch("updateUserEmail", {
+            userEmailNew: this.changeEmail,
+            userEmailOld: this.userData.email,
+            userPassword: this.currentPassword,
+          });
+        }
+      }
+
+      if (
+        this.changePassword !== "" &&
+        !this.$v.changePassword.$invalid &&
+        !this.$v.changePasswordConfirm.$invalid
+      ) {
+        if (this.currentPassword) {
+          console.log("update Password");
+
+          await this.$store.dispatch("updateUserPassword", {
+            userPasswordNew: this.changePassword,
+            userPasswordOld: this.currentPassword,
+            userEmail: this.userData.email,
+          });
+        }
+      }
+
+      if (!this.updateEmailError && !this.currentPasswordError) {
+        this.resetFields();
+      }
+
+      this.$store.dispatch("fetchUserData", { uid: this.userData.uid });
+    },
+
+    onDeleteAccountButtonTap() {
+      confirm({
+        title: "Usuń konto",
+        message: "Jesteś pewny? \n Ta operacja jest nieodwracalna!",
+        okButtonText: "Tak, usuń moje konto",
+        cancelButtonText: "Anuluj",
+      }).then((result) => {
+        if (result) {
+        }
+      });
+    },
+
+    resetFields() {
+      this.changeName = "";
+      this.changeEmail = "";
+      this.changePassword = "";
+      this.changePasswordConfirm = "";
+      this.currentPassword = "";
+    },
+  },
+
   computed: {
+    updateEmailError: function () {
+      return this.$store.getters.changeEmailError;
+    },
+
+    currentPasswordError: function () {
+      return this.$store.getters.currentPasswordError;
+    },
+
     userData: function () {
       return this.$store.getters.getUser;
     },
@@ -196,7 +324,7 @@ export default {
 }
 
 .header {
-  margin-top: 175vh;
+  margin-top: 20;
   font-size: 26rem;
   font-weight: bold;
   text-align: center;

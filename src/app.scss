@@ -4,6 +4,13 @@
 @import '~@nativescript/theme/blue';
 
 // Override variables here
+.text--small {
+  font-size: 12;
+}
+
+.text--danger {
+  color: red;
+}
 
 ActionBar {
   background-color: #53ba82;
