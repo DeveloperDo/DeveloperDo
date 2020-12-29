@@ -87,12 +87,17 @@ const actions = {
         let data = doc.data();
 
         //todo refactor this!
-        data.todos.forEach((todo) => {
-          todo.users.forEach((todoUser) => {
+        data.todos.forEach((todo, i) => {
+          todo.users.forEach((todoUser, j) => {
             const user = rootGetters.users.find(
               (user) => user.uid === todoUser
             );
-            todoUser = user ? user : { name: "", imageSrc: "" };
+            data.todos[i].users[j] = {
+              uid: user.uid,
+              data: user
+                ? user
+                : { name: "", imageSrc: rootGetters.userImgPlaceholder },
+            };
           });
         });
 
