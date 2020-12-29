@@ -127,7 +127,7 @@
                       :key="index"
                     >
                       <Image
-                        :src="user.imageSrc"
+                        :src="user.data.imageSrc"
                         class="userTaskPhoto"
                         stretch="aspectFill"
                       />
