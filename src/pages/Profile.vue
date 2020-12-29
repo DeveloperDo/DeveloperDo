@@ -267,6 +267,12 @@ export default {
         cancelButtonText: "Anuluj",
       }).then((result) => {
         if (result) {
+          this.$store.dispatch("deleteUser", {
+            email: this.userData.email,
+            password: this.currentPassword,
+          }).then(() => {
+            this.$navigateTo(this.$routes.Login, { clearHistory: true })
+          });
         }
       });
     },

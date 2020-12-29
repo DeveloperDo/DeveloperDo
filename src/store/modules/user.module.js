@@ -149,6 +149,39 @@ const actions = {
         commit("setPasswordError", err);
       });
   },
+
+  deleteUser({ rootGetters, dispatch }, { email, password }) {
+    console.log("deleteUser");
+
+    const userID = rootGetters.getUser.uid;
+    const userRef = firebase.firestore.collection("users").doc(userID);
+
+    return firebase
+        .reauthenticate({
+          type: firebase.LoginType.PASSWORD,
+
+          passwordOptions: {
+            email: email,
+            password: password,
+          },
+        })
+        .then(async () => {
+          await userRef.delete()
+              .then(async () => {
+                await firebase.deleteUser()
+              })
+                  .then(async () => {
+                    await dispatch("signOut")
+                  })
+              .catch((err) => {
+                console.log(err);
+              });
+        })
+        .catch((err) => {
+          console.log(err);
+          commit("setPasswordError", err);
+        });
+  },
 };
 
 export default {
