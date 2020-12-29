@@ -28,11 +28,8 @@ export default {
     return {
       // define our pages, making sure the component matches that defined in /app/router/index.js
       pages: [
-        {
-          name: "Lista Projektów",
-          component: this.$routes.ProjectList,
-          option: { clearHistory: true },
-        },
+        {name: "Lista Projektów", component: this.$routes.ProjectList, option: { clearHistory: true }},
+        {name: "Profil", component: this.$routes.Profile},
       ],
     };
   },

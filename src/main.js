@@ -7,6 +7,9 @@ import sideDrawer from "./components/SideDrawer/sideDrawer";
 import drawerContent from "./components/SideDrawer/drawerContent";
 
 import store from "./store/store";
+import Vuelidate from "vuelidate";
+
+Vue.use(Vuelidate);
 
 firebase.init({}).then(
   function () {

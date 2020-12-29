@@ -10,6 +10,7 @@ import project from "./modules/project.module";
 import todo from "./modules/todo.module";
 import chat from "./modules/chat.module";
 import placeholders from "./modules/placeholders.module";
+import user from "./modules/user.module";
 
 export default new Vuex.Store({
   modules: {
@@ -19,6 +20,7 @@ export default new Vuex.Store({
     todo,
     chat,
     placeholders,
+    user,
   },
   mutations: {
     ...vuexfireMutations,
