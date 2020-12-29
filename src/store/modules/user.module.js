@@ -150,7 +150,7 @@ const actions = {
       });
   },
 
-  deleteUser({ rootGetters, dispatch }, { email, password }) {
+  deleteUser({ rootGetters, dispatch, commit }, { email, password }) {
     console.log("deleteUser");
 
     const userID = rootGetters.getUser.uid;
