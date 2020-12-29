@@ -24,7 +24,9 @@ const actions = {
       let data = doc.data();
       const user = rootGetters.users.find((user) => user.uid === data.uid);
 
-      data.user = user ? user : { name: "", imageSrc: "" };
+      data.user = user
+        ? user
+        : { name: "", imageSrc: rootGetters.userImgPlaceholder };
 
       Object.defineProperty(data, "id", { value: doc.id });
       Object.defineProperty(data, "_doc", { value: doc });
