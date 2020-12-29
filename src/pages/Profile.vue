@@ -7,7 +7,7 @@
       </GridLayout>
     </ActionBar>
 
-    <ScrollView>
+    <ScrollView padding="0" margin="0">
       <StackLayout class="userPanel">
         <Image
           :src="userData.imageSrc"
@@ -18,112 +18,183 @@
         <Label :text="userData.email" class="userEmail" />
 
         <Label text="USTAWIENIA" class="header" />
-        <TextField
-          v-model.lazy.trim="$v.changeName.$model"
-          hint="Zmień nazwę"
-          class="userSettingsTextField"
-          maxLength="40"
-          autocorrect="false"
-          autocapitalizationType="none"
-          @textChange="changeShowErrors"
-        />
 
-        <TextField
-          v-model.lazy.trim="$v.changeEmail.$model"
-          hint="Zmień e-mail"
-          class="userSettingsTextField"
-          maxLength="40"
-          autocorrect="false"
-          autocapitalizationType="none"
-          @textChange="changeShowErrors"
-        />
-        <Label
-          v-if="showErrors && changeEmail !== '' && !$v.changeEmail.email"
-          text="Błędny format email!"
-          class="text--danger text--small"
-        />
-        <Label
-          v-else-if="showErrors && updateEmailError"
-          :text="updateEmailError"
-          class="text--danger text--small"
-        />
+        <StackLayout class="form--margin">
+          <TextField
+            v-model.lazy.trim="$v.changeName.$model"
+            hint="Zmień nazwę"
+            class="userSettingsTextField"
+            maxLength="40"
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowEmailErrors"
+          />
 
-        <TextField
-          v-model.lazy.trim="$v.changePassword.$model"
-          hint="Zmień hasło"
-          class="userSettingsTextField"
-          maxLength="40"
-          secure="true"
-          autocorrect="false"
-          autocapitalizationType="none"
-          @textChange="changeShowErrors"
-        />
-        <Label
-          v-if="
-            showErrors && changePassword !== '' && !$v.changePassword.minLength
-          "
-          text="Hasło musi być dłuższe niż 6 znaków!"
-          class="text--danger text--small"
-        />
+          <Button
+            text="ZMIEŃ NAZWĘ"
+            @tap="changeNameAction"
+            class="confirmChangesButton"
+          />
+        </StackLayout>
 
-        <TextField
-          v-model.lazy.trim="$v.changePasswordConfirm.$model"
-          hint="Potwierdź nowe hasło"
-          class="userSettingsTextField"
-          maxLength="40"
-          secure="true"
-          autocorrect="false"
-          autocapitalizationType="none"
-          @textChange="changeShowErrors"
-        />
-        <Label
-          v-if="
-            showErrors &&
-            changePassword !== '' &&
-            !$v.changePasswordConfirm.sameAsPassword
-          "
-          text="Hasła muszą się zgadzać!"
-          class="text--danger text--small"
-        />
+        <StackLayout class="form--margin">
+          <TextField
+            v-model.lazy.trim="$v.changeEmail.$model"
+            hint="Zmień e-mail"
+            class="userSettingsTextField"
+            maxLength="40"
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowEmailErrors"
+          />
+          <Label
+            v-if="
+              showEmailErrors && changeEmail !== '' && !$v.changeEmail.email
+            "
+            text="Błędny format email!"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showEmailErrors && updateEmailError"
+            :text="updateEmailError"
+            class="text--danger text--small"
+          />
 
-        <TextField
-          v-model.lazy.trim="currentPassword"
-          hint="Aktualne hasło"
-          class="userSettingsTextField"
-          marginTop="100px"
-          maxLength="40"
-          secure="true"
-          required
-          autocorrect="false"
-          autocapitalizationType="none"
-          @textChange="changeShowErrors"
-        />
-        <Label
-          v-if="
-            showErrors &&
-            currentPassword === '' &&
-            (changePassword !== '' || changeEmail !== '')
-          "
-          text="Ta operacja wymaga potwierdzenia hasła!"
-          class="text--danger text--small"
-        />
-        <Label
-          v-else-if="showErrors && currentPasswordError"
-          :text="currentPasswordError"
-          class="text--danger text--small"
-        />
+          <TextField
+            v-model="currentPasswordEmail"
+            hint="Aktualne hasło"
+            class="userSettingsTextField"
+            maxLength="40"
+            secure="true"
+            required
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowEmailErrors"
+          />
+          <Label
+            v-if="
+              showEmailErrors &&
+              currentPasswordEmail === '' &&
+              (currentPasswordEmail !== '' || changeEmail !== '')
+            "
+            text="Ta operacja wymaga potwierdzenia hasła!"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showEmailErrors && updateEmailPasswordError"
+            :text="updateEmailPasswordError"
+            class="text--danger text--small"
+          />
 
-        <Button
-          text="POTWIERDŹ ZMIANY"
-          @tap="onConfirmChangesButtonTap"
-          class="confirmChangesButton"
-        />
+          <Button
+            text="ZMIEŃ EMAIL"
+            @tap="changeEmailAction"
+            class="confirmChangesButton"
+          />
+        </StackLayout>
 
-        <Button
-          text="USUŃ KONTO"
-          @tap="onDeleteAccountButtonTap"
-          class="deleteAccountButton"
-        />
+        <StackLayout>
+          <TextField
+            v-model="$v.changePassword.$model"
+            hint="Zmień hasło"
+            class="userSettingsTextField"
+            maxLength="40"
+            secure="true"
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowPasswordErrors"
+          />
+          <Label
+            v-if="
+              showPasswordErrors &&
+              (!$v.changePassword.minLength || changePassword === '')
+            "
+            text="Hasło musi być dłuższe niż 6 znaków!"
+            class="text--danger text--small"
+          />
+
+          <TextField
+            v-model.lazy.trim="$v.changePasswordConfirm.$model"
+            hint="Potwierdź nowe hasło"
+            class="userSettingsTextField"
+            maxLength="40"
+            secure="true"
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowPasswordErrors"
+          />
+          <Label
+            v-if="
+              showPasswordErrors &&
+              changePassword !== '' &&
+              !$v.changePasswordConfirm.sameAsPassword
+            "
+            text="Hasła muszą się zgadzać!"
+            class="text--danger text--small"
+          />
+
+          <TextField
+            v-model="currentPasswordPwd"
+            hint="Aktualne hasło"
+            class="userSettingsTextField"
+            maxLength="40"
+            secure="true"
+            required
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowPasswordErrors"
+          />
+          <Label
+            v-if="
+              showPasswordErrors &&
+              currentPasswordPwd === '' &&
+              (changePassword !== '' || changePasswordConfirm !== '')
+            "
+            text="Ta operacja wymaga potwierdzenia hasła!"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showPasswordErrors && updatePasswordError"
+            :text="updatePasswordError"
+            class="text--danger text--small"
+          />
+
+          <Button
+            text="ZMIEŃ HASŁO"
+            @tap="changePasswordAction"
+            class="confirmChangesButton"
+          />
+        </StackLayout>
+
+        <StackLayout marginTop="100">
+          <TextField
+            v-model.lazy.trim="currentPasswordDelete"
+            hint="Aktualne hasło"
+            class="userSettingsTextField"
+            maxLength="40"
+            secure="true"
+            required
+            autocorrect="false"
+            autocapitalizationType="none"
+            @textChange="changeShowDeleteErrors"
+          />
+          <Label
+            v-if="showDeleteErrors && currentPasswordDelete === ''"
+            text="Ta operacja wymaga potwierdzenia hasła!"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showDeleteErrors && deleteUserError"
+            :text="deleteUserError"
+            class="text--danger text--small"
+          />
+
+          <Button
+            text="USUŃ KONTO"
+            @tap="onDeleteAccountButtonTap"
+            class="deleteAccountButton"
+          />
+        </StackLayout>
       </StackLayout>
     </ScrollView>
   </Page>
@@ -132,6 +203,7 @@
 <script>
 import sideDrawer from "../mixins/sideDrawer";
 import { minLength, maxLength, sameAs, email } from "vuelidate/lib/validators";
+import { mapGetters } from "vuex";
 
 export default {
   mixins: [sideDrawer],
@@ -142,8 +214,14 @@ export default {
       changeEmail: "",
       changePassword: "",
       changePasswordConfirm: "",
-      currentPassword: "",
-      showErrors: false,
+
+      currentPasswordDelete: "",
+      currentPasswordEmail: "",
+      currentPasswordPwd: "",
+
+      showPasswordErrors: false,
+      showEmailErrors: false,
+      showDeleteErrors: false,
     };
   },
 
@@ -168,98 +246,82 @@ export default {
   },
 
   methods: {
-    changeShowErrors() {
-      if (this.showErrors) {
+    changeShowEmailErrors() {
+      if (this.showEmailErrors) {
         this.$store.commit("resetUserUpdateErrors");
-        this.showErrors = false;
+        this.showEmailErrors = false;
       }
     },
 
-    anyErrors() {
-      console.log(
-        this.changePassword !== "" && !this.$v.changePassword.$invalid
-      );
-      console.log("ssssas");
-
-      console.log(
-        this.changePasswordConfirm !== "" &&
-          !this.$v.changePasswordConfirm.$invalid
-      );
-      console.log("ssssas");
-
-      console.log(this.changeEmail !== "" && !this.$v.changeEmail.$invalid);
-      console.log("ssssas");
-
-      console.log(
-        (this.changePassword !== "" || this.changeEmail !== "") &&
-          this.currentPassword === ""
-      );
-
-      console.log("ssssas");
-
-      return (
-        //return true if error
-        (this.changePassword !== "" && this.$v.changePassword.$invalid) ||
-        (this.changePasswordConfirm !== "" &&
-          this.$v.changePasswordConfirm.$invalid) ||
-        (this.changeEmail !== "" && this.$v.changeEmail.$invalid) ||
-        ((this.changePassword !== "" || this.changeEmail !== "") &&
-          this.currentPassword === "")
-      );
+    changeShowPasswordErrors() {
+      if (this.showPasswordErrors) {
+        this.$store.commit("resetUserUpdateErrors");
+        this.showPasswordErrors = false;
+      }
     },
 
-    async onConfirmChangesButtonTap() {
-      this.showErrors = true;
+    changeShowDeleteErrors() {
+      if (this.showPasswordErrors) {
+        this.$store.commit("resetUserUpdateErrors");
+        this.showDeleteErrors = false;
+      }
+    },
+
+    changeNameAction() {
+      if (this.changeName !== "" && !this.$v.changeName.$invalid) {
+        this.$store
+          .dispatch("updateUserName", {
+            userName: { name: this.changeName },
+          })
+          .then(() => {
+            this.$store.dispatch("fetchUserData", { uid: this.userData.uid });
+          });
+      }
+    },
+
+    changeEmailAction() {
+      this.showEmailErrors = true;
       this.$store.commit("resetUserUpdateErrors");
 
-      if (this.anyErrors()) {
-        return;
-      }
+      if (
+        this.changeEmail !== "" &&
+        !this.$v.changeEmail.$invalid &&
+        this.currentPasswordEmail
+      ) {
+        console.log("change email");
 
-      if (this.changeName !== "" && !this.$v.changeName.$invalid) {
-        console.log("change name");
-        const userName = {
-          name: this.changeName,
-        };
-        await this.$store.dispatch("updateUserName", { userName: userName });
+        this.$store.dispatch("updateUserEmail", {
+          userEmailNew: this.changeEmail,
+          userEmailOld: this.userData.email,
+          userPassword: this.currentPasswordEmail,
+        });
       }
+    },
 
-      if (this.changeEmail !== "" && !this.$v.changeEmail.$invalid) {
-        if (this.currentPassword) {
-          console.log("change email");
+    async changePasswordAction() {
+      console.log("update Password");
 
-          await this.$store.dispatch("updateUserEmail", {
-            userEmailNew: this.changeEmail,
-            userEmailOld: this.userData.email,
-            userPassword: this.currentPassword,
-          });
-        }
-      }
+      this.showPasswordErrors = true;
+      this.$store.commit("resetUserUpdateErrors");
 
       if (
         this.changePassword !== "" &&
         !this.$v.changePassword.$invalid &&
-        !this.$v.changePasswordConfirm.$invalid
+        !this.$v.changePasswordConfirm.$invalid &&
+        this.currentPasswordPwd
       ) {
-        if (this.currentPassword) {
-          console.log("update Password");
-
-          await this.$store.dispatch("updateUserPassword", {
-            userPasswordNew: this.changePassword,
-            userPasswordOld: this.currentPassword,
-            userEmail: this.userData.email,
-          });
-        }
+        await this.$store.dispatch("updateUserPassword", {
+          userPasswordNew: this.changePassword,
+          userPasswordOld: this.currentPasswordPwd,
+          userEmail: this.userData.email,
+        });
       }
-
-      if (!this.updateEmailError && !this.currentPasswordError) {
-        this.resetFields();
-      }
-
-      this.$store.dispatch("fetchUserData", { uid: this.userData.uid });
     },
 
     onDeleteAccountButtonTap() {
+      this.showDeleteErrors = true;
+      this.$store.commit("resetUserUpdateErrors");
+
       confirm({
         title: "Usuń konto",
         message: "Jesteś pewny? \n Ta operacja jest nieodwracalna!",
@@ -267,42 +329,34 @@ export default {
         cancelButtonText: "Anuluj",
       }).then((result) => {
         if (result) {
-          this.showErrors = true;
           this.$store.commit("resetUserUpdateErrors");
 
-          if (this.anyErrors()) {
+          if (this.currentPasswordDelete === "") {
             return;
           }
 
-          this.$store.dispatch("deleteUser", {
-            email: this.userData.email,
-            password: this.currentPassword,
-          }).then(() => {
-            if (!this.userData) {
-              this.$navigateTo(this.$routes.Login, {clearHistory: true})
-            }
-          });
+          this.$store
+            .dispatch("deleteUser", {
+              email: this.userData.email,
+              password: this.currentPasswordDelete,
+            })
+            .then(() => {
+              if (!this.userData) {
+                this.$navigateTo(this.$routes.Login, { clearHistory: true });
+              }
+            });
         }
       });
-    },
-
-    resetFields() {
-      this.changeName = "";
-      this.changeEmail = "";
-      this.changePassword = "";
-      this.changePasswordConfirm = "";
-      this.currentPassword = "";
     },
   },
 
   computed: {
-    updateEmailError: function () {
-      return this.$store.getters.changeEmailError;
-    },
-
-    currentPasswordError: function () {
-      return this.$store.getters.currentPasswordError;
-    },
+    ...mapGetters([
+      "updateEmailError",
+      "updateEmailPasswordError",
+      "updatePasswordError",
+      "deleteUserError",
+    ]),
 
     userData: function () {
       return this.$store.getters.getUser;
@@ -314,7 +368,8 @@ export default {
 <style scoped>
 .userPanel {
   horizontal-align: center;
-  margin: 50px;
+  margin: 0;
+  padding: 20;
 }
 
 .userImage {
@@ -338,6 +393,10 @@ export default {
   text-align: center;
 }
 
+.form--margin {
+  margin: 20 0;
+}
+
 .header {
   margin-top: 20;
   font-size: 26rem;
@@ -353,13 +412,17 @@ export default {
 }
 
 .confirmChangesButton {
+  width: 100%;
+  padding: 0;
   margin-top: 40px;
   color: black;
   background-color: lightgray;
 }
 
 .deleteAccountButton {
-  margin-top: 80px;
+  width: 100%;
+  padding: 0;
+  margin-top: 40px;
   color: black;
   background-color: lightcoral;
 }

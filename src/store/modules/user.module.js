@@ -28,8 +28,10 @@ function translateErrors(errCode) {
 const state = {
   user: {},
   userIsLoading: true,
-  changeEmailError: null,
-  currentPasswordError: null,
+  updateEmailError: null,
+  updateEmailPasswordError: null,
+  updatePasswordError: null,
+  deleteUserError: null,
 };
 
 const getters = {
@@ -41,43 +43,68 @@ const getters = {
     return state.userIsLoading;
   },
 
-  currentPasswordError: (state) => {
-    return state.currentPasswordError;
+  updateEmailError: (state) => {
+    return state.updateEmailError;
   },
 
-  changeEmailError: (state) => {
-    return state.changeEmailError;
+  updateEmailPasswordError: (state) => {
+    return state.updateEmailPasswordError;
+  },
+
+  updatePasswordError: (state) => {
+    return state.updatePasswordError;
+  },
+
+  deleteUserError: (state) => {
+    return state.deleteUserError;
   },
 };
 
 const mutations = {
   resetUserUpdateErrors(state) {
-    state.currentPasswordError = "";
-    state.changeEmailError = "";
+    state.updateEmailError = null;
+    state.updateEmailPasswordError = null;
+    state.updatePasswordError = null;
   },
 
-  setPasswordError(state, err) {
-    console.log(err);
-    state.currentPasswordError = translateErrors(err);
+  setUpdateEmailError(state, err) {
+    state.updateEmailError = translateErrors(err);
   },
 
-  setEmailError(state, err) {
-    console.log(err);
-    state.changeEmailError = translateErrors(err);
+  setUpdateEmailPasswordError(state, err) {
+    state.updateEmailPasswordError = translateErrors(err);
+  },
+
+  setUpdatePasswordError(state, err) {
+    state.updatePasswordError = translateErrors(err);
+  },
+
+  setDeleteUserError(state, err) {
+    state.deleteUserError = translateErrors(err);
   },
 };
 
 const actions = {
-  updateUserName({ rootGetters }, { userName }) {
+  updateUserName({ dispatch, rootGetters }, { userName }) {
     console.log("updateUserName");
 
     const userID = rootGetters.getUser.uid;
     const userRef = firebase.firestore.collection("users").doc(userID);
 
-    return userRef.update(userName).catch((err) => {
-      console.log(err);
-      alert(translateErrors(err));
-    });
+    return userRef
+      .update(userName)
+      .then(async () => {
+        dispatch("fetchUserData", { uid: userID }).then(() => {
+          alert({
+            title: "Udało się!",
+            message: "Aktualizacja nazwy się powiodła!",
+            okButtonText: "Ok",
+          });
+        });
+      })
+      .catch((err) => {
+        alert(translateErrors(err));
+      });
   },
 
   updateUserEmail(
@@ -105,7 +132,13 @@ const actions = {
             await userRef
               .update({ email: userEmailNew.toLocaleLowerCase() })
               .then(async () => {
-                await dispatch("fetchUserData", { uid: userID });
+                await dispatch("fetchUserData", { uid: userID }).then(() => {
+                  alert({
+                    title: "Udało się!",
+                    message: "Aktualizacja adresu email się powiodła!",
+                    okButtonText: "Ok",
+                  });
+                });
               })
               .catch((err) => {
                 console.log(err);
@@ -114,20 +147,21 @@ const actions = {
           })
           .catch((err) => {
             console.log(err);
-            commit("setEmailError", err);
+            commit("setUpdateEmailError", err);
           });
       })
       .catch((err) => {
         console.log(err);
-        commit("setPasswordError", err);
+        commit("setUpdateEmailPasswordError", err);
       });
   },
 
   updateUserPassword(
-    { commit },
+    { commit, dispatch, rootGetters },
     { userPasswordNew, userPasswordOld, userEmail }
   ) {
     console.log("updateUserPassword");
+    const userID = rootGetters.getUser.uid;
 
     return firebase
       .reauthenticate({
@@ -139,14 +173,25 @@ const actions = {
         },
       })
       .then(async () => {
-        await firebase.updatePassword(userPasswordNew).catch((err) => {
-          console.log(err);
-          alert(translateErrors(err));
-        });
+        await firebase
+          .updatePassword(userPasswordNew)
+          .then(async () => {
+            await dispatch("fetchUserData", { uid: userID }).then(() => {
+              alert({
+                title: "Udało się!",
+                message: "Aktualizacja hasła się powiodła!",
+                okButtonText: "Ok",
+              });
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            alert(translateErrors(err));
+          });
       })
       .catch((err) => {
         console.log(err);
-        commit("setPasswordError", err);
+        commit("setUpdatePasswordError", err);
       });
   },
 
@@ -157,30 +202,31 @@ const actions = {
     const userRef = firebase.firestore.collection("users").doc(userID);
 
     return firebase
-        .reauthenticate({
-          type: firebase.LoginType.PASSWORD,
+      .reauthenticate({
+        type: firebase.LoginType.PASSWORD,
 
-          passwordOptions: {
-            email: email,
-            password: password,
-          },
-        })
-        .then(async () => {
-          await userRef.delete()
-              .then(async () => {
-                await firebase.deleteUser()
-              })
-                  .then(async () => {
-                    await dispatch("signOut")
-                  })
-              .catch((err) => {
-                console.log(err);
-              });
-        })
-        .catch((err) => {
-          console.log(err);
-          commit("setPasswordError", err);
-        });
+        passwordOptions: {
+          email: email,
+          password: password,
+        },
+      })
+      .then(async () => {
+        await userRef
+          .delete()
+          .then(async () => {
+            await firebase.deleteUser();
+          })
+          .then(async () => {
+            await dispatch("signOut");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        commit("setDeleteUserError", err);
+      });
   },
 };
 
