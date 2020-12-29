@@ -13,6 +13,7 @@
           :src="userData.imageSrc"
           class="userImage"
           stretch="aspectFill"
+          @tap="onSelectSingleTap"
         />
         <Label :text="userData.name" class="userName" textWrap="true" />
         <Label :text="userData.email" class="userEmail" />
@@ -204,6 +205,7 @@
 import sideDrawer from "../mixins/sideDrawer";
 import { minLength, maxLength, sameAs, email } from "vuelidate/lib/validators";
 import { mapGetters } from "vuex";
+import * as imagepicker from "nativescript-imagepicker";
 
 export default {
   mixins: [sideDrawer],
@@ -222,6 +224,12 @@ export default {
       showPasswordErrors: false,
       showEmailErrors: false,
       showDeleteErrors: false,
+
+      isSingleMode: true,
+      imageAssets: [],
+      imageSrc: null,
+      previewSize: 300,
+      thumbSize: 80,
     };
   },
 
@@ -246,6 +254,46 @@ export default {
   },
 
   methods: {
+    onSelectSingleTap: function (e) {
+      this.isSingleMode = true;
+      let context = imagepicker.create({ mode: "single" });
+      this.startSelection(context);
+    },
+
+    startSelection(context) {
+      context
+        .authorize()
+        .then(() => {
+          this.imageAssets = [];
+          this.imageSrc = null;
+          return context.present();
+        })
+        .then((selection) => {
+          console.log("Selection done: " + JSON.stringify(selection));
+          this.imageSrc =
+            this.isSingleMode && selection.length > 0 ? selection[0] : null;
+          // set the images to be loaded from the assets with optimal sizes (optimize memory usage)
+          selection.forEach((element) => {
+            element.options.width = this.isSingleMode
+              ? this.previewSize
+              : this.thumbSize;
+            element.options.height = this.isSingleMode
+              ? this.previewSize
+              : this.thumbSize;
+          });
+          this.imageAssets = selection;
+        })
+        .then(() => {
+          this.$store.dispatch(
+            "changeUserAvatar",
+            this.imageAssets[0] ? this.imageAssets[0] : null
+          );
+        })
+        .catch(function (e) {
+          console.log(e);
+        });
+    },
+
     changeShowEmailErrors() {
       if (this.showEmailErrors) {
         this.$store.commit("resetUserUpdateErrors");

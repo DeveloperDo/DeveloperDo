@@ -85,6 +85,51 @@ const mutations = {
 };
 
 const actions = {
+  changeUserAvatar({ dispatch, rootGetters }, image) {
+    const userID = rootGetters.getUser.uid;
+    const userRef = firebase.firestore.collection("users").doc(userID);
+
+    if (image) {
+      const metadata = {};
+
+      firebase.storage
+        .uploadFile({
+          remoteFullPath: "users/" + userID,
+          localFullPath: image.android.toString(),
+          onProgress: function (status) {
+            console.log("Uploaded fraction: " + status.fractionCompleted);
+            console.log("Percentage complete: " + status.percentageCompleted);
+          },
+          metadata,
+        })
+        .then(() => {
+          firebase.storage
+            .getDownloadUrl({
+              remoteFullPath: "users/" + userID,
+            })
+            .then((url) => {
+              userRef
+                .update({
+                  imageSrc: url,
+                })
+                .then(() => {
+                  dispatch("fetchUserData", { uid: userID });
+                  console.log("url updated");
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  },
+
   updateUserName({ dispatch, rootGetters }, { userName }) {
     console.log("updateUserName");
 
