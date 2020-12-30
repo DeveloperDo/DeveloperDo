@@ -36,6 +36,13 @@
               </StackLayout>
             </StackLayout>
             <Button
+                v-if="editEnabled && currentUser.uid !== user.uid"
+                text="PRZYDZIEL ROLĘ"
+                @tap="editUser"
+                class="editUserButton"
+                horizontalAlignment="center"
+            />
+            <Button
               v-if="editEnabled && currentUser.uid !== user.uid"
               text="USUŃ Z ZESPOŁU"
               @tap="deleteUser(user.uid)"
@@ -60,6 +67,7 @@
 <script>
 import AddUsersModal from "../components/Modals/AddUsersModal";
 import sideDrawer from "../mixins/sideDrawer";
+import EditUserRole from "../components/Modals/EditUserRole";
 
 export default {
   data() {
@@ -80,6 +88,10 @@ export default {
         fullscreen: true,
       });
     },
+
+    editUser() {
+      this.$showModal(EditUserRole)
+    }
   },
 
   computed: {
@@ -134,6 +146,15 @@ export default {
 
 .deleteUserButton {
   background-color: lightcoral;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  width: 60%;
+  height: 100px;
+}
+
+.editUserButton {
+  background-color: gray;
   color: white;
   font-size: 14px;
   font-weight: bold;

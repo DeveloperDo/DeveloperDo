@@ -49,6 +49,13 @@
       />
       <ListPicker :items="listPickerPriority" v-model="priority" />
 
+      <Label
+          text="Termin projektu"
+          textAlignment="center"
+          class="editProjectHeader"
+      />
+      <DatePicker v-model="deadline"/>
+
       <Button
         text="AKTUALIZUJ PROJEKT"
         @tap="editProject"
