@@ -184,7 +184,6 @@
                   v-bind:class="{ chatMessageOut: ownMsg(msg.uid) }"
                   orientation="horizontal"
                 >
-                  <!--                  TODO getUserImage-->
                   <Image
                     :src="msg.user.imageSrc"
                     class="userPhoto"
