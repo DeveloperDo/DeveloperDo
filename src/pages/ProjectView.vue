@@ -257,7 +257,6 @@ export default {
 
   methods: {
     deleteTodo(todoGroupID, task) {
-      console.log("deleteTodo");
       this.$store.dispatch("deleteTodo", {
         projectID: this.project.id,
         todoGroupID: todoGroupID,

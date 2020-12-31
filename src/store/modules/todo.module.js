@@ -24,9 +24,18 @@ const actions = {
       .collection("projects/" + projectID + "/todo")
       .doc(todoGroupID);
 
+    const users = [];
+
+    todo.users.forEach((user) => {
+      users.push(user.uid);
+    });
+
     todoGroupRef
       .update({
-        todos: firebase.firestore.FieldValue.arrayRemove(todo),
+        todos: firebase.firestore.FieldValue.arrayRemove({
+          name: todo.name,
+          users: users,
+        }),
       })
       .catch((err) => {
         console.log(err);
