@@ -43,11 +43,11 @@
       <ListPicker :items="listPickerPriority" v-model="priority" />
 
       <Label
-          text="Termin projektu"
-          textAlignment="center"
-          class="addProjectHeader"
+        text="Termin projektu"
+        textAlignment="center"
+        class="addProjectHeader"
       />
-      <DatePicker v-model="deadline"/>
+<!--      <DatePicker v-model="deadline" />-->
 
       <Label v-if="error" :text="error" class="errorLabel" textWrap="true" />
 

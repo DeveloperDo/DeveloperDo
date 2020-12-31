@@ -36,11 +36,11 @@
               </StackLayout>
             </StackLayout>
             <Button
-                v-if="editEnabled && currentUser.uid !== user.uid"
-                text="PRZYDZIEL ROLĘ"
-                @tap="editUser"
-                class="editUserButton"
-                horizontalAlignment="center"
+              v-if="editEnabled"
+              text="PRZYDZIEL ROLĘ"
+              @tap="editUser(user)"
+              class="editUserButton"
+              horizontalAlignment="center"
             />
             <Button
               v-if="editEnabled && currentUser.uid !== user.uid"
@@ -89,9 +89,9 @@ export default {
       });
     },
 
-    editUser() {
-      this.$showModal(EditUserRole)
-    }
+    editUser(user) {
+      this.$showModal(EditUserRole, { props: { user: user } });
+    },
   },
 
   computed: {
