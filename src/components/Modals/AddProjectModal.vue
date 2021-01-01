@@ -47,7 +47,8 @@
         textAlignment="center"
         class="addProjectHeader"
       />
-<!--      <DatePicker v-model="deadline" />-->
+
+      <DatePicker v-model="deadline" :minDate="today"/>
 
       <Label v-if="error" :text="error" class="errorLabel" textWrap="true" />
 
@@ -78,12 +79,15 @@ export default {
       priority: 0,
       name: "",
       desc: "",
+      deadline: "",
       isSingleMode: true,
       imageAssets: [],
       imageSrc: null,
       previewSize: 300,
       thumbSize: 80,
       error: null,
+
+      today: Date.now(),
     };
   },
 
@@ -154,6 +158,7 @@ export default {
         name: this.name,
         desc: this.desc,
         priority: this.priority,
+        deadline: this.deadline,
       };
 
       this.$store
