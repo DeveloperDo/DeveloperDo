@@ -1,7 +1,9 @@
 <template lang="html">
   <ScrollView height="100%">
     <StackLayout width="100%">
-      <Label class="drawer-header" text="Drawer" />
+      <StackLayout class="drawer-header">
+        <Image src="res://logo" />
+      </StackLayout>
 
       <Label
         v-for="(page, i) in pages"
@@ -11,10 +13,8 @@
         :key="i"
       />
 
-      <Button class="drawer-close-button" @tap="closeDrawer()"
-        >Close Drawer</Button
-      >
-      <Button @tap="logout()">Logout</Button>
+      <Button class="drawer-close-button" @tap="closeDrawer()">Zamknij</Button>
+      <Button @tap="logout()">Wyloguj się</Button>
     </StackLayout>
   </ScrollView>
 </template>
@@ -28,8 +28,12 @@ export default {
     return {
       // define our pages, making sure the component matches that defined in /app/router/index.js
       pages: [
-        {name: "Lista Projektów", component: this.$routes.ProjectList, option: { clearHistory: true }},
-        {name: "Profil", component: this.$routes.Profile},
+        {
+          name: "Lista Projektów",
+          component: this.$routes.ProjectList,
+          option: { clearHistory: true },
+        },
+        { name: "Profil", component: this.$routes.Profile },
       ],
     };
   },
