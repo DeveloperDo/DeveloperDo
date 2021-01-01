@@ -54,7 +54,7 @@
           textAlignment="center"
           class="editProjectHeader"
       />
-      <DatePicker v-model="deadline"/>
+      <DatePicker v-model="deadline" :minDate="today"/>
 
       <Button
         text="AKTUALIZUJ PROJEKT"
@@ -95,11 +95,14 @@ export default {
       priority: 0,
       name: "",
       desc: "",
+      deadline: "",
       isSingleMode: true,
       imageAssets: [],
       imageSrc: null,
       previewSize: 300,
       thumbSize: 80,
+
+      today: Date.now(),
     };
   },
 
@@ -108,6 +111,7 @@ export default {
     this.desc = this.project.desc;
     this.status = this.project.status;
     this.priority = this.project.priority;
+    this.deadline = this.project.deadline;
   },
 
   props: {
@@ -172,6 +176,7 @@ export default {
         desc: this.desc,
         status: this.status,
         priority: this.priority,
+        deadline: this.deadline,
       };
 
       this.$store

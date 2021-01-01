@@ -185,7 +185,6 @@ const actions = {
     const uid = rootGetters.getUser.uid;
     const metadata = {};
 
-    project.deadline = null;
     project.status = 0;
     project.users = [uid];
     project.changes = [];

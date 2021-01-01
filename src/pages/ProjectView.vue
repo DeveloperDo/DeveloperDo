@@ -45,6 +45,15 @@
               />
             </StackLayout>
 
+            <StackLayout class="projectDeadlineContainer">
+              <Label text="DEADLINE" class="projectHeader" />
+              <Label
+                  :text="readTimestamp(project.deadline, true)"
+                  class="projectDeadline"
+                  textWrap="true"
+              />
+            </StackLayout>
+
             <StackLayout class="projectDescriptionContainer">
               <Label text="OPIS PROJEKTU" class="projectHeader" />
               <Label
@@ -594,5 +603,21 @@ export default {
   font-weight: bold;
   background-color: lightcoral;
   color: white;
+}
+
+.projectDeadlineContainer {
+  margin-top: 20px;
+  background-color: #92d7e0;
+  horizontal-align: center;
+  vertical-align: center;
+  width: 90%;
+  border-radius: 50px;
+  android-elevation: 10;
+}
+
+.projectDeadline {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
 }
 </style>
