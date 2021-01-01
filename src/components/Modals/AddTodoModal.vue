@@ -112,7 +112,6 @@ export default {
       const todo = {
         name: this.taskName,
         users: users,
-        done: false,
       };
       this.$store
         .dispatch("addTodo", {

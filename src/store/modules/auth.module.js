@@ -166,6 +166,7 @@ const actions = {
       .set({
         email: email,
         name: name,
+        imageSrc: null,
       })
       .then(async () => {
         console.log("succeeded");
@@ -177,15 +178,21 @@ const actions = {
       });
   },
 
-  async fetchUserData({ commit }, { uid }) {
+  async fetchUserData({ commit, rootGetters }, { uid }) {
     console.log("fetchUserData");
     const userRef = firebase.firestore.collection("users").doc(uid);
 
     return userRef
       .get()
       .then((docSnapshot) => {
+        let data = docSnapshot.data();
+
+        data.imageSrc = data.imageSrc
+          ? data.imageSrc
+          : rootGetters.userImgPlaceholder;
+
         const user = {
-          ...docSnapshot.data(),
+          ...data,
           uid: uid,
         };
         commit("authSuccess", user);

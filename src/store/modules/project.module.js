@@ -94,6 +94,27 @@ const mutations = {
 };
 
 const actions = {
+  setUserRole({ rootGetters }, { uid, oldRole, newRole }) {
+    const projectID = rootGetters.project.id;
+    const projectRef = firebase.firestore.collection("projects").doc(projectID);
+
+    return projectRef
+      .update({
+        roles: firebase.firestore.FieldValue.arrayRemove({
+          uid: uid,
+          role: oldRole,
+        }),
+      })
+      .then(async () => {
+        await projectRef.update({
+          roles: firebase.firestore.FieldValue.arrayUnion({
+            uid: uid,
+            role: newRole,
+          }),
+        });
+      });
+  },
+
   async deleteProject({ dispatch }, projectID) {
     const projectRef = firebase.firestore.collection("projects").doc(projectID);
 
@@ -103,6 +124,7 @@ const actions = {
   },
 
   addUsersToProject({ rootGetters }, users) {
+    console.log(users);
     let projectID;
 
     if (rootGetters.project) {
@@ -116,9 +138,21 @@ const actions = {
 
     const projectRef = firebase.firestore.collection("projects").doc(projectID);
 
+    let roles = [];
+
+    users.forEach((uid) => {
+      roles.push({
+        uid: uid,
+        role: "",
+      });
+    });
+
+    console.log(roles);
+
     return projectRef
       .update({
         users: firebase.firestore.FieldValue.arrayUnion(users),
+        roles: firebase.firestore.FieldValue.arrayUnion(roles),
       })
       .catch((err) => {
         console.log(err);
@@ -164,14 +198,18 @@ const actions = {
 
   removeUserFromProject({ rootGetters }, uid) {
     const projectID = rootGetters.project.id;
+    const roles = rootGetters.project.roles;
     const currentUid = rootGetters.getUser.uid;
     const projectRef = firebase.firestore.collection("projects").doc(projectID);
 
     if (currentUid === uid) return;
 
+    const role = roles.find((role) => role.uid === uid);
+
     return projectRef
       .update({
         users: firebase.firestore.FieldValue.arrayRemove(uid),
+        roles: firebase.firestore.FieldValue.arrayRemove(role),
       })
       .catch((err) => {
         console.log(err);
@@ -187,6 +225,7 @@ const actions = {
 
     project.status = 0;
     project.users = [uid];
+    project.roles = [{ uid: uid, role: "role" }];
     project.changes = [];
     project.imageSrc = null;
 
@@ -288,7 +327,7 @@ const actions = {
     }
   ),
 
-  async fetchProjectUsers({ commit, rootGetters }, projectUsers) {
+  async fetchProjectUsers({ commit, rootGetters }, { projectUsers, roles }) {
     const usersRef = firebase.firestore.collection("users");
 
     const users = [];
@@ -302,14 +341,16 @@ const actions = {
         .then((userDoc) => {
           let data = userDoc.data();
 
+          const role = roles.find((role) => role.uid === uid);
+
           if (!data.imageSrc) {
-            console.log(rootGetters.userImgPlaceholder);
             data.imageSrc = rootGetters.userImgPlaceholder;
           }
 
           users.push({
             ...data,
             uid: uid,
+            role: role.role ? role.role : "",
           });
         });
     }
@@ -333,6 +374,7 @@ const actions = {
       const serialize = (doc) => {
         const data = doc.data();
         const users = rootGetters.project.users;
+        const roles = data.roles;
 
         if (!data.imageSrc) {
           data.imageSrc = rootGetters.projectImgPlaceholder;
@@ -347,11 +389,20 @@ const actions = {
           );
         }
 
-        //On init users is empty thus the user fetch should not occur
-        //On next updates fetch users if user array is different than current
-        if (users && !arrayEquals(users, data.users)) {
+        //TODO check if new role
+        console.log(arrayEquals(roles, data.roles));
+
+        if (
+          (users && !arrayEquals(users, data.users)) ||
+          arrayEquals(roles, data.roles)
+        ) {
+          //On init users is empty thus the user fetch should not occur
+          //On next updates fetch users if user array is different than current
           console.log("------");
-          dispatch("fetchProjectUsers", data.users);
+          dispatch("fetchProjectUsers", {
+            projectUsers: data.users,
+            roles: data.roles,
+          });
         }
 
         Object.defineProperty(data, "id", { value: doc.id });
@@ -365,7 +416,11 @@ const actions = {
         reset: false,
       })
         .then(async (project) => {
-          await dispatch("fetchProjectUsers", project.users);
+          console.log(project.roles);
+          await dispatch("fetchProjectUsers", {
+            projectUsers: project.users,
+            roles: project.roles,
+          });
 
           async function parallel() {
             const bindChat = dispatch("bindChat", projectID);

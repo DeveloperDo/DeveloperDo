@@ -193,7 +193,6 @@
                   v-bind:class="{ chatMessageOut: ownMsg(msg.uid) }"
                   orientation="horizontal"
                 >
-                  <!--                  TODO getUserImage-->
                   <Image
                     :src="msg.user.imageSrc"
                     class="userPhoto"
@@ -267,7 +266,6 @@ export default {
 
   methods: {
     deleteTodo(todoGroupID, task) {
-      console.log("deleteTodo");
       this.$store.dispatch("deleteTodo", {
         projectID: this.project.id,
         todoGroupID: todoGroupID,
