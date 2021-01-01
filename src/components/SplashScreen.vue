@@ -1,6 +1,6 @@
 <template>
   <StackLayout class="splashScreen">
-    <Label text="DeveloperDo" class="splashScreenTitle" />
+    <Image src="res://logo" gravity="center" />
     <ActivityIndicator
       busy="true"
       color="black"
@@ -27,9 +27,8 @@ export default {
 }
 
 .splashScreen {
-  width: 90%;
-  height: 95%;
-  border-radius: 40px;
+  width: 100%;
+  height: 100%;
   vertical-align: center;
   horizontal-align: center;
   background-color: white;
@@ -48,7 +47,7 @@ export default {
 
 .loadingSpinner {
   animation-name: opacity;
-  animation-duration: 5;
+  animation-duration: 1s;
 }
 
 @keyframes opacity {
