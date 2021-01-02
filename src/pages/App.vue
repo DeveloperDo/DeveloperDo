@@ -14,18 +14,16 @@ export default {
   },
 
   async mounted() {
-    setTimeout(async () => {
-      await Promise.all([
-        this.$store.dispatch("fetchPlaceholders"),
-        this.$store.dispatch("authInit"),
-      ]).then(() => {
-        if (this.isLogged) {
-          this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
-        } else {
-          this.$navigateTo(this.$routes.Login, { clearHistory: true });
-        }
-      });
-    }, 5000)
+    await Promise.all([
+      this.$store.dispatch("fetchPlaceholders"),
+      this.$store.dispatch("authInit"),
+    ]).then(() => {
+      if (this.isLogged) {
+        this.$navigateTo(this.$routes.ProjectList, { clearHistory: true });
+      } else {
+        this.$navigateTo(this.$routes.Login, { clearHistory: true });
+      }
+    });
   },
 
   computed: {
