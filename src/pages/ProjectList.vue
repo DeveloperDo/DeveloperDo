@@ -34,7 +34,7 @@
               stretch="aspectFill"
             />
             <Label :text="project.name" class="projectName" textWrap="true" />
-            <Label :text="project.deadline" class="projectDeadline" />
+            <Label :text="readTimestamp(project.deadline, true)" class="projectDeadline" />
           </StackLayout>
         </StackLayout>
       </ScrollView>
@@ -51,6 +51,7 @@
 
 <script>
 import sideDrawer from "../mixins/sideDrawer";
+import readTimestamp from "../mixins/readTimestamp";
 import AddProjectModal from "../components/Modals/AddProjectModal";
 import Spinner from "../components/Spinner";
 import translateStatus from "../mixins/translateStatus";
@@ -58,7 +59,7 @@ import translateStatus from "../mixins/translateStatus";
 export default {
   components: { Spinner },
 
-  mixins: [sideDrawer, translateStatus],
+  mixins: [sideDrawer, translateStatus, readTimestamp],
 
   methods: {
     openAddProjectModal() {
