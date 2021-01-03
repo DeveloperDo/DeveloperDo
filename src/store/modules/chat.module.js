@@ -40,6 +40,20 @@ const actions = {
       console.log(err);
     });
   }),
+
+  sendMessage({}, {message, projectID}) {
+    console.log("sendMessage")
+
+    const chatRef = firebase.firestore.collection("projects").doc(projectID).collection("chat")
+
+    chatRef.add(message)
+        .then(async (msg) => {
+          await chatRef.doc(msg.id).update({timestamp: firebase.firestore.FieldValue.serverTimestamp(),})
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+  }
 };
 
 export default {

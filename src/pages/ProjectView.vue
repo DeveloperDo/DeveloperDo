@@ -204,6 +204,10 @@
                     verticalAlignment="center"
                   />
                 </StackLayout>
+                <Label
+                    :text="readTimestamp(msg.timestamp, false)"
+                    class="messageTimestamp"
+                />
               </StackLayout>
             </StackLayout>
           </ScrollView>
@@ -217,7 +221,7 @@
             />
             <Button
               text="Wyślij"
-              @tap="onButtonTap"
+              @tap="msgSendButton"
               width="25%"
               class="chatSendMessageButton"
             />
@@ -305,8 +309,18 @@ export default {
       });
     },
 
-    onButtonTap() {
-      console.log("button tapped");
+    msgSendButton() {
+      if (this.msgTextField !== "") {
+
+        const message = {
+          uid: this.getUser.uid,
+          text: this.msgTextField,
+        };
+
+        this.$store.dispatch("sendMessage", {message: message, projectID: this.project.id})
+
+        this.msgTextField = ""
+      }
     },
 
     onChangeTap: function (args) {
@@ -562,7 +576,15 @@ export default {
   color: gray;
 }
 
+.messageTimestamp {
+  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 12px;
+  color: gray;
+}
+
 .chatTextField {
+  font-size: 16px;
   padding-right: 0;
   margin-right: 0;
 }
