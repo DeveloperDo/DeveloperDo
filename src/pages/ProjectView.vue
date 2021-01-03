@@ -48,9 +48,13 @@
             <StackLayout class="projectDeadlineContainer">
               <Label text="DEADLINE" class="projectHeader" />
               <Label
-                  :text="readTimestamp(project.deadline, true)"
-                  class="projectDeadline"
-                  textWrap="true"
+                :text="
+                  project.deadline
+                    ? readTimestamp(project.deadline, true)
+                    : 'bez terminu'
+                "
+                class="projectDeadline"
+                textWrap="true"
               />
             </StackLayout>
 

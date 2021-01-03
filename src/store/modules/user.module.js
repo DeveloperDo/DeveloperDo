@@ -1,29 +1,5 @@
 import { firebase } from "@nativescript/firebase";
-
-function translateErrors(errCode) {
-  switch (errCode.toString()) {
-    case "Updating email failed. com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The email address is badly formatted.": {
-      return "Niepoprawny format nowego adresu e-mail!";
-    }
-    case "Updating email failed. com.google.firebase.auth.FirebaseAuthUserCollisionException: The email address is already in use by another account.": {
-      return "Podany adres e-mail jest już zajęty!";
-    }
-    case "Auth type PASSWORD requires an 'passwordOptions.email' and 'passwordOptions.password' argument": {
-      return "Zmiana adresu e-mail lub hasła wymaga podania aktualnego hasła!";
-    }
-    case "com.google.firebase.auth.FirebaseAuthInvalidCredentialsException: The password is invalid or the user does not have a password.": {
-      return "Podano niepoprawne aktualne hasło!";
-    }
-    case "com.google.firebase.FirebaseTooManyRequestsException: We have blocked all requests from this device due to unusual activity. Try again later. [ Access to this account has been temporarily disabled due to many failed login attempts." +
-      " You can immediately restore it by resetting your password or you can try again later. ]": {
-      return "Zbyt dużo nieudanych prób logowania! Spróbuj później!";
-    }
-
-    default: {
-      return "Błąd aktualizacji danych!";
-    }
-  }
-}
+import { translateErrors } from "../../mixins/translateErrors";
 
 const state = {
   user: {},
