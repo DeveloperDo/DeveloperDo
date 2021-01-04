@@ -19,7 +19,24 @@ const getters = {
 const mutations = {};
 
 const actions = {
-  deleteTodo({}, { projectID, todoGroupID, todo }) {
+  addHistory({ rootGetters }, changeName) {
+    const projectID = rootGetters.project.id;
+    const user = rootGetters.getUser;
+
+    const historyRef = firebase.firestore.collection(
+        "projects/" + projectID + "/changes"
+    );
+
+    historyRef.add({
+      name: "(" + user.name + ") " + changeName,
+    }).then (async (change) => {
+      await historyRef.doc(change.id).update({
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    })
+  },
+
+  deleteTodo({ dispatch }, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
       .doc(todoGroupID);
@@ -37,27 +54,30 @@ const actions = {
           users: users,
         }),
       })
+        .then(() => {
+          dispatch("addHistory", "Usunięto zadanie: " + todo.name)
+        })
       .catch((err) => {
         console.log(err);
       });
   },
 
-  deleteTodoGroup({}, { projectID, todoGroupID }) {
+  deleteTodoGroup({ dispatch }, { projectID, todoGroupID, todoGroupName }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
       .doc(todoGroupID);
 
     todoGroupRef
       .delete()
-      .then(() => {
-        console.log("deleted");
-      })
+        .then(() => {
+          dispatch("addHistory", "Usunięto kategorię zadań: " + todoGroupName)
+        })
       .catch((err) => {
         console.log(err);
       });
   },
 
-  addTodo({}, { projectID, todoGroupID, todo }) {
+  addTodo({ dispatch }, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
       .doc(todoGroupID);
@@ -66,12 +86,15 @@ const actions = {
       .update({
         todos: firebase.firestore.FieldValue.arrayUnion(todo),
       })
+        .then(() => {
+          dispatch("addHistory", "Dodano zadanie: " + todo.name)
+        })
       .catch((err) => {
         console.log(err);
       });
   },
 
-  addTodoGroup({}, { projectID, categoryName }) {
+  addTodoGroup({ dispatch }, { projectID, categoryName }) {
     const projectTodoRef = firebase.firestore.collection(
       "projects/" + projectID + "/todo"
     );
@@ -81,6 +104,9 @@ const actions = {
         name: categoryName,
         todos: [],
       })
+        .then(() => {
+          dispatch("addHistory", "Dodano kategorię zadań: " + categoryName)
+        })
       .catch((err) => {
         console.log(err);
       });

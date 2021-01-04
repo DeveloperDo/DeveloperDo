@@ -1,6 +1,8 @@
 export default {
   methods: {
     readTimestamp(timestamp, dateOnly = false) {
+        if (!timestamp) return ""
+
       function prependTime(time) {
         if (time < 10) {
           time = "0" + time.toString();
