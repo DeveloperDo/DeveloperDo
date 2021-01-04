@@ -34,7 +34,12 @@
               stretch="aspectFill"
             />
             <Label :text="project.name" class="projectName" textWrap="true" />
-            <Label :text="readTimestamp(project.deadline, true)" class="projectDeadline" />
+            <Label
+              :text="
+                project.deadline ? readTimestamp(project.deadline, true) : 'bez terminu'
+              "
+              class="projectDeadline"
+            />
           </StackLayout>
         </StackLayout>
       </ScrollView>

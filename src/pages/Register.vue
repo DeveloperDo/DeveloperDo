@@ -2,62 +2,110 @@
   <Page>
     <ActionBar :text="this.$title" />
     <ScrollView height="100%">
-      <StackLayout class="register-panel">
-        <Label text="" />
-        <label
-          text="Nazwa użytkownika"
-          style="horizontal-align: center; font-size: 20px"
-        >
-        </label>
-        <TextField v-model="name" hint="" class="inputTextSize" />
+      <StackLayout class="home-panel">
+        <StackLayout class="input">
+          <Label text="Rejestracja" class="titleLabel" />
 
-        <Label text="" />
-        <label text="Hasło" style="horizontal-align: center; font-size: 20px">
-        </label>
-        <TextField
-          secure="true"
-          v-model="password"
-          hint=""
-          class="inputTextSize"
-        />
+          <TextField
+            v-model="$v.name.$model"
+            hint="Nazwa"
+            class="input__field"
+            @textChange="hideErrors"
+          />
+          <Label
+            v-if="showErrors && !$v.name.required"
+            text="Pole wymagane"
+            class="text--danger text--small"
+          />
+        </StackLayout>
 
-        <Label text="" />
-        <label
-          text="Potwierdź hasło"
-          style="horizontal-align: center; font-size: 20px"
-        >
-        </label>
-        <TextField
-          secure="true"
-          v-model="passwordConfirm"
-          hint=""
-          class="inputTextSize"
-        />
+        <StackLayout class="input">
+          <TextField
+            secure="true"
+            v-model="$v.password.$model"
+            hint="Hasło"
+            class="input__field"
+            @textChange="hideErrors"
+          />
+          <Label
+            v-if="showErrors && !$v.password.required"
+            text="Pole wymagane"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showErrors && !$v.password.minLength"
+            text="Hasło musi być dłuższe niż 6 znaków"
+            class="text--danger text--small"
+          />
+        </StackLayout>
 
-        <Label text="" />
-        <label
-          text="Adres e-mail"
-          style="horizontal-align: center; font-size: 20px"
-        >
-        </label>
-        <TextField v-model="email" hint="" class="inputTextSize" />
+        <StackLayout class="input">
+          <TextField
+            secure="true"
+            v-model="$v.passwordConfirm.$model"
+            hint="Potwierdź hasło"
+            class="input__field"
+            @textChange="hideErrors"
+          />
+          <Label
+            v-if="showErrors && !$v.passwordConfirm.required"
+            text="Pole wymagane"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showErrors && !$v.passwordConfirm.sameAsPassword"
+            text="Hasła muszą się zgadzać!"
+            class="text--danger text--small"
+          />
+        </StackLayout>
 
-        <Label :text="authError" class="errorLabel" textWrap="true" />
+        <StackLayout class="input">
+          <TextField
+            v-model="$v.email.$model"
+            hint="Email"
+            class="input__field"
+            @textChange="hideErrors"
+          />
+          <Label
+            v-if="showErrors && authError"
+            :text="authError"
+            class="text--danger text--small"
+            textWrap="true"
+          />
+          <Label
+            v-else-if="showErrors && !$v.email.required"
+            text="Pole wymagane"
+            class="text--danger text--small"
+          />
+          <Label
+            v-else-if="showErrors && !$v.email.email"
+            text="Błędny format email"
+            class="text--danger text--small"
+          />
+        </StackLayout>
 
-        <Label text="" />
-        <Button
-          :disabled="authIsLoading"
-          :class="{ 'btn btn--disabled': authIsLoading }"
-          text="Zarejestruj"
-          @tap="register"
-        />
-        <Label text="" />
-        <Button text="Powrót" @tap="redirectToLogin" />
+        <StackLayout class="buttonsLayout">
+          <Button
+            :isEnabled="!authIsLoading || !$v.$invalid"
+            text="Zarejestruj"
+            @tap="register"
+          />
+          <Button text="Powrót" @tap="redirectToLogin" />
+        </StackLayout>
       </StackLayout>
     </ScrollView>
   </Page>
 </template>
+
 <script>
+import {
+  required,
+  minLength,
+  maxLength,
+  sameAs,
+  email,
+} from "vuelidate/lib/validators";
+
 export default {
   data() {
     return {
@@ -65,7 +113,31 @@ export default {
       password: "",
       passwordConfirm: "",
       email: "",
+      showErrors: false,
     };
+  },
+
+  validations: {
+    name: {
+      required,
+      maxLength: maxLength(255),
+    },
+    password: {
+      required,
+      minLength: minLength(6),
+      maxLength: maxLength(255),
+    },
+    passwordConfirm: {
+      required,
+      minLength: minLength(6),
+      maxLength: maxLength(255),
+      sameAsPassword: sameAs("password"),
+    },
+    email: {
+      required,
+      email,
+      maxLength: maxLength(255),
+    },
   },
 
   computed: {
@@ -81,13 +153,21 @@ export default {
   },
 
   methods: {
+    hideErrors() {
+      if (this.showErrors) {
+        this.showErrors = false;
+      }
+    },
+
     redirectToLogin() {
       this.$store.commit("resetAuthError");
       this.$navigateTo(this.$routes.Login);
     },
 
     register() {
-      if (this.validate()) {
+      this.showErrors = true;
+
+      if (this.$v.$invalid || this.authIsLoading) {
         return;
       }
       this.$store
@@ -103,20 +183,6 @@ export default {
           }
         });
     },
-
-    validate() {
-      if (this.password !== this.passwordConfirm) {
-        this.$store.commit(
-          "authError",
-          "Hasło i jego potwierdzenie nie są równe"
-        );
-        return true;
-      }
-      if (!this.name) {
-        this.$store.commit("authError", "Wymagana nazwa użytkownika");
-        return true;
-      }
-    },
   },
 };
 </script>
@@ -128,11 +194,27 @@ export default {
   margin: 15;
 }
 
-.inputTextSize {
+.titleLabel {
+  align-self: center;
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 30;
+}
+
+.input {
+  padding: 15;
+  maring: 0;
+}
+
+.input__field {
+  padding: 0;
+  margin: 0;
   font-size: 18px;
 }
 
-.description-label {
-  margin-bottom: 15;
+.buttonsLayout {
+  padding: 30 0 0;
+  margin: 0;
+  font-size: 18px;
 }
 </style>
