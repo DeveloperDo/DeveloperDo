@@ -411,7 +411,7 @@ const actions = {
         return data;
       };
 
-      await bindFirestoreRef("project", projectRef, {
+      return bindFirestoreRef("project", projectRef, {
         serialize,
         reset: false,
       })
@@ -434,6 +434,7 @@ const actions = {
 
           await parallel();
 
+          console.log("qwerqwer");
           commit("fetchProjectSuccess");
         })
         .catch((err) => {

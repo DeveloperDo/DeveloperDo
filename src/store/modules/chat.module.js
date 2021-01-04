@@ -3,57 +3,79 @@ import { firestoreAction } from "vuexfire";
 
 const state = {
   chat: [],
+  chatIsLoading: true,
 };
 
 const getters = {
+  chatIsLoading: (state) => {
+    return state.chatIsLoading;
+  },
   chat: (state) => {
     return state.chat;
   },
 };
 
-const mutations = {};
+const mutations = {
+  chatLoaded(state) {
+    state.chatIsLoading = false;
+  },
+};
 
 const actions = {
-  bindChat: firestoreAction(({ bindFirestoreRef, rootGetters }, projectID) => {
-    const projectChatRef = firebase.firestore
-      .collection("projects/" + projectID + "/chat")
-      .orderBy("timestamp", "asc")
-      .limit(15);
+  bindChat: firestoreAction(
+    ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
+      const projectChatRef = firebase.firestore
+        .collection("projects/" + projectID + "/chat")
+        .orderBy("timestamp", "asc");
 
-    const serialize = (doc) => {
-      let data = doc.data();
-      const user = rootGetters.users.find((user) => user.uid === data.uid);
+      const serialize = (doc) => {
+        let data = doc.data();
 
-      data.user = user
-        ? user
-        : { name: "", imageSrc: rootGetters.userImgPlaceholder };
+        console.log(data);
 
-      Object.defineProperty(data, "id", { value: doc.id });
-      Object.defineProperty(data, "_doc", { value: doc });
+        const user = rootGetters.users.find((user) => user.uid === data.uid);
 
-      return data;
-    };
+        data.user = user
+          ? user
+          : { name: "", imageSrc: rootGetters.userImgPlaceholder };
 
-    bindFirestoreRef("chat", projectChatRef, {
-      serialize,
-    }).catch((err) => {
-      console.log(err);
-    });
-  }),
+        Object.defineProperty(data, "id", { value: doc.id });
+        Object.defineProperty(data, "_doc", { value: doc });
 
-  sendMessage({}, {message, projectID}) {
-    console.log("sendMessage")
+        return data;
+      };
 
-    const chatRef = firebase.firestore.collection("projects").doc(projectID).collection("chat")
-
-    chatRef.add(message)
-        .then(async (msg) => {
-          await chatRef.doc(msg.id).update({timestamp: firebase.firestore.FieldValue.serverTimestamp(),})
+      bindFirestoreRef("chat", projectChatRef, {
+        serialize,
+      })
+        .then(() => {
+          commit("chatLoaded");
         })
         .catch((err) => {
           console.log(err);
-        })
-  }
+        });
+    }
+  ),
+
+  sendMessage({}, { message, projectID }) {
+    console.log("sendMessage");
+
+    const chatRef = firebase.firestore
+      .collection("projects")
+      .doc(projectID)
+      .collection("chat");
+
+    return chatRef
+      .add(message)
+      .then(async (msg) => {
+        await chatRef.doc(msg.id).update({
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
 };
 
 export default {

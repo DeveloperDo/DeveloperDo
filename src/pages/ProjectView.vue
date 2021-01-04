@@ -93,7 +93,6 @@
               <StackLayout
                 v-for="(change, index) in changes"
                 :key="index"
-                @tap="onChangeTap"
                 class="changeCard"
               >
                 <Label :text="change.name" class="changeText" textWrap="true" />
@@ -165,7 +164,7 @@
               <Button
                 v-if="editEnabled"
                 text="USUŃ KATEGORIĘ"
-                @tap="deleteTodoGroup(todoGroup.id)"
+                @tap="deleteTodoGroup(todoGroup.id, todoGroup.name)"
                 class="deleteTaskGroupButton"
               />
             </StackLayout>
@@ -180,12 +179,19 @@
       </TabViewItem>
 
       <TabViewItem title="Czat">
-        <FlexboxLayout flexDirection="column">
-          <ScrollView height="90%">
-            <StackLayout class="chatWindow">
+        <GridLayout rows="*, auto">
+          <ListView
+            separatorColor="transparent"
+            style="minheight: 100%"
+            row="0"
+            alignSelf="stretch"
+            ref="chatList"
+            v-for="msg in chat"
+            android:soundEffectsEnabled="false"
+            @loaded="onChatLoaded"
+          >
+            <v-template>
               <StackLayout
-                v-for="(msg, index) in chat"
-                :key="index"
                 class="chatMessageInContainer"
                 :class="{
                   chatMessageOutContainer: ownMsg(msg.uid),
@@ -209,14 +215,14 @@
                   />
                 </StackLayout>
                 <Label
-                    :text="readTimestamp(msg.timestamp, false)"
-                    class="messageTimestamp"
+                  :text="msg.timestamp ? readTimestamp(msg.timestamp) : ''"
+                  class="messageTimestamp"
                 />
               </StackLayout>
-            </StackLayout>
-          </ScrollView>
+            </v-template>
+          </ListView>
 
-          <StackLayout orientation="horizontal" height="10%">
+          <StackLayout row="1" orientation="horizontal" height="auto">
             <TextField
               v-model="msgTextField"
               hint="Napisz wiadomość"
@@ -230,7 +236,7 @@
               class="chatSendMessageButton"
             />
           </StackLayout>
-        </FlexboxLayout>
+        </GridLayout>
       </TabViewItem>
     </TabView>
   </Page>
@@ -273,6 +279,41 @@ export default {
   },
 
   methods: {
+    listenToChatList() {
+      const chatList = this.$refs.chatList.nativeView;
+
+      chatList.on(chatList.loadMoreItemsEvent, function () {
+        console.log("qwerqwerqwerqwerqwerqewrwerwer")
+      });
+    },
+
+    onChatLoaded(event) {
+      this.scrollChatToBottom();
+      this.listenToChatList();
+
+      const chatList = this.$refs.chatList.nativeView;
+      chatList.soundEffectsEnabled = false;
+
+      if (event.object.android) {
+        event.object.android.setSelector(
+          new android.graphics.drawable.StateListDrawable()
+        );
+      }
+    },
+
+    scrollChatToBottom(animate = false) {
+      const chatList = this.$refs.chatList.nativeView;
+      console.log(chatList.items.length);
+
+      const lastIndex = chatList.items.length - 1;
+
+      if (animate) {
+        chatList.scrollToIndexAnimated(lastIndex);
+      } else {
+        chatList.scrollToIndex(lastIndex);
+      }
+    },
+
     deleteTodo(todoGroupID, task) {
       this.$store.dispatch("deleteTodo", {
         projectID: this.project.id,
@@ -281,10 +322,11 @@ export default {
       });
     },
 
-    deleteTodoGroup(todoGroupID) {
+    deleteTodoGroup(todoGroupID, todoGroupName) {
       this.$store.dispatch("deleteTodoGroup", {
         projectID: this.project.id,
         todoGroupID: todoGroupID,
+        todoGroupName: todoGroupName,
       });
     },
 
@@ -315,20 +357,24 @@ export default {
 
     msgSendButton() {
       if (this.msgTextField !== "") {
-
         const message = {
           uid: this.getUser.uid,
           text: this.msgTextField,
         };
 
-        this.$store.dispatch("sendMessage", {message: message, projectID: this.project.id})
+        this.$store
+          .dispatch("sendMessage", {
+            message: message,
+            projectID: this.project.id,
+          })
+          .then(() => {
+            this.scrollChatToBottom();
+          });
 
-        this.msgTextField = ""
+        this.msgTextField = "";
+      } else {
+        this.scrollChatToBottom();
       }
-    },
-
-    onChangeTap: function (args) {
-      console.log("Item with index: " + args.index + " tapped");
     },
 
     onUsersTap() {
@@ -342,6 +388,7 @@ export default {
 
   computed: {
     ...mapGetters([
+      "chatIsLoading",
       "todoGroupList",
       "chat",
       "getUser",
