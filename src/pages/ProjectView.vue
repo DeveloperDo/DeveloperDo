@@ -164,7 +164,7 @@
               <Button
                 v-if="editEnabled"
                 text="USUŃ KATEGORIĘ"
-                @tap="deleteTodoGroup(todoGroup.id, todoGroup.name)"
+                @tap="deleteTodoGroup(todoGroup.id)"
                 class="deleteTaskGroupButton"
               />
             </StackLayout>
@@ -180,15 +180,16 @@
 
       <TabViewItem title="Czat">
         <GridLayout rows="*, auto">
-          <ListView
+          <RadListView
             separatorColor="transparent"
             style="minheight: 100%"
             row="0"
             alignSelf="stretch"
             ref="chatList"
-            v-for="msg in chat"
-            android:soundEffectsEnabled="false"
-            @loaded="onChatLoaded"
+            for="msg in chat"
+            @scrollEnded="chatListScrolled($event)"
+            @loaded="scrollChatToBottom"
+            scrollDirection="Vertical"
           >
             <v-template>
               <StackLayout
@@ -220,7 +221,7 @@
                 />
               </StackLayout>
             </v-template>
-          </ListView>
+          </RadListView>
 
           <StackLayout row="1" orientation="horizontal" height="auto">
             <TextField
@@ -279,39 +280,23 @@ export default {
   },
 
   methods: {
-    listenToChatList() {
+    chatListScrolled(event) {
       const chatList = this.$refs.chatList.nativeView;
 
-      chatList.on(chatList.loadMoreItemsEvent, function () {
-        console.log("qwerqwerqwerqwerqwerqewrwerwer")
-      });
-    },
+      console.log(chatList.getFirstVisiblePosition());
 
-    onChatLoaded(event) {
-      this.scrollChatToBottom();
-      this.listenToChatList();
-
-      const chatList = this.$refs.chatList.nativeView;
-      chatList.soundEffectsEnabled = false;
-
-      if (event.object.android) {
-        event.object.android.setSelector(
-          new android.graphics.drawable.StateListDrawable()
-        );
+      if (chatList.getFirstVisiblePosition() === 0) {
+        console.log("reached top");
       }
     },
 
-    scrollChatToBottom(animate = false) {
+    scrollChatToBottom() {
       const chatList = this.$refs.chatList.nativeView;
       console.log(chatList.items.length);
 
       const lastIndex = chatList.items.length - 1;
 
-      if (animate) {
-        chatList.scrollToIndexAnimated(lastIndex);
-      } else {
-        chatList.scrollToIndex(lastIndex);
-      }
+      chatList.scrollToIndex(lastIndex, false);
     },
 
     deleteTodo(todoGroupID, task) {

@@ -4,9 +4,14 @@ import { firestoreAction } from "vuexfire";
 const state = {
   chat: [],
   chatIsLoading: true,
+  firstVisible: null,
 };
 
 const getters = {
+  firstVisible: (state) => {
+    return state.firstVisible;
+  },
+
   chatIsLoading: (state) => {
     return state.chatIsLoading;
   },
@@ -26,7 +31,8 @@ const actions = {
     ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
       const projectChatRef = firebase.firestore
         .collection("projects/" + projectID + "/chat")
-        .orderBy("timestamp", "asc");
+        .orderBy("timestamp", "asc")
+        .limit(50);
 
       const serialize = (doc) => {
         let data = doc.data();
