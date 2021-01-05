@@ -5,11 +5,13 @@ import { firebase } from "@nativescript/firebase";
 import routes from "./router";
 import sideDrawer from "./components/SideDrawer/sideDrawer";
 import drawerContent from "./components/SideDrawer/drawerContent";
-
+import RadListView from "nativescript-ui-listview/vue";
 import store from "./store/store";
 import Vuelidate from "vuelidate";
 
 Vue.use(Vuelidate);
+
+Vue.use(RadListView);
 
 firebase.init({}).then(
   function () {
