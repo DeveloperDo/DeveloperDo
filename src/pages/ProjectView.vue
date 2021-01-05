@@ -286,19 +286,16 @@ export default {
 
   watch: {
     chat: {
-      handler(newData) {
+      handler(newData, oldData) {
         if (newData.length === 0) return;
-
-        newData.forEach((item) => {
-          console.log(item);
-        });
 
         if (newData.some((item) => item.timestamp === null)) {
           return;
         }
-        const firstAchievedIndex = this.archivedChat.length - 1;
-        this.observableChat.slice(firstAchievedIndex);
-        this.observableChat.push(newData);
+
+        const newMessages = newData.slice(oldData.length - 1);
+
+        this.observableChat.push(...newMessages);
 
         if (newData[newData.length - 1].uid === this.getUser.uid) {
           this.scrollChatToBottom();
