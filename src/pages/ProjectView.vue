@@ -185,15 +185,15 @@
             row="0"
             busy="true"
             color="black"
-            width="50"
-            height="50"
+            width="100"
+            height="100"
             class="chatList__spinner"
           ></ActivityIndicator>
 
           <RadListView
             row="0"
             ref="chatList"
-            for="msg in chat"
+            for="msg in observableChat"
             @scrollEnded="chatListScrolled($event)"
             @loaded="initChatList"
             scrollDirection="Vertical"
@@ -260,6 +260,7 @@ import EditProjectModal from "../components/Modals/EditProjectModal";
 import translateStatus from "../mixins/translateStatus";
 import translatePriority from "../mixins/translatePriority";
 import readTimestamp from "../mixins/readTimestamp";
+import { ObservableArray } from "tns-core-modules/data/observable-array";
 
 export default {
   components: { Spinner },
@@ -273,6 +274,7 @@ export default {
       event: "",
       msgTextField: "",
       todoGroupListID: "",
+      observableChat: new ObservableArray([]),
     };
   },
 
@@ -280,6 +282,34 @@ export default {
 
   mounted() {
     this.$store.dispatch("bindProject", this.projectID);
+  },
+
+  watch: {
+    chat: {
+      handler(newData) {
+        if (newData.length === 0) return;
+
+        newData.forEach((item) => {
+          console.log(item);
+        });
+
+        if (newData.some((item) => item.timestamp === null)) {
+          return;
+        }
+        const firstAchievedIndex = this.archivedChat.length - 1;
+        this.observableChat.slice(firstAchievedIndex);
+        this.observableChat.push(newData);
+
+        if (newData[newData.length - 1].uid === this.getUser.uid) {
+          this.scrollChatToBottom();
+        }
+      },
+    },
+    archivedChat: {
+      handler(newData) {
+        this.observableChat.unshift(...newData);
+      },
+    },
   },
 
   props: {
@@ -358,14 +388,10 @@ export default {
           text: this.msgTextField,
         };
 
-        this.$store
-          .dispatch("sendMessage", {
-            message: message,
-            projectID: this.project.id,
-          })
-          .then(() => {
-            this.scrollChatToBottom();
-          });
+        this.$store.dispatch("sendMessage", {
+          message: message,
+          projectID: this.project.id,
+        });
 
         this.msgTextField = "";
       } else {
@@ -385,6 +411,7 @@ export default {
   computed: {
     ...mapGetters([
       "todoGroupList",
+      "archivedChat",
       "chat",
       "getUser",
       "changes",
@@ -400,7 +427,7 @@ export default {
 <style scoped>
 .chatList__spinner {
   z-index: 100;
-  align-self: start;
+  align-self: center;
 }
 
 .h-100 {

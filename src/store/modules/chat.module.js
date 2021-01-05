@@ -3,11 +3,11 @@ import { firestoreAction } from "vuexfire";
 
 const state = {
   chat: [],
+  archivedChat: [],
   archivedChatIsLoading: true,
   firstVisible: null,
   topMessageDoc: null,
   bottomMessageDoc: null,
-  chatNewMessages: [],
 };
 
 const getters = {
@@ -28,9 +28,11 @@ const getters = {
   },
 
   chat: (state) => {
-    const currentChat = state.chat.concat(...state.chatNewMessages);
+    return state.chat;
+  },
 
-    return currentChat;
+  archivedChat: (state) => {
+    return state.archivedChat;
   },
 };
 
@@ -49,7 +51,7 @@ const mutations = {
   fetchArchivedChatSuccess(state, archivedChat) {
     state.archivedChatIsLoading = false;
 
-    state.chat.unshift(...archivedChat);
+    state.archivedChat = archivedChat;
   },
 
   setTopMessageDoc(state, doc) {
@@ -92,8 +94,9 @@ const actions = {
         });
 
         commit("fetchArchivedChatSuccess", archivedChat.reverse());
+      } else {
+        commit("fetchArchivedChatSuccess", []);
       }
-      commit("fetchArchivedChatSuccess", []);
       await dispatch("bindChat", projectID);
     });
   },
@@ -138,9 +141,6 @@ const actions = {
       });
 
       commit("fetchArchivedChatSuccess", archivedChat.reverse());
-      console.log("archivedChat");
-      console.log(archivedChat.reverse());
-      console.log("/archivedChat");
     });
   },
 
@@ -172,7 +172,7 @@ const actions = {
       return data;
     };
 
-    bindFirestoreRef("chatNewMessages", projectChatRef, {
+    bindFirestoreRef("chat", projectChatRef, {
       serialize,
     }).catch((err) => {
       console.log(err);
