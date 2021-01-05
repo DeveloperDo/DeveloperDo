@@ -180,15 +180,22 @@
 
       <TabViewItem title="Czat">
         <GridLayout rows="*, auto">
-          <RadListView
-            separatorColor="transparent"
-            style="minheight: 100%"
+          <ActivityIndicator
+            v-if="archivedChatIsLoading"
             row="0"
-            alignSelf="stretch"
+            busy="true"
+            color="black"
+            width="50"
+            height="50"
+            class="chatList__spinner"
+          ></ActivityIndicator>
+
+          <RadListView
+            row="0"
             ref="chatList"
             for="msg in chat"
             @scrollEnded="chatListScrolled($event)"
-            @loaded="scrollChatToBottom"
+            @loaded="initChatList"
             scrollDirection="Vertical"
           >
             <v-template>
@@ -280,21 +287,25 @@ export default {
   },
 
   methods: {
+    initChatList() {
+      this.scrollChatToBottom();
+    },
+
     chatListScrolled(event) {
       const chatList = this.$refs.chatList.nativeView;
 
-      console.log(chatList.getFirstVisiblePosition());
-
       if (chatList.getFirstVisiblePosition() === 0) {
-        console.log("reached top");
+        if (this.archivedChatIsLoading) return;
+        this.$store.dispatch("fetchArchivedChat", this.projectID);
       }
     },
 
     scrollChatToBottom() {
       const chatList = this.$refs.chatList.nativeView;
-      console.log(chatList.items.length);
 
       const lastIndex = chatList.items.length - 1;
+
+      if (lastIndex < 0) return;
 
       chatList.scrollToIndex(lastIndex, false);
     },
@@ -373,7 +384,6 @@ export default {
 
   computed: {
     ...mapGetters([
-      "chatIsLoading",
       "todoGroupList",
       "chat",
       "getUser",
@@ -381,12 +391,18 @@ export default {
       "users",
       "projectIsLoading",
       "project",
+      "archivedChatIsLoading",
     ]),
   },
 };
 </script>
 
 <style scoped>
+.chatList__spinner {
+  z-index: 100;
+  align-self: start;
+}
+
 .h-100 {
   height: 100%;
 }

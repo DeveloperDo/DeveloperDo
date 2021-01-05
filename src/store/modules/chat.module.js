@@ -3,8 +3,11 @@ import { firestoreAction } from "vuexfire";
 
 const state = {
   chat: [],
-  chatIsLoading: true,
+  archivedChatIsLoading: true,
   firstVisible: null,
+  topMessageDoc: null,
+  bottomMessageDoc: null,
+  chatNewMessages: [],
 };
 
 const getters = {
@@ -12,56 +15,169 @@ const getters = {
     return state.firstVisible;
   },
 
-  chatIsLoading: (state) => {
-    return state.chatIsLoading;
+  topMessageDoc: (state) => {
+    return state.topMessageDoc;
   },
+
+  bottomMessageDoc: (state) => {
+    return state.bottomMessageDoc;
+  },
+
+  archivedChatIsLoading: (state) => {
+    return state.archivedChatIsLoading;
+  },
+
   chat: (state) => {
-    return state.chat;
+    const currentChat = state.chat.concat(...state.chatNewMessages);
+
+    return currentChat;
   },
 };
 
 const mutations = {
-  chatLoaded(state) {
-    state.chatIsLoading = false;
+  resetChat(state) {
+    state.chat = [];
+    state.chatNewMessages = [];
+    state.topMessageDoc = null;
+    state.bottomMessageDoc = null;
+  },
+
+  fetchArchivedChatStart(state) {
+    state.archivedChatIsLoading = true;
+  },
+
+  fetchArchivedChatSuccess(state, archivedChat) {
+    state.archivedChatIsLoading = false;
+
+    state.chat.unshift(...archivedChat);
+  },
+
+  setTopMessageDoc(state, doc) {
+    state.topMessageDoc = doc;
+  },
+
+  setBottomMessageDoc(state, doc) {
+    state.bottomMessageDoc = doc;
   },
 };
 
 const actions = {
-  bindChat: firestoreAction(
-    ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
-      const projectChatRef = firebase.firestore
-        .collection("projects/" + projectID + "/chat")
-        .orderBy("timestamp", "asc")
-        .limit(50);
+  async initChat({ dispatch, commit, rootGetters }, projectID) {
+    commit("resetChat");
+    commit("fetchArchivedChatStart");
 
-      const serialize = (doc) => {
-        let data = doc.data();
+    const projectChatRef = firebase.firestore
+      .collection("projects/" + projectID + "/chat")
+      .orderBy("timestamp", "desc")
+      .limit(15);
 
-        console.log(data);
+    return projectChatRef.get().then(async (messages) => {
+      if (!messages.empty) {
+        let archivedChat = [];
 
+        const length = messages.docs.length;
+        commit("setTopMessageDoc", messages.docs[0]);
+
+        commit("setBottomMessageDoc", messages.docs[length - 1]);
+
+        messages.forEach((msgDoc) => {
+          let data = msgDoc.data();
+          const user = rootGetters.users.find((user) => user.uid === data.uid);
+
+          data.user = user
+            ? user
+            : { name: "", imageSrc: rootGetters.userImgPlaceholder };
+
+          archivedChat.push(data);
+        });
+
+        commit("fetchArchivedChatSuccess", archivedChat.reverse());
+      }
+      commit("fetchArchivedChatSuccess", []);
+      await dispatch("bindChat", projectID);
+    });
+  },
+
+  fetchArchivedChat({ commit, rootGetters }, projectID) {
+    if (!rootGetters.bottomMessageDoc) return;
+
+    commit("fetchArchivedChatStart");
+    const bottomMessageDoc = rootGetters.bottomMessageDoc;
+
+    const projectChatRef = firebase.firestore
+      .collection("projects/" + projectID + "/chat")
+      .orderBy("timestamp", "desc")
+      .startAfter(bottomMessageDoc)
+      .limit(15);
+
+    return projectChatRef.get().then(async (messages) => {
+      console.log(messages.docs.length);
+      console.log("adfsasdfasdfasdfasdfasdf");
+      if (messages.empty) return;
+
+      let archivedChat = [];
+
+      const length = messages.docs.length;
+
+      if (messages.docs.length === 15) {
+        commit("setBottomMessageDoc", messages.docs[length - 1]);
+      } else {
+        console.log("++++++++++++++++++++++++++++ setBottomMessageDoc null");
+        commit("setBottomMessageDoc", null);
+      }
+
+      messages.forEach((msgDoc) => {
+        let data = msgDoc.data();
         const user = rootGetters.users.find((user) => user.uid === data.uid);
 
         data.user = user
           ? user
           : { name: "", imageSrc: rootGetters.userImgPlaceholder };
 
-        Object.defineProperty(data, "id", { value: doc.id });
-        Object.defineProperty(data, "_doc", { value: doc });
+        archivedChat.push(data);
+      });
 
-        return data;
-      };
+      commit("fetchArchivedChatSuccess", archivedChat.reverse());
+      console.log("archivedChat");
+      console.log(archivedChat.reverse());
+      console.log("/archivedChat");
+    });
+  },
 
-      bindFirestoreRef("chat", projectChatRef, {
-        serialize,
-      })
-        .then(() => {
-          commit("chatLoaded");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  bindChat: firestoreAction(({ bindFirestoreRef, rootGetters }, projectID) => {
+    const topMessageDoc = rootGetters.topMessageDoc;
+
+    let projectChatRef;
+
+    projectChatRef = firebase.firestore
+      .collection("projects/" + projectID + "/chat")
+      .orderBy("timestamp", "asc");
+
+    if (topMessageDoc) {
+      projectChatRef = projectChatRef.startAfter(topMessageDoc); //start after oldest archived message
     }
-  ),
+
+    const serialize = (doc) => {
+      let data = doc.data();
+
+      const user = rootGetters.users.find((user) => user.uid === data.uid);
+
+      data.user = user
+        ? user
+        : { name: "", imageSrc: rootGetters.userImgPlaceholder };
+
+      Object.defineProperty(data, "id", { value: doc.id });
+      Object.defineProperty(data, "_doc", { value: doc });
+
+      return data;
+    };
+
+    bindFirestoreRef("chatNewMessages", projectChatRef, {
+      serialize,
+    }).catch((err) => {
+      console.log(err);
+    });
+  }),
 
   sendMessage({}, { message, projectID }) {
     console.log("sendMessage");
