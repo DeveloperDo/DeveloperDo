@@ -164,7 +164,7 @@
               <Button
                 v-if="editEnabled"
                 text="USUŃ KATEGORIĘ"
-                @tap="deleteTodoGroup(todoGroup.id)"
+                @tap="deleteTodoGroup(todoGroup.id, todoGroup.name)"
                 class="deleteTaskGroupButton"
               />
             </StackLayout>

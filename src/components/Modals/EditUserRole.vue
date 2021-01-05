@@ -45,6 +45,7 @@ export default {
       this.$store
         .dispatch("setUserRole", {
           uid: this.user.uid,
+          username: this.user.name,
           oldRole: this.user.role,
           newRole: this.role,
         })

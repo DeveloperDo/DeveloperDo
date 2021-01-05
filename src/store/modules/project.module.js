@@ -94,7 +94,24 @@ const mutations = {
 };
 
 const actions = {
-  setUserRole({ rootGetters }, { uid, oldRole, newRole }) {
+  addHistory({ rootGetters }, changeName) {
+    const projectID = rootGetters.project.id;
+    const user = rootGetters.getUser;
+
+    const historyRef = firebase.firestore.collection(
+        "projects/" + projectID + "/changes"
+    );
+
+    historyRef.add({
+      name: "(" + user.name + ") " + changeName,
+    }).then (async (change) => {
+      await historyRef.doc(change.id).update({
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    })
+  },
+
+  setUserRole({ rootGetters, dispatch }, { uid, oldRole, newRole, username }) {
     const projectID = rootGetters.project.id;
     const projectRef = firebase.firestore.collection("projects").doc(projectID);
 
@@ -112,7 +129,9 @@ const actions = {
             role: newRole,
           }),
         });
-      });
+      }).then(() => {
+          dispatch("addHistory", "Zaktualizowano rolę użytkownika " + username + ". Nowa rola to: " + newRole)
+        });
   },
 
   async deleteProject({ dispatch }, projectID) {
@@ -123,7 +142,9 @@ const actions = {
     return projectRef.delete();
   },
 
-  addUsersToProject({ rootGetters }, users) {
+  addUsersToProject({ rootGetters, dispatch }, users) {
+    console.log(users);
+
     let projectID;
 
     if (rootGetters.project) {
@@ -151,6 +172,9 @@ const actions = {
         users: firebase.firestore.FieldValue.arrayUnion(users),
         roles: firebase.firestore.FieldValue.arrayUnion(roles),
       })
+        .then(() => {
+          dispatch("addHistory", "Dodano nowego użytkownika/ów")
+        })
       .catch((err) => {
         console.log(err);
       });
@@ -193,7 +217,7 @@ const actions = {
       });
   },
 
-  removeUserFromProject({ rootGetters }, uid) {
+  removeUserFromProject({ rootGetters, dispatch }, { uid, username }) {
     const projectID = rootGetters.project.id;
     const roles = rootGetters.project.roles;
     const currentUid = rootGetters.getUser.uid;
@@ -208,6 +232,9 @@ const actions = {
         users: firebase.firestore.FieldValue.arrayRemove(uid),
         roles: firebase.firestore.FieldValue.arrayRemove(role),
       })
+        .then(() => {
+          dispatch("addHistory", "Usunięto użytkownika: " + username)
+        })
       .catch((err) => {
         console.log(err);
       });
@@ -436,7 +463,7 @@ const actions = {
     }
   ),
 
-  editProject({ rootGetters }, { project, projectID, image = null }) {
+  editProject({ rootGetters, dispatch }, { project, projectID, image = null }) {
     console.log("editProject");
 
     const uid = rootGetters.getUser.uid;
@@ -445,9 +472,9 @@ const actions = {
 
     projectRef
       .update(project)
-      .then(() => {
-        console.log("project updated");
-      })
+        .then(() => {
+          dispatch("addHistory", "Zaktualizowano dane projektu")
+        })
       .catch((err) => {
         console.log(err);
       });
