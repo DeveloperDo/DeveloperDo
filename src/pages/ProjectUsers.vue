@@ -45,7 +45,7 @@
             <Button
               v-if="editEnabled && currentUser.uid !== user.uid"
               text="USUŃ Z ZESPOŁU"
-              @tap="deleteUser(user.uid)"
+              @tap="deleteUser(user.uid, user.name)"
               class="deleteUserButton"
               horizontalAlignment="center"
             />
@@ -79,8 +79,8 @@ export default {
   mixins: [sideDrawer],
 
   methods: {
-    deleteUser(uid) {
-      this.$store.dispatch("removeUserFromProject", uid);
+    deleteUser(uid, username) {
+      this.$store.dispatch("removeUserFromProject", { uid, username });
     },
 
     onAddUserButtonTap() {

@@ -19,23 +19,6 @@ const getters = {
 const mutations = {};
 
 const actions = {
-  addHistory({ rootGetters }, changeName) {
-    const projectID = rootGetters.project.id;
-    const user = rootGetters.getUser;
-
-    const historyRef = firebase.firestore.collection(
-        "projects/" + projectID + "/changes"
-    );
-
-    historyRef.add({
-      name: "(" + user.name + ") " + changeName,
-    }).then (async (change) => {
-      await historyRef.doc(change.id).update({
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-    })
-  },
-
   deleteTodo({ dispatch }, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
