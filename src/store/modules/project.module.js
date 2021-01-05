@@ -124,7 +124,6 @@ const actions = {
   },
 
   addUsersToProject({ rootGetters }, users) {
-    console.log(users);
     let projectID;
 
     if (rootGetters.project) {
@@ -146,8 +145,6 @@ const actions = {
         role: "",
       });
     });
-
-    console.log(roles);
 
     return projectRef
       .update({
@@ -389,16 +386,12 @@ const actions = {
           );
         }
 
-        //TODO check if new role
-        console.log(arrayEquals(roles, data.roles));
-
         if (
           (users && !arrayEquals(users, data.users)) ||
           arrayEquals(roles, data.roles)
         ) {
           //On init users is empty thus the user fetch should not occur
           //On next updates fetch users if user array is different than current
-          console.log("------");
           dispatch("fetchProjectUsers", {
             projectUsers: data.users,
             roles: data.roles,
@@ -411,29 +404,29 @@ const actions = {
         return data;
       };
 
-      await bindFirestoreRef("project", projectRef, {
+      return bindFirestoreRef("project", projectRef, {
         serialize,
         reset: false,
       })
         .then(async (project) => {
-          console.log(project.roles);
           await dispatch("fetchProjectUsers", {
             projectUsers: project.users,
             roles: project.roles,
           });
 
           async function parallel() {
-            const bindChat = dispatch("bindChat", projectID);
+            const initChat = dispatch("initChat", projectID);
             const bindTodo = dispatch("bindTodoGroupList", projectID);
             const bindChanges = dispatch("bindChanges", projectID);
 
-            await bindChat;
+            await initChat;
             await bindTodo;
             await bindChanges;
           }
 
           await parallel();
 
+          console.log("qwerqwer");
           commit("fetchProjectSuccess");
         })
         .catch((err) => {

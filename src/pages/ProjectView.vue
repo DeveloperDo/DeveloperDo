@@ -93,7 +93,6 @@
               <StackLayout
                 v-for="(change, index) in changes"
                 :key="index"
-                @tap="onChangeTap"
                 class="changeCard"
               >
                 <Label :text="change.name" class="changeText" textWrap="true" />
@@ -180,12 +179,27 @@
       </TabViewItem>
 
       <TabViewItem title="Czat">
-        <FlexboxLayout flexDirection="column">
-          <ScrollView height="90%">
-            <StackLayout class="chatWindow">
+        <GridLayout rows="*, auto">
+          <ActivityIndicator
+            v-if="archivedChatIsLoading"
+            row="0"
+            busy="true"
+            color="black"
+            width="100"
+            height="100"
+            class="chatList__spinner"
+          ></ActivityIndicator>
+
+          <RadListView
+            row="0"
+            ref="chatList"
+            for="msg in observableChat"
+            @scrollEnded="chatListScrolled($event)"
+            @loaded="initChatList"
+            scrollDirection="Vertical"
+          >
+            <v-template>
               <StackLayout
-                v-for="(msg, index) in chat"
-                :key="index"
                 class="chatMessageInContainer"
                 :class="{
                   chatMessageOutContainer: ownMsg(msg.uid),
@@ -208,25 +222,39 @@
                     verticalAlignment="center"
                   />
                 </StackLayout>
+                <Label
+                  :text="msg.timestamp ? readTimestamp(msg.timestamp) : ''"
+                  class="messageTimestamp"
+                />
               </StackLayout>
-            </StackLayout>
-          </ScrollView>
+            </v-template>
+          </RadListView>
 
-          <StackLayout orientation="horizontal" height="10%">
-            <TextField
-              v-model="msgTextField"
-              hint="Napisz wiadomość"
-              width="65%"
-              class="chatTextField"
-            />
-            <Button
-              text="Wyślij"
-              @tap="onButtonTap"
-              width="25%"
-              class="chatSendMessageButton"
-            />
+          <StackLayout row="1">
+            <StackLayout
+              @tap="scrollChatToBottom(true)"
+              v-if="showNewMsgAlert"
+              class="newMsgAlert"
+            >
+              <Label text="nowa wiadomość" class="newMsgAlert__label" />
+            </StackLayout>
+
+            <StackLayout orientation="horizontal" height="auto">
+              <TextField
+                v-model="msgTextField"
+                hint="Napisz wiadomość"
+                width="65%"
+                class="chatTextField"
+              />
+              <Button
+                text="Wyślij"
+                @tap="msgSendButton"
+                width="25%"
+                class="chatSendMessageButton"
+              />
+            </StackLayout>
           </StackLayout>
-        </FlexboxLayout>
+        </GridLayout>
       </TabViewItem>
     </TabView>
   </Page>
@@ -242,6 +270,7 @@ import EditProjectModal from "../components/Modals/EditProjectModal";
 import translateStatus from "../mixins/translateStatus";
 import translatePriority from "../mixins/translatePriority";
 import readTimestamp from "../mixins/readTimestamp";
+import { ObservableArray } from "tns-core-modules/data/observable-array";
 
 export default {
   components: { Spinner },
@@ -255,6 +284,8 @@ export default {
       event: "",
       msgTextField: "",
       todoGroupListID: "",
+      observableChat: new ObservableArray([]),
+      showNewMsgAlert: false,
     };
   },
 
@@ -264,11 +295,69 @@ export default {
     this.$store.dispatch("bindProject", this.projectID);
   },
 
+  watch: {
+    chat: {
+      handler(newData, oldData) {
+        if (newData.length === 0) return;
+
+        if (newData.some((item) => item.timestamp === null)) {
+          return;
+        }
+
+        const newMessages = newData.slice(oldData.length - 1);
+
+        this.observableChat.push(...newMessages);
+
+        if (newData[newData.length - 1].uid === this.getUser.uid) {
+          this.scrollChatToBottom();
+        } else {
+          this.newMsgAlert();
+        }
+      },
+    },
+    archivedChat: {
+      handler(newData) {
+        this.observableChat.unshift(...newData);
+      },
+    },
+  },
+
   props: {
     projectID: String,
   },
 
   methods: {
+    newMsgAlert() {
+      this.showNewMsgAlert = true;
+
+      setTimeout(() => {
+        this.showNewMsgAlert = false;
+      }, 2000);
+    },
+
+    initChatList() {
+      this.scrollChatToBottom();
+    },
+
+    chatListScrolled(event) {
+      const chatList = this.$refs.chatList.nativeView;
+
+      if (chatList.getFirstVisiblePosition() === 0) {
+        if (this.archivedChatIsLoading) return;
+        this.$store.dispatch("fetchArchivedChat", this.projectID);
+      }
+    },
+
+    scrollChatToBottom(animate = false) {
+      const chatList = this.$refs.chatList.nativeView;
+
+      const lastIndex = chatList.items.length - 1;
+
+      if (lastIndex < 0) return;
+
+      chatList.scrollToIndex(lastIndex, animate);
+    },
+
     deleteTodo(todoGroupID, task) {
       this.$store.dispatch("deleteTodo", {
         projectID: this.project.id,
@@ -277,10 +366,11 @@ export default {
       });
     },
 
-    deleteTodoGroup(todoGroupID) {
+    deleteTodoGroup(todoGroupID, todoGroupName) {
       this.$store.dispatch("deleteTodoGroup", {
         projectID: this.project.id,
         todoGroupID: todoGroupID,
+        todoGroupName: todoGroupName,
       });
     },
 
@@ -309,12 +399,22 @@ export default {
       });
     },
 
-    onButtonTap() {
-      console.log("button tapped");
-    },
+    msgSendButton() {
+      if (this.msgTextField !== "") {
+        const message = {
+          uid: this.getUser.uid,
+          text: this.msgTextField,
+        };
 
-    onChangeTap: function (args) {
-      console.log("Item with index: " + args.index + " tapped");
+        this.$store.dispatch("sendMessage", {
+          message: message,
+          projectID: this.project.id,
+        });
+
+        this.msgTextField = "";
+      } else {
+        this.scrollChatToBottom();
+      }
     },
 
     onUsersTap() {
@@ -329,18 +429,42 @@ export default {
   computed: {
     ...mapGetters([
       "todoGroupList",
+      "archivedChat",
       "chat",
       "getUser",
       "changes",
       "users",
       "projectIsLoading",
       "project",
+      "archivedChatIsLoading",
     ]),
   },
 };
 </script>
 
 <style scoped>
+.newMsgAlert {
+  android-elevation: 0;
+  border-radius: 15 15 0 0;
+  color: black;
+  height: 25;
+  width: 100%;
+  justify-self: center;
+  z-index: 100;
+  background-color: dodgerblue;
+  transition: all 0.5s;
+}
+
+.newMsgAlert__label {
+  text-align: center;
+  align-self: center;
+}
+
+.chatList__spinner {
+  z-index: 100;
+  align-self: center;
+}
+
 .h-100 {
   height: 100%;
 }
@@ -566,7 +690,15 @@ export default {
   color: gray;
 }
 
+.messageTimestamp {
+  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 12px;
+  color: gray;
+}
+
 .chatTextField {
+  font-size: 16px;
   padding-right: 0;
   margin-right: 0;
 }

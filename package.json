@@ -17,6 +17,7 @@
     "nativescript-mediafilepicker": "^4.0.2",
     "nativescript-socketio": "^3.3.1",
     "nativescript-toasty": "^3.0.0-alpha.2",
+    "nativescript-ui-listview": "^9.0.4",
     "nativescript-ui-sidedrawer": "^9.0.0",
     "nativescript-vue": "^2.8.1",
     "nativescript-vue-devtools": "^1.4.0",
