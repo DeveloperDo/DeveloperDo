@@ -230,19 +230,29 @@
             </v-template>
           </RadListView>
 
-          <StackLayout row="1" orientation="horizontal" height="auto">
-            <TextField
-              v-model="msgTextField"
-              hint="Napisz wiadomość"
-              width="65%"
-              class="chatTextField"
-            />
-            <Button
-              text="Wyślij"
-              @tap="msgSendButton"
-              width="25%"
-              class="chatSendMessageButton"
-            />
+          <StackLayout row="1">
+            <StackLayout
+              @tap="scrollChatToBottom(true)"
+              v-if="showNewMsgAlert"
+              class="newMsgAlert"
+            >
+              <Label text="nowa wiadomość" class="newMsgAlert__label" />
+            </StackLayout>
+
+            <StackLayout orientation="horizontal" height="auto">
+              <TextField
+                v-model="msgTextField"
+                hint="Napisz wiadomość"
+                width="65%"
+                class="chatTextField"
+              />
+              <Button
+                text="Wyślij"
+                @tap="msgSendButton"
+                width="25%"
+                class="chatSendMessageButton"
+              />
+            </StackLayout>
           </StackLayout>
         </GridLayout>
       </TabViewItem>
@@ -275,6 +285,7 @@ export default {
       msgTextField: "",
       todoGroupListID: "",
       observableChat: new ObservableArray([]),
+      showNewMsgAlert: false,
     };
   },
 
@@ -299,6 +310,8 @@ export default {
 
         if (newData[newData.length - 1].uid === this.getUser.uid) {
           this.scrollChatToBottom();
+        } else {
+          this.newMsgAlert();
         }
       },
     },
@@ -314,6 +327,14 @@ export default {
   },
 
   methods: {
+    newMsgAlert() {
+      this.showNewMsgAlert = true;
+
+      setTimeout(() => {
+        this.showNewMsgAlert = false;
+      }, 2000);
+    },
+
     initChatList() {
       this.scrollChatToBottom();
     },
@@ -327,14 +348,14 @@ export default {
       }
     },
 
-    scrollChatToBottom() {
+    scrollChatToBottom(animate = false) {
       const chatList = this.$refs.chatList.nativeView;
 
       const lastIndex = chatList.items.length - 1;
 
       if (lastIndex < 0) return;
 
-      chatList.scrollToIndex(lastIndex, false);
+      chatList.scrollToIndex(lastIndex, animate);
     },
 
     deleteTodo(todoGroupID, task) {
@@ -422,6 +443,23 @@ export default {
 </script>
 
 <style scoped>
+.newMsgAlert {
+  android-elevation: 0;
+  border-radius: 15 15 0 0;
+  color: black;
+  height: 25;
+  width: 100%;
+  justify-self: center;
+  z-index: 100;
+  background-color: dodgerblue;
+  transition: all 0.5s;
+}
+
+.newMsgAlert__label {
+  text-align: center;
+  align-self: center;
+}
+
 .chatList__spinner {
   z-index: 100;
   align-self: center;
