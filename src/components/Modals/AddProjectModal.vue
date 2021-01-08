@@ -48,7 +48,7 @@
         class="addProjectHeader"
       />
 
-      <DatePicker v-model="deadline" :minDate="today"/>
+      <DatePicker v-model="deadline" :minDate="today" />
 
       <Label v-if="error" :text="error" class="errorLabel" textWrap="true" />
 
@@ -178,7 +178,6 @@ export default {
 .addProjectModal {
   margin: 20px;
   vertical-align: center;
-  background-color: white;
 }
 
 .addProjectHeader {

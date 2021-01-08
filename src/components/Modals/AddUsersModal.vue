@@ -55,7 +55,7 @@
         text="DODAJ UŻYTKOWNIKÓW"
         :disabled="selectedUsers.length === 0"
         @tap="onAddUsersButtonTap"
-        class="addUsersButton"
+        class="button"
       />
     </StackLayout>
   </ScrollView>
@@ -142,7 +142,7 @@ export default {
   font-weight: bold;
 }
 
-.addUsersButton {
+.button {
   background-color: lightgray;
   color: black;
   font-size: 18px;

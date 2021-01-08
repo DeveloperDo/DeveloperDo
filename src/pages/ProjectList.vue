@@ -11,7 +11,7 @@
 
     <GridLayout v-else rows="auto, *">
       <ScrollView row="1" height="100%">
-        <StackLayout className="projectList">
+        <StackLayout>
           <StackLayout
             v-for="(project, index) in projectList"
             :key="index"
@@ -25,7 +25,7 @@
           >
             <Label
               :text="translateStatus(project.status)"
-              class="projectStatus"
+              class="projectStatus text--black"
               textTransform="uppercase"
             />
             <Image
@@ -33,12 +33,14 @@
               class="projectImg"
               stretch="aspectFill"
             />
-            <Label :text="project.name" class="projectName" textWrap="true" />
+            <Label :text="project.name" class="projectName text--black" textWrap="true" />
             <Label
               :text="
-                project.deadline ? readTimestamp(project.deadline, true) : 'bez terminu'
+                project.deadline
+                  ? readTimestamp(project.deadline, true)
+                  : 'bez terminu'
               "
-              class="projectDeadline"
+              class="projectDeadline text--black"
             />
           </StackLayout>
         </StackLayout>
@@ -94,10 +96,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.projectList {
-  background-color: white;
-}
-
 .projectCard {
   margin-top: 20px;
   margin-bottom: 20px;

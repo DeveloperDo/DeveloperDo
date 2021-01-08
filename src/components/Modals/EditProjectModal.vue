@@ -50,11 +50,11 @@
       <ListPicker :items="listPickerPriority" v-model="priority" />
 
       <Label
-          text="Termin projektu"
-          textAlignment="center"
-          class="editProjectHeader"
+        text="Termin projektu"
+        textAlignment="center"
+        class="editProjectHeader"
       />
-      <DatePicker v-model="deadline" :minDate="today"/>
+      <DatePicker v-model="deadline" :minDate="today" />
 
       <Button
         text="AKTUALIZUJ PROJEKT"
@@ -211,7 +211,6 @@ export default {
 .editProjectModal {
   margin: 20px;
   vertical-align: center;
-  background-color: white;
 }
 
 .editProjectHeader {

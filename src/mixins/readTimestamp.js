@@ -1,7 +1,7 @@
 export default {
   methods: {
     readTimestamp(timestamp, dateOnly = false) {
-        if (!timestamp) return ""
+      if (!timestamp) return "";
 
       function prependTime(time) {
         if (time < 10) {
@@ -13,24 +13,24 @@ export default {
 
       if (dateOnly) {
         return (
-            prependTime(timestamp.getDate()) +
-            "/" +
-            prependTime(timestamp.getMonth() + 1) +
-            "/" +
-            timestamp.getFullYear()
-        );
-      }
-
-      return (
-          prependTime(timestamp.getHours() + 1) +
-          ":" +
-          prependTime(timestamp.getMinutes()) +
-          " " +
           prependTime(timestamp.getDate()) +
           "/" +
           prependTime(timestamp.getMonth() + 1) +
           "/" +
           timestamp.getFullYear()
+        );
+      }
+
+      return (
+        prependTime(timestamp.getHours()) +
+        ":" +
+        prependTime(timestamp.getMinutes()) +
+        " " +
+        prependTime(timestamp.getDate()) +
+        "/" +
+        prependTime(timestamp.getMonth() + 1) +
+        "/" +
+        timestamp.getFullYear()
       );
     },
   },

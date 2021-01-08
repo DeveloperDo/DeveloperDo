@@ -23,10 +23,10 @@
             </StackLayout>
 
             <StackLayout class="projectStatusContainer">
-              <Label text="STATUS" class="projectHeader" />
+              <Label text="STATUS" class="projectHeader text--black" />
               <Label
                 :text="translateStatus(project.status)"
-                class="projectStatus"
+                class="projectStatus text--black"
               />
             </StackLayout>
 
@@ -38,22 +38,22 @@
                 highPriority: project.priority === 3,
               }"
             >
-              <Label text="PRIORYTET" class="projectHeader" />
+              <Label text="PRIORYTET" class="projectHeader text--black" />
               <Label
                 :text="translatePriority(project.priority)"
-                class="projectPriority"
+                class="projectPriority text--black"
               />
             </StackLayout>
 
             <StackLayout class="projectDeadlineContainer">
-              <Label text="DEADLINE" class="projectHeader" />
+              <Label text="DEADLINE" class="projectHeader text--black" />
               <Label
                 :text="
                   project.deadline
                     ? readTimestamp(project.deadline, true)
                     : 'bez terminu'
                 "
-                class="projectDeadline"
+                class="projectDeadline text--black"
                 textWrap="true"
               />
             </StackLayout>
@@ -68,7 +68,7 @@
             </StackLayout>
 
             <StackLayout class="projectUsersContainer" @tap="onUsersTap">
-              <Label text="ZESPÓŁ" class="projectHeader" />
+              <Label text="ZESPÓŁ" class="projectHeader text--black" />
               <WrapLayout orientation="horizontal" class="usersList">
                 <StackLayout v-for="(user, index) in users" :key="index">
                   <Image
@@ -89,7 +89,7 @@
             </StackLayout>
 
             <StackLayout class="projectChangesContainer">
-              <Label text="HISTORIA ZMIAN" class="projectHeader" />
+              <Label text="HISTORIA ZMIAN" class="projectHeader text--black" />
               <StackLayout
                 v-for="(change, index) in changes"
                 :key="index"
@@ -99,6 +99,7 @@
                 <Label
                   horizontalAlignment="right"
                   :text="readTimestamp(change.timestamp)"
+                  class="text--black"
                 />
               </StackLayout>
             </StackLayout>
@@ -124,7 +125,10 @@
               :key="index"
               class="projectTasksContainer"
             >
-              <Label :text="todoGroup.name" class="projectHeader" />
+              <Label
+                :text="todoGroup.name"
+                class="todoGroup__header projectHeader"
+              />
               <FlexboxLayout
                 v-for="(task, index) in todoGroup.todos"
                 :key="index"
@@ -220,6 +224,7 @@
                     :text="msg.text"
                     textWrap="true"
                     verticalAlignment="center"
+                    class="text--black"
                   />
                 </StackLayout>
                 <Label
@@ -488,6 +493,10 @@ export default {
   font-weight: bold;
 }
 
+.todoGroup__header {
+  color: black;
+}
+
 .projectStatusContainer {
   margin-top: 50px;
   background-color: lightgray;
@@ -595,6 +604,7 @@ export default {
 .changeText {
   width: 95%;
   font-size: 18px;
+  color: black;
 }
 
 .changeDate {
@@ -620,6 +630,7 @@ export default {
 }
 
 .taskText {
+  color: black;
   width: 100%;
   font-size: 18px;
   vertical-align: center;
@@ -753,5 +764,12 @@ export default {
   font-size: 24px;
   font-weight: bold;
   text-align: center;
+}
+
+.button {
+  background-color: lightgray;
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
 }
 </style>

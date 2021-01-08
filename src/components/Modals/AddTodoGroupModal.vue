@@ -54,7 +54,6 @@ export default {
 .addTaskCategoryModal {
   margin: 20px;
   vertical-align: center;
-  background-color: white;
 }
 
 .addTaskCategoryHeader {

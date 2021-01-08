@@ -2,7 +2,6 @@
   <StackLayout class="splashScreen">
     <ActivityIndicator
       busy="true"
-      color="black"
       width="150"
       height="150"
       class="loadingSpinner"
@@ -24,7 +23,6 @@ export default {
   height: 100%;
   vertical-align: center;
   horizontal-align: center;
-  background-color: white;
 
   android-elevation: 10;
 }

@@ -4,12 +4,23 @@
 @import '~@nativescript/theme/blue';
 
 // Override variables here
+.button {
+  background-color: lightgray;
+  color: black;
+  font-size: 18px;
+  font-weight: bold;
+}
+
 .text--small {
   font-size: 12;
 }
 
 .text--danger {
   color: red;
+}
+
+.text--black {
+  color: black;
 }
 
 .fab-button {

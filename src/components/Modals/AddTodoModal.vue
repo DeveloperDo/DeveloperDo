@@ -143,7 +143,6 @@ export default {
 .addTaskModal {
   margin: 20px;
   vertical-align: center;
-  background-color: white;
 }
 
 .addTaskHeader {
@@ -158,7 +157,6 @@ export default {
 }
 
 .projectUsersList {
-  background-color: lightgray;
   border-radius: 20px;
   margin-bottom: 20px;
   android-elevation: 5;
