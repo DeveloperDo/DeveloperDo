@@ -37,12 +37,12 @@
         <StackLayout verticalAlignment="center" class="userTextContainer">
           <Label
             :text="user.item.name"
-            class="addUserTaskName"
+            class="addUserTaskName text--black"
             textWrap="true"
           />
           <Label
             :text="user.item.role"
-            class="addUserTaskRole"
+            class="addUserTaskRole text--black"
             textWrap="true"
           />
         </StackLayout>
@@ -160,6 +160,7 @@ export default {
   border-radius: 20px;
   margin-bottom: 20px;
   android-elevation: 5;
+  background-color: lightgray;
 }
 
 .userTextContainer {

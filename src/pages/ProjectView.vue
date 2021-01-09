@@ -11,7 +11,7 @@
 
     <TabView v-else>
       <TabViewItem title="Podsumowanie">
-        <ScrollView class="h-100">
+        <ScrollView class="h-100" @scroll="overviewScroll">
           <StackLayout>
             <StackLayout class="projectNameContainer">
               <Image
@@ -89,19 +89,41 @@
             </StackLayout>
 
             <StackLayout class="projectChangesContainer">
-              <Label text="HISTORIA ZMIAN" class="projectHeader text--black" />
-              <StackLayout
-                v-for="(change, index) in changes"
-                :key="index"
-                class="changeCard"
-              >
-                <Label :text="change.name" class="changeText" textWrap="true" />
-                <Label
-                  horizontalAlignment="right"
-                  :text="readTimestamp(change.timestamp)"
-                  class="text--black"
-                />
-              </StackLayout>
+              <GridLayout rows="*, auto">
+                <ActivityIndicator
+                  v-if="archivedChangesIsLoading"
+                  row="0"
+                  busy="true"
+                  color="black"
+                  width="100"
+                  height="100"
+                  class="chatList__spinner"
+                  style="vertical-align: bottom"
+                ></ActivityIndicator>
+
+                <StackLayout row="0">
+                  <Label
+                    text="HISTORIA ZMIAN"
+                    class="projectHeader text--black"
+                  />
+                  <StackLayout
+                    v-for="(change, index) in changesList"
+                    :key="index"
+                    class="changeCard"
+                  >
+                    <Label
+                      :text="change.name"
+                      class="changeText"
+                      textWrap="true"
+                    />
+                    <Label
+                      horizontalAlignment="right"
+                      :text="readTimestamp(change.timestamp)"
+                      class="text--black"
+                    />
+                  </StackLayout>
+                </StackLayout>
+              </GridLayout>
             </StackLayout>
           </StackLayout>
         </ScrollView>
@@ -291,6 +313,7 @@ export default {
       todoGroupListID: "",
       observableChat: new ObservableArray([]),
       showNewMsgAlert: false,
+      changesList: [],
     };
   },
 
@@ -301,6 +324,26 @@ export default {
   },
 
   watch: {
+    archivedChanges: {
+      handler(newData) {
+        this.changesList.push(...newData);
+      },
+    },
+
+    changes: {
+      handler(newData, oldData) {
+        if (newData.length === 0) return;
+
+        if (newData.some((item) => item.timestamp === null)) {
+          return;
+        }
+
+        const newChanges = newData.slice(oldData.length - 1);
+
+        this.changesList.unshift(...newChanges);
+      },
+    },
+
     chat: {
       handler(newData, oldData) {
         if (newData.length === 0) return;
@@ -310,6 +353,7 @@ export default {
         }
 
         const newMessages = newData.slice(oldData.length - 1);
+        console.log(newMessages);
 
         this.observableChat.push(...newMessages);
 
@@ -332,6 +376,18 @@ export default {
   },
 
   methods: {
+    overviewScroll(args) {
+      const scrollView = args.object;
+      const scrollableHeight = scrollView.scrollableHeight;
+
+      if (
+        !this.archivedChangesIsLoading &&
+        scrollableHeight - 10 <= args.scrollY
+      ) {
+        this.$store.dispatch("fetchArchivedChanges", this.projectID);
+      }
+    },
+
     newMsgAlert() {
       this.showNewMsgAlert = true;
 
@@ -442,6 +498,8 @@ export default {
       "projectIsLoading",
       "project",
       "archivedChatIsLoading",
+      "archivedChanges",
+      "archivedChangesIsLoading",
     ]),
   },
 };

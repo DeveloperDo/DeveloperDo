@@ -114,8 +114,6 @@ const actions = {
       .limit(15);
 
     return projectChatRef.get().then(async (messages) => {
-      console.log(messages.docs.length);
-      console.log("adfsasdfasdfasdfasdfasdf");
       if (messages.empty) return;
 
       let archivedChat = [];

@@ -1,6 +1,5 @@
 import { firebase } from "@nativescript/firebase";
 import { firestoreAction } from "vuexfire";
-import { set } from "@nativescript/core/ui/core/bindable/bindable-resources";
 
 const state = {
   projectList: [],
@@ -11,9 +10,30 @@ const state = {
   foundUsers: [],
   searchUsersIsLoading: false,
   projectListIsLoading: true,
+  historyLimit: 3,
+  topChangeDoc: null,
+  bottomChangeDoc: null,
+  archivedChangesIsLoading: true,
+  archivedChanges: [],
 };
 
 const getters = {
+  topChangeDoc: (state) => {
+    return state.topChangeDoc;
+  },
+
+  bottomChangeDoc: (state) => {
+    return state.bottomChangeDoc;
+  },
+
+  archivedChangesIsLoading: (state) => {
+    return state.archivedChangesIsLoading;
+  },
+
+  archivedChanges: (state) => {
+    return state.archivedChanges;
+  },
+
   projectIsLoading: (state) => {
     return state.projectIsLoading;
   },
@@ -77,6 +97,8 @@ const mutations = {
     state.project = {};
     state.changes = [];
     state.todoGroupList = [];
+    state.topChangeDoc = null;
+    state.bottomChangeDoc = null;
   },
 
   searchUsersSuccess(state, users) {
@@ -91,6 +113,24 @@ const mutations = {
   resetSearchUsers(state) {
     state.foundUsers = [];
   },
+
+  fetchArchivedChangesStart(state) {
+    state.archivedChangesIsLoading = true;
+  },
+
+  fetchArchivedChangesSuccess(state, archivedChanges) {
+    state.archivedChangesIsLoading = false;
+
+    state.archivedChanges = archivedChanges;
+  },
+
+  setTopChangeDoc(state, doc) {
+    state.topChangeDoc = doc;
+  },
+
+  setBottomChangeDoc(state, doc) {
+    state.bottomChangeDoc = doc;
+  },
 };
 
 const actions = {
@@ -99,16 +139,18 @@ const actions = {
     const user = rootGetters.getUser;
 
     const historyRef = firebase.firestore.collection(
-        "projects/" + projectID + "/changes"
+      "projects/" + projectID + "/changes"
     );
 
-    historyRef.add({
-      name: "(" + user.name + ") " + changeName,
-    }).then (async (change) => {
-      await historyRef.doc(change.id).update({
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    historyRef
+      .add({
+        name: "(" + user.name + ") " + changeName,
+      })
+      .then(async (change) => {
+        await historyRef.doc(change.id).update({
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
       });
-    })
   },
 
   setUserRole({ rootGetters, dispatch }, { uid, oldRole, newRole, username }) {
@@ -129,9 +171,16 @@ const actions = {
             role: newRole,
           }),
         });
-      }).then(() => {
-          dispatch("addHistory", "Zaktualizowano rolę użytkownika " + username + ". Nowa rola to: " + newRole)
-        });
+      })
+      .then(() => {
+        dispatch(
+          "addHistory",
+          "Zaktualizowano rolę użytkownika " +
+            username +
+            ". Nowa rola to: " +
+            newRole
+        );
+      });
   },
 
   async deleteProject({ dispatch }, projectID) {
@@ -172,9 +221,9 @@ const actions = {
         users: firebase.firestore.FieldValue.arrayUnion(users),
         roles: firebase.firestore.FieldValue.arrayUnion(roles),
       })
-        .then(() => {
-          dispatch("addHistory", "Dodano nowego użytkownika/ów")
-        })
+      .then(() => {
+        dispatch("addHistory", "Dodano nowego użytkownika/ów");
+      })
       .catch((err) => {
         console.log(err);
       });
@@ -232,9 +281,9 @@ const actions = {
         users: firebase.firestore.FieldValue.arrayRemove(uid),
         roles: firebase.firestore.FieldValue.arrayRemove(role),
       })
-        .then(() => {
-          dispatch("addHistory", "Usunięto użytkownika: " + username)
-        })
+      .then(() => {
+        dispatch("addHistory", "Usunięto użytkownika: " + username);
+      })
       .catch((err) => {
         console.log(err);
       });
@@ -328,11 +377,49 @@ const actions = {
       });
   },
 
+  initChanges({ dispatch, commit }, projectID) {
+    commit("fetchArchivedChangesStart");
+
+    const changesRef = firebase.firestore
+      .collection("projects/" + projectID + "/changes")
+      .orderBy("timestamp", "desc")
+      .limit(5);
+
+    return changesRef.get().then(async (changes) => {
+      if (!changes.empty) {
+        let ArchivedChanges = [];
+
+        changes.forEach((doc) => {
+          ArchivedChanges.push(doc.data());
+        });
+
+        const length = changes.docs.length;
+
+        commit("setTopChangeDoc", changes.docs[0]);
+
+        commit("setBottomChangeDoc", changes.docs[length - 1]);
+
+        console.log(ArchivedChanges);
+        commit("fetchArchivedChangesSuccess", ArchivedChanges);
+      } else {
+        commit("fetchArchivedChangesSuccess", []);
+      }
+
+      await dispatch("bindChanges", projectID);
+    });
+  },
+
   bindChanges: firestoreAction(
-    ({ bindFirestoreRef, rootGetters, commit }, projectID) => {
-      const changesRef = firebase.firestore
+    ({ bindFirestoreRef, rootGetters }, projectID) => {
+      const topChangeDoc = rootGetters.topChangeDoc;
+
+      let changesRef = firebase.firestore
         .collection("projects/" + projectID + "/changes")
-        .orderBy("timestamp", "desc");
+        .orderBy("timestamp", "asc");
+
+      if (topChangeDoc) {
+        changesRef = changesRef.startAfter(topChangeDoc);
+      }
 
       const serialize = (doc) => {
         let data = doc.data();
@@ -350,6 +437,44 @@ const actions = {
       });
     }
   ),
+
+  fetchArchivedChanges({ commit, rootGetters }, projectID) {
+    console.log("fetch changes");
+
+    if (!rootGetters.bottomChangeDoc) return;
+    console.log("after return");
+
+    commit("fetchArchivedChangesStart");
+
+    const bottomChangeDoc = rootGetters.bottomChangeDoc;
+
+    const changesRef = firebase.firestore
+      .collection("projects/" + projectID + "/changes")
+      .orderBy("timestamp", "desc")
+      .startAfter(bottomChangeDoc)
+      .limit(5);
+
+    return changesRef.get().then(async (changes) => {
+      if (changes.empty) return;
+
+      let archivedChanges = [];
+
+      changes.forEach((changeDoc) => {
+        archivedChanges.push(changeDoc.data());
+      });
+
+      const length = changes.docs.length;
+
+      if (changes.docs.length === 5) {
+        commit("setBottomChangeDoc", changes.docs[length - 1]);
+      } else {
+        commit("setBottomChangeDoc", null);
+      }
+
+      console.log(archivedChanges);
+      commit("fetchArchivedChangesSuccess", archivedChanges);
+    });
+  },
 
   async fetchProjectUsers({ commit, rootGetters }, { projectUsers, roles }) {
     const usersRef = firebase.firestore.collection("users");
@@ -444,7 +569,7 @@ const actions = {
           async function parallel() {
             const initChat = dispatch("initChat", projectID);
             const bindTodo = dispatch("bindTodoGroupList", projectID);
-            const bindChanges = dispatch("bindChanges", projectID);
+            const bindChanges = dispatch("initChanges", projectID);
 
             await initChat;
             await bindTodo;
@@ -472,9 +597,9 @@ const actions = {
 
     projectRef
       .update(project)
-        .then(() => {
-          dispatch("addHistory", "Zaktualizowano dane projektu")
-        })
+      .then(() => {
+        dispatch("addHistory", "Zaktualizowano dane projektu");
+      })
       .catch((err) => {
         console.log(err);
       });
