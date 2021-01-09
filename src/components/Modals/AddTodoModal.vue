@@ -23,18 +23,23 @@
         v-model="searchPhrase"
         class="addTaskSearchUsers"
       />
-      <StackLayout
+      <GridLayout
+        columns="auto, *, auto"
         v-for="(user, index) in filteredUsers"
         :key="index"
         class="projectUsersList"
-        orientation="horizontal"
       >
         <Image
+          col="0"
           :src="user.item.imageSrc"
           stretch="aspectFill"
           class="userPhoto"
         />
-        <StackLayout verticalAlignment="center" class="userTextContainer">
+        <StackLayout
+          col="1"
+          verticalAlignment="center"
+          class="userTextContainer"
+        >
           <Label
             :text="user.item.name"
             class="addUserTaskName text--black"
@@ -47,13 +52,14 @@
           />
         </StackLayout>
         <Switch
+          col="2"
           checked="false"
           color="black"
           backgroundColor="green"
           offBackgroundColor="gray"
           @checkedChange="switchChanged($event, user.item)"
         />
-      </StackLayout>
+      </GridLayout>
 
       <Button
         text="DODAJ ZADANIE"
@@ -99,7 +105,7 @@ export default {
     },
 
     addTask() {
-      if (this.taskName === null) {
+      if (this.taskName === "") {
         return;
       }
 

@@ -31,8 +31,8 @@
                 class="userPhoto"
               />
               <StackLayout verticalAlignment="center">
-                <Label :text="user.name" class="userName" textWrap="true" />
-                <Label :text="user.role" class="userRole" textWrap="true" />
+                <Label :text="user.name" class="userName text--black" textWrap="true" />
+                <Label :text="user.role" class="userRole text--black" textWrap="true" />
               </StackLayout>
             </StackLayout>
             <Button

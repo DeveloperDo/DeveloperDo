@@ -13,12 +13,8 @@
         @submit="searchUser"
         class="addUsersSearch"
       />
-      <StackLayout v-if="searchUsersIsLoading">
-        <Spinner />
-      </StackLayout>
 
       <GridLayout
-        v-else
         v-for="(user, index) in foundUsers"
         :key="index"
         class="usersSearchList"
@@ -38,7 +34,7 @@
           verticalAlignment="center"
           class="userTextContainer"
         >
-          <Label :text="user.name" class="addUserName" textWrap="true" />
+          <Label :text="user.name" class="addUserName text--black" textWrap="true" />
         </StackLayout>
         <Switch
           row="0"
@@ -62,16 +58,20 @@
 </template>
 
 <script>
-import Spinner from "../Spinner";
-
 export default {
-  components: { Spinner },
-
   data() {
     return {
       searchString: "",
       selectedUsers: [],
     };
+  },
+
+  watch: {
+    searchString: {
+      handler() {
+        this.searchUser();
+      },
+    },
   },
 
   methods: {
@@ -116,7 +116,6 @@ export default {
 .addUsersModal {
   margin: 20px;
   vertical-align: center;
-  background-color: white;
 }
 
 .addUsersHeader {
