@@ -1,23 +1,14 @@
 # DeveloperDo
 
-> App for dev teams looking to coordinate their projects
+DeveloperDo to aplikacja umożliwiająca zespołom developerskim zarządzanie projektami programistycznymi, przeznaczona do użytku na urządzeniach mobilnych. Została zainspirowana między innymi platformą Trello.
+
 
 ## Usage
 
-``` bash
-# Install dependencies
-npm install
+Do kompilacji kodu aplikacji na emulatorze bądź połączonym urządzeniu należy wykonać następujące kroki:
+1. Zainstalować Nativescript-vue najlepiej za pomocą instrukcji dostarczonych w dokumentacji Nativescript-vue.
+2. Pobrać pliki z repozytorium projektu, poprzez system git, używając komendy git clone https://github.com/DeveloperDo/DeveloperDo.
+3. Zainstalować zależności projektu poprzez komendę npm install, można wykorzystać w tym celu również yarn.
+4. Uruchomić projekt za pomocą tns run android
 
-# Preview on device
-tns preview
-
-# Build, watch for changes and run the application
-tns run
-
-# Build, watch for changes and debug the application
-tns debug <platform>
-
-# Build for production
-tns build <platform> --env.production
-
-```
+Alternatywnie można pobrać [plik APK](https://firebasestorage.googleapis.com/v0/b/developerdo-dcf39.appspot.com/o/apk%2Fdeveloper-do.apk?alt=media&token=554f233c-33d6-44fa-8b74-7d214beb3f7f)
