@@ -453,8 +453,8 @@ export default {
         title: "Usunąć grupę todo?",
         okButtonText: "Tak",
         cancelButtonText: "Anuluj",
-      }).then((event) => {
-        if (event.value) {
+      }).then((result) => {
+        if (result) {
           this.$store.dispatch("deleteTodoGroup", {
             projectID: this.project.id,
             todoGroupID: todoGroupID,
