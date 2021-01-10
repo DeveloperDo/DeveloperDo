@@ -156,6 +156,7 @@
                 :key="index"
                 class="taskCard"
                 flexDirection="row"
+                @longPress="editTodo(todoGroup, task)"
               >
                 <FlexboxLayout padding="20px" flexDirection="column">
                   <Label :text="task.name" class="taskText" textWrap="true" />
@@ -298,6 +299,7 @@ import translateStatus from "../mixins/translateStatus";
 import translatePriority from "../mixins/translatePriority";
 import readTimestamp from "../mixins/readTimestamp";
 import { ObservableArray } from "tns-core-modules/data/observable-array";
+import EditTodoModal from "../components/Modals/EditTodoModal";
 
 export default {
   components: { Spinner },
@@ -419,19 +421,46 @@ export default {
       chatList.scrollToIndex(lastIndex, animate);
     },
 
+    editTodo(todoGroup, task) {
+      this.$showModal(EditTodoModal, {
+        props: {
+          users: this.users,
+          todoGroup: todoGroup,
+          projectID: this.project.id,
+          todo: task,
+        },
+      });
+    },
+
     deleteTodo(todoGroupID, task) {
-      this.$store.dispatch("deleteTodo", {
-        projectID: this.project.id,
-        todoGroupID: todoGroupID,
-        todo: task,
+      confirm({
+        title: "Zakończyć " + task.name + "?",
+        okButtonText: "Tak",
+        cancelButtonText: "Anuluj",
+      }).then((result) => {
+        if (result) {
+          this.$store.dispatch("deleteTodo", {
+            projectID: this.project.id,
+            todoGroupID: todoGroupID,
+            todo: task,
+          });
+        }
       });
     },
 
     deleteTodoGroup(todoGroupID, todoGroupName) {
-      this.$store.dispatch("deleteTodoGroup", {
-        projectID: this.project.id,
-        todoGroupID: todoGroupID,
-        todoGroupName: todoGroupName,
+      confirm({
+        title: "Usunąć grupę todo?",
+        okButtonText: "Tak",
+        cancelButtonText: "Anuluj",
+      }).then((event) => {
+        if (event.value) {
+          this.$store.dispatch("deleteTodoGroup", {
+            projectID: this.project.id,
+            todoGroupID: todoGroupID,
+            todoGroupName: todoGroupName,
+          });
+        }
       });
     },
 

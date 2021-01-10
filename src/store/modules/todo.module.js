@@ -19,6 +19,48 @@ const getters = {
 const mutations = {};
 
 const actions = {
+  editTodo({}, { projectID, todoGroup, todoIndex, todo }) {
+    console.log("editTodo");
+    const todoGroupRef = firebase.firestore
+      .collection("projects/" + projectID + "/todo")
+      .doc(todoGroup.id);
+
+    const users = [];
+
+    todo.users.forEach((user) => {
+      users.push(user.uid);
+    });
+
+    const todos = todoGroup.todos;
+
+    todos.forEach((item, index) => {
+      if (index === todoIndex) {
+        todos.splice(index, 1, todo);
+        return;
+      }
+
+      item.users.forEach((user) => {
+        user.data.delete();
+      });
+    });
+
+    console.log("formatted todos");
+    console.log(todos);
+
+    return todoGroupRef
+      .update({
+        todos: [],
+      })
+      .then(async () => {
+        await todoGroupRef.update({
+          todos: todos,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   deleteTodo({ dispatch }, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
@@ -37,9 +79,9 @@ const actions = {
           users: users,
         }),
       })
-        .then(() => {
-          dispatch("addHistory", "Usunięto zadanie: " + todo.name)
-        })
+      .then(() => {
+        dispatch("addHistory", "Usunięto zadanie: " + todo.name);
+      })
       .catch((err) => {
         console.log(err);
       });
@@ -52,9 +94,9 @@ const actions = {
 
     todoGroupRef
       .delete()
-        .then(() => {
-          dispatch("addHistory", "Usunięto kategorię zadań: " + todoGroupName)
-        })
+      .then(() => {
+        dispatch("addHistory", "Usunięto kategorię zadań: " + todoGroupName);
+      })
       .catch((err) => {
         console.log(err);
       });
@@ -69,9 +111,9 @@ const actions = {
       .update({
         todos: firebase.firestore.FieldValue.arrayUnion(todo),
       })
-        .then(() => {
-          dispatch("addHistory", "Dodano zadanie: " + todo.name)
-        })
+      .then(() => {
+        dispatch("addHistory", "Dodano zadanie: " + todo.name);
+      })
       .catch((err) => {
         console.log(err);
       });
@@ -87,9 +129,9 @@ const actions = {
         name: categoryName,
         todos: [],
       })
-        .then(() => {
-          dispatch("addHistory", "Dodano kategorię zadań: " + categoryName)
-        })
+      .then(() => {
+        dispatch("addHistory", "Dodano kategorię zadań: " + categoryName);
+      })
       .catch((err) => {
         console.log(err);
       });

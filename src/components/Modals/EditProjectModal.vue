@@ -29,7 +29,8 @@
         textAlignment="center"
         class="editProjectHeader"
       />
-      <TextField
+      <TextView
+        editable="true"
         v-model="desc"
         hint="Wpisz opis projektu"
         class="editProjectTextField"

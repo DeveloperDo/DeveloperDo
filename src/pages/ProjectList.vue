@@ -10,7 +10,7 @@
     <Spinner v-if="projectListIsLoading" />
 
     <GridLayout v-else rows="auto, *">
-      <ScrollView row="1" height="100%">
+      <ScrollView v-if="projectList.length !== 0" row="1" height="100%">
         <StackLayout>
           <StackLayout
             v-for="(project, index) in projectList"
@@ -33,7 +33,11 @@
               class="projectImg"
               stretch="aspectFill"
             />
-            <Label :text="project.name" class="projectName text--black" textWrap="true" />
+            <Label
+              :text="project.name"
+              class="projectName text--black"
+              textWrap="true"
+            />
             <Label
               :text="
                 project.deadline
@@ -45,6 +49,17 @@
           </StackLayout>
         </StackLayout>
       </ScrollView>
+
+      <StackLayout
+        v-else-if="projectList.length === 0"
+        row="1"
+        class="noProjectsMessage"
+      >
+        <StackLayout class="noProjectsMessage__item">
+          <Label class="text--white" text="Nie masz żadnych projektów!" />
+        </StackLayout>
+      </StackLayout>
+
       <fab
         row="1"
         @tap="openAddProjectModal"
@@ -148,5 +163,19 @@ export default {
   margin-bottom: 20px;
   font-size: 18px;
   text-align: center;
+}
+
+.noProjectsMessage {
+  width: 100%;
+  height: 100vh;
+  verticalalignment: "center";
+  horizontalalignment: "center";
+
+  &__item {
+    verticalalignment: "center";
+    horizontalalignment: "center";
+    text-align: center;
+    font-size: 16;
+  }
 }
 </style>

@@ -29,7 +29,8 @@
         textAlignment="center"
         class="addProjectHeader"
       />
-      <TextField
+      <TextView
+        editable="true"
         v-model="desc"
         hint="Wpisz opis projektu"
         class="addProjectTextField"
@@ -79,16 +80,23 @@ export default {
       priority: 0,
       name: "",
       desc: "",
-      deadline: "",
+      deadline: Date.now(),
       isSingleMode: true,
       imageAssets: [],
       imageSrc: null,
       previewSize: 300,
       thumbSize: 80,
       error: null,
-
       today: Date.now(),
     };
+  },
+
+  mounted() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    this.deadline = tomorrow;
   },
 
   computed: {
