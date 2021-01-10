@@ -19,48 +19,6 @@ const getters = {
 const mutations = {};
 
 const actions = {
-  editTodo({}, { projectID, todoGroup, todoIndex, todo }) {
-    console.log("editTodo");
-    const todoGroupRef = firebase.firestore
-      .collection("projects/" + projectID + "/todo")
-      .doc(todoGroup.id);
-
-    const users = [];
-
-    todo.users.forEach((user) => {
-      users.push(user.uid);
-    });
-
-    const todos = todoGroup.todos;
-
-    todos.forEach((item, index) => {
-      if (index === todoIndex) {
-        todos.splice(index, 1, todo);
-        return;
-      }
-
-      item.users.forEach((user) => {
-        user.data.delete();
-      });
-    });
-
-    console.log("formatted todos");
-    console.log(todos);
-
-    return todoGroupRef
-      .update({
-        todos: [],
-      })
-      .then(async () => {
-        await todoGroupRef.update({
-          todos: todos,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  },
-
   deleteTodo({ dispatch }, { projectID, todoGroupID, todo }) {
     const todoGroupRef = firebase.firestore
       .collection("projects/" + projectID + "/todo")
@@ -146,7 +104,6 @@ const actions = {
       const serialize = (doc) => {
         let data = doc.data();
 
-        //todo refactor this!
         data.todos.forEach((todo, i) => {
           todo.users.forEach((todoUser, j) => {
             const user = rootGetters.users.find(

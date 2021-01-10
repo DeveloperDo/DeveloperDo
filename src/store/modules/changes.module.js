@@ -54,7 +54,6 @@ const mutations = {
 const actions = {
   addHistory({ rootGetters }, changeName) {
     const projectID = rootGetters.project.id;
-    const user = rootGetters.getUser;
 
     const historyRef = firebase.firestore.collection(
       "projects/" + projectID + "/changes"
@@ -62,7 +61,7 @@ const actions = {
 
     historyRef
       .add({
-        name: "(" + user.name + ") " + changeName,
+        name: changeName,
       })
       .then(async (change) => {
         await historyRef.doc(change.id).update({

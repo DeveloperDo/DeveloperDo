@@ -156,7 +156,6 @@
                 :key="index"
                 class="taskCard"
                 flexDirection="row"
-                @longPress="editTodo(todoGroup, task)"
               >
                 <FlexboxLayout padding="20px" flexDirection="column">
                   <Label :text="task.name" class="taskText" textWrap="true" />
@@ -299,7 +298,6 @@ import translateStatus from "../mixins/translateStatus";
 import translatePriority from "../mixins/translatePriority";
 import readTimestamp from "../mixins/readTimestamp";
 import { ObservableArray } from "tns-core-modules/data/observable-array";
-import EditTodoModal from "../components/Modals/EditTodoModal";
 
 export default {
   components: { Spinner },
@@ -419,17 +417,6 @@ export default {
       if (lastIndex < 0) return;
 
       chatList.scrollToIndex(lastIndex, animate);
-    },
-
-    editTodo(todoGroup, task) {
-      this.$showModal(EditTodoModal, {
-        props: {
-          users: this.users,
-          todoGroup: todoGroup,
-          projectID: this.project.id,
-          todo: task,
-        },
-      });
     },
 
     deleteTodo(todoGroupID, task) {
