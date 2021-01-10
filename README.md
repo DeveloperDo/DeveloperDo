@@ -11,4 +11,4 @@ Do kompilacji kodu aplikacji na emulatorze bądź połączonym urządzeniu nale�
 3. Zainstalować zależności projektu poprzez komendę npm install, można wykorzystać w tym celu również yarn.
 4. Uruchomić projekt za pomocą tns run android
 
-Alternatywnie można pobrać [plik APK](https://firebasestorage.googleapis.com/v0/b/developerdo-dcf39.appspot.com/o/apk%2Fdeveloper-do.apk?alt=media&token=554f233c-33d6-44fa-8b74-7d214beb3f7f)
+Alternatywnie można pobrać [plik APK](https://firebasestorage.googleapis.com/v0/b/developerdo-dcf39.appspot.com/o/apk%2Fdeveloper-do.apk?alt=media&token=2c5ec942-f432-4c90-9cfd-625eed94652f)
