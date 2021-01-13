@@ -235,7 +235,7 @@ const actions = {
 
     project.status = 0;
     project.users = [uid];
-    project.roles = [{ uid: uid, role: "role" }];
+    project.roles = [{ uid: uid, role: "" }];
     project.changes = [];
     project.imageSrc = null;
 

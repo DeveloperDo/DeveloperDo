@@ -88,6 +88,7 @@ export default {
   methods: {
     hideErrors() {
       if (this.showErrors) {
+        this.$store.commit("resetAuthError");
         this.showErrors = false;
       }
     },
@@ -98,6 +99,7 @@ export default {
     },
 
     login() {
+      this.$store.commit("resetAuthError");
       this.showErrors = true;
 
       if (this.$v.$invalid || this.authIsLoading) {
